@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>한지웅의 아카이브 — 연구 · 개발 · 독서</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#000;
+  --fg:#fff;
+  --dim:#8a8a8a;
+  --rule:#242424;
+  --paper:#ebe9e3;
+  --ink:#121212;
+  --red:#e0301e;
+  --pad:22px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:"Pretendard","Helvetica Neue",Helvetica,"Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
+  font-size:12px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-0.01em;
+}
+a{color:inherit;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
+a:hover{color:var(--red);text-decoration-color:var(--red)}
+:focus-visible{outline:1px solid var(--red);outline-offset:2px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;letter-spacing:inherit}
+ul{list-style:none;margin:0;padding:0}
+h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- page frame : 명시적 area 배치 ---------- */
+.page{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 156px;
+  grid-template-areas:
+    "head rail"
+    "main rail"
+    "foot foot";
+  align-items:start;
+  gap:0 28px;
+  padding:var(--pad);
+  max-width:1180px;
+}
+.masthead{grid-area:head}
+.rail{grid-area:rail;min-width:0}
+.main{grid-area:main;min-width:0}
+.foot{grid-area:foot;min-width:0}
+
+/* ---------- masthead ---------- */
+.masthead{
+  display:grid;
+  grid-template-columns:minmax(160px,1.35fr) minmax(0,3fr);
+  gap:0 20px;
+  align-items:start;
+  padding-bottom:34px;
+}
+.brand h1{font-size:13px}
+.brand p{margin:1px 0 0;color:var(--dim);letter-spacing:.055em}
+.navrow ul{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0 20px;
+}
+.navrow a{white-space:nowrap}
+
+/* ---------- right rail ---------- */
+.search{
+  display:block;
+  width:100%;
+  background:#fff;
+  border:0;
+  color:#111;
+  font:inherit;
+  padding:3px 6px;
+  border-radius:2px;
+}
+.search::placeholder{color:#8f8f8f}
+.rail .status{margin:12px 0 0}
+.rail .updates{margin-top:30px}
+.rail .updates h3{font-weight:400}
+.rail .updates li{margin-top:16px}
+.rail .updates .d{display:block}
+
+/* ---------- index bar ---------- */
+.indexbar{padding-bottom:26px}
+.indexbar h2{font-size:13px;margin-bottom:2px}
+.controls{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 14px}
+.controls .set{display:flex;gap:0 5px;align-items:baseline}
+.controls .sep{color:var(--dim)}
+.ctl{text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px;color:var(--dim)}
+.ctl:hover{color:var(--red);text-decoration-color:var(--red)}
+.ctl[aria-pressed="true"]{color:var(--fg);text-decoration-color:var(--fg)}
+.tally{color:var(--dim);margin-left:auto;padding-left:14px}
+
+/* ---------- year groups + grid ---------- */
+.year{margin-bottom:34px}
+.year > h3{font-size:13px;margin-bottom:9px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:20px;
+}
+.item{display:block;text-decoration:none;color:inherit;min-width:0}
+.item:hover{color:inherit}
+/* padding 비율 박스 — aspect-ratio 미지원 환경에서도 높이 보장 */
+.frame{
+  display:block;
+  position:relative;
+  width:100%;
+  height:0;
+  padding-top:137%;
+  overflow:hidden;
+  background:var(--paper);
+  color:var(--ink);
+}
+.item:hover .frame,
+.item:focus-visible .frame{box-shadow:0 0 0 1px var(--red)}
+.cap{display:flex;gap:0 8px;margin-top:6px;color:var(--dim)}
+.cap .t{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item:hover .cap .t{color:var(--fg)}
+.cap .n{flex:0 0 auto}
+
+.empty{color:var(--dim);padding:4px 0 40px;max-width:38em}
+.empty b{display:block;color:var(--fg);font-weight:400}
+
+.foot{
+  border-top:1px solid var(--rule);
+  margin-top:6px;
+  padding-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0 18px;
+  color:var(--dim);
+}
+
+/* ---------- cover templates ---------- */
+.cv{position:absolute;top:0;right:0;bottom:0;left:0;padding:9px;display:flex;flex-direction:column;overflow:hidden}
+.cv.dark{background:#0a0a0a;color:#f2f2f2}
+
+/* T1 gridnum */
+.t-gridnum .row{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.t-gridnum .kick{font-size:9px;line-height:1.25;max-width:56%}
+.t-gridnum .no{font-size:26px;line-height:.82;letter-spacing:-0.04em;flex:0 0 auto}
+.t-gridnum .mid{margin:auto 0;display:flex;gap:10px}
+.t-gridnum .mid span{font-size:10px;line-height:1.25;display:block;min-width:0}
+.t-gridnum .mid .a{flex:1 1 60%}
+.t-gridnum .mid .b{flex:1 1 40%;color:#6d6d6d}
+.t-gridnum .foot{font-size:9px;color:#6d6d6d}
+
+/* T2 stack */
+.t-stack{justify-content:center;align-items:center;text-align:center}
+.t-stack .rule{position:absolute;left:9px;right:9px;top:26px;height:1px;background:#c9c6bf}
+.t-stack .l1{font-size:11px;line-height:1.25}
+.t-stack .l2{font-size:8.5px;line-height:1.35;color:#5f5f5f;margin-top:2px}
+.t-stack .l3{font-size:7.5px;line-height:1.35;color:#9c988f;margin-top:1px}
+
+/* T3 mono */
+.t-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.t-mono .head{font-size:9px;color:#7c7c7c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-mono .lines{margin:auto 0;font-size:9px;line-height:1.55}
+.t-mono .lines span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-mono .lines .hi{color:#fff}
+.t-mono .lines .lo{color:#6f6f6f}
+.t-mono .caret{width:6px;height:10px;background:var(--red);display:block;flex:0 0 auto}
+
+/* T4 alpha */
+.t-alpha .abc{font-size:10px;line-height:1.35;color:#8d8a83;letter-spacing:.08em}
+.t-alpha .word{margin-top:auto;font-size:12px;line-height:1.2;color:var(--ink)}
+.t-alpha .sub{font-size:8.5px;color:#6d6d6d;margin-top:3px}
+
+/* T5 plate */
+.t-plate{justify-content:center;text-align:center;padding:9px 11px}
+.t-plate .top{position:absolute;left:11px;right:11px;top:11px;border-top:1px solid #1a1a1a}
+.t-plate .bot{position:absolute;left:11px;right:11px;bottom:11px;border-top:1px solid #1a1a1a}
+.t-plate .ttl{font-size:13px;line-height:1.25;letter-spacing:-0.02em}
+.t-plate .au{font-size:9px;color:#5f5f5f;margin-top:7px}
+.t-plate .yr{font-size:8.5px;color:#8e8a82;margin-top:2px}
+
+/* T6 spine */
+.t-spine{flex-direction:row;align-items:stretch;justify-content:space-between;gap:6px}
+.t-spine .meta{font-size:8.5px;color:#8d8d8d;line-height:1.45;flex:0 0 auto}
+.t-spine .vert{writing-mode:vertical-rl;font-size:11px;line-height:1.15;align-self:flex-start;max-height:100%;overflow:hidden;flex:0 0 auto}
+.t-spine .vert.accent{color:var(--red)}
+
+/* T7 redbar */
+.t-redbar .bar{background:var(--red);color:#fff;padding:8px;margin:-9px -9px 0;min-height:47%;display:flex;align-items:flex-end}
+.t-redbar .bar span{font-size:12px;line-height:1.2}
+.t-redbar .body{margin-top:auto;font-size:9px;line-height:1.45;color:#5f5f5f}
+
+/* ---------- load-in ---------- */
+@media (prefers-reduced-motion:no-preference){
+  .item{animation:rise .34s cubic-bezier(.2,.6,.2,1) both}
+}
+@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:820px){
+  .page{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"rail" "head" "main" "foot";
+    gap:0;
+  }
+  .rail{padding-bottom:28px;max-width:320px}
+  .rail .updates{margin-top:18px}
+  .rail .updates ul{display:flex;flex-wrap:wrap;gap:0 20px}
+  .masthead{grid-template-columns:minmax(0,1fr);gap:18px 0}
+  .navrow ul{display:flex;flex-wrap:wrap;gap:0 20px}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:520px){
+  :root{--pad:16px}
+  .navrow ul{gap:0 16px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 14px}
+  .tally{margin-left:0;padding-left:0;width:100%}
+}
+
+
+/* ================= 꺼내보기 트리거 ================= */
+.pullout{display:flex;align-items:center;gap:9px;margin:0 0 16px}
+.pull-bars{display:flex;align-items:flex-end;gap:2px;height:16px;flex:0 0 auto}
+.pull-bars i{display:block;width:2px;height:16px;background:#565656}
+.pull-link{font-size:15px;line-height:1.2;letter-spacing:-0.012em;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:.5px}
+.pullout:hover .pull-link{color:var(--red);text-decoration-color:var(--red)}
+.pullout:hover .pull-bars i{background:var(--red)}
+@media (prefers-reduced-motion:no-preference){
+  .pull-bars i{transition:transform .28s cubic-bezier(.2,.7,.2,1),background .28s ease}
+  .pullout:hover .pull-bars i:nth-child(1){transform:translate(-4px,4px)}
+  .pullout:hover .pull-bars i:nth-child(2){transform:translate(-2px,2px)}
+  .pullout:hover .pull-bars i:nth-child(4){transform:translate(2px,-2px)}
+  .pullout:hover .pull-bars i:nth-child(5){transform:translate(4px,-4px)}
+}
+
+/* ================= shelf 오버레이 (직교투영 3D) ================= */
+[hidden]{display:none!important}
+.shelf{position:fixed;top:0;right:0;bottom:0;left:0;z-index:60;background:#000;display:flex;flex-direction:column;overflow:hidden}
+.sh-top{display:flex;align-items:baseline;gap:16px;padding:18px 22px 0;flex:0 0 auto;position:relative;z-index:5}
+.sh-date{flex:0 0 120px;color:var(--dim);font-variant-numeric:tabular-nums}
+.sh-lead{flex:1;text-align:center}
+.sh-close{flex:0 0 auto;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
+.sh-close:hover{color:var(--red);text-decoration-color:var(--red)}
+
+.sh-stage{position:relative;flex:1 1 auto;overflow:hidden;cursor:ew-resize;touch-action:none}
+.sh-stage.pinned{cursor:default}
+
+/* perspective 를 주지 않아 소실점이 없는 평행(직교) 투영이 된다 */
+.sh-rack{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+@media (prefers-reduced-motion:no-preference){
+  .sh-rack{transition:transform .42s cubic-bezier(.2,.72,.2,1)}
+}
+
+/* 낱장 = 줄에 수직으로 꽂힌 판. z-index 를 쓰지 않고 3D 깊이로 가림 처리 */
+.slab{position:absolute;padding:0;border:0;background:none;cursor:pointer;transform-style:flat;backface-visibility:hidden}
+@media (prefers-reduced-motion:no-preference){
+  .slab{transition:transform .46s cubic-bezier(.2,.75,.2,1)}
+}
+.slab .face{position:absolute;top:0;right:0;bottom:0;left:0;overflow:hidden;background:var(--paper);color:var(--ink)}
+/* 오른쪽 = 책등, 위쪽 = 책배(종이 단면). 쌓였을 때 실제로 보이는 두 면 */
+.slab .spine{position:absolute;top:0;right:0;bottom:0;display:flex;align-items:flex-end;justify-content:center;padding:10px 1px;overflow:hidden}
+.slab .sp-t{writing-mode:vertical-rl;font-size:8px;line-height:1;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;max-height:100%}
+.slab .edge{position:absolute;top:0;left:0;right:0}
+.slab .edge i{position:absolute;left:0;right:0;height:1px}
+@media (prefers-reduced-motion:no-preference){
+  .slab .spine,.slab .edge{transition:opacity .3s ease}
+}
+.slab.is-out .spine,.slab.is-out .edge{opacity:0}
+.slab:focus-visible{outline:1px solid var(--red);outline-offset:3px}
+
+.sh-tick{position:absolute;font-size:10px;color:#6d6d6d;white-space:nowrap;font-variant-numeric:tabular-nums;pointer-events:none}
+.sh-tick::before{content:"";position:absolute;top:-10px;left:0;width:1px;height:7px;background:#3b3b3b}
+
+.sh-tags{position:absolute;right:22px;top:50%;transform:translateY(-50%);text-align:right;pointer-events:none;z-index:6}
+.sh-tags li{font-size:10px;line-height:1.65;color:#4a4a4a}
+.sh-tags li.on{color:#fff}
+.sh-tags .n{font-size:7px;vertical-align:super;margin-left:3px;color:#3f3f3f}
+.sh-tags li.on .n{color:var(--red)}
+
+.sh-foot{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:0 22px 20px;position:relative;z-index:5}
+.sh-info{min-height:44px;max-width:46ch}
+.sh-info .t{font-size:15px;line-height:1.25}
+.sh-info .m{color:var(--dim);margin-top:3px}
+.sh-hint{color:#585858;text-align:right;flex:0 0 auto}
+.sh-hint .on{color:var(--red)}
+
+@media (prefers-reduced-motion:no-preference){
+  .slab .face,.slab .spine,.slab .edge{animation:slabIn .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:inherit}
+}
+@keyframes slabIn{from{opacity:0}to{opacity:1}}
+
+@media (max-width:820px){
+  .sh-tags,.sh-hint{display:none}
+  .sh-lead{text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <h1>한지웅의 아카이브</h1>
+      <p>HAN JIUNG ARCHIVE</p>
+    </div>
+    <nav class="navrow" aria-label="메뉴">
+      <ul>
+        <li><a href="#index">지금 하는 일</a></li>
+        <li><a href="#index">노트</a></li>
+        <li><a href="#index">소개</a></li>
+        <li><a href="#index">연락</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <aside class="rail">
+    <label class="sr-only" for="q">검색</label>
+    <input id="q" class="search" type="search" placeholder="검색" autocomplete="off">
+    <p class="status">2026년 기록 업데이트 중</p>
+    <div class="updates">
+      <h3>최근 기록</h3>
+      <ul id="updates"></ul>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="indexbar" id="index">
+      <p class="pullout">
+        <span class="pull-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <button class="pull-link" id="openShelf">Pull them out in order</button>
+      </p>
+      <h2>색인</h2>
+      <div class="controls">
+        <div class="set" role="group" aria-label="분류">
+          <button class="ctl" data-cat="all" aria-pressed="true">전체</button><span class="sep">/</span>
+          <button class="ctl" data-cat="research" aria-pressed="false">연구</button><span class="sep">/</span>
+          <button class="ctl" data-cat="dev" aria-pressed="false">개발</button><span class="sep">/</span>
+          <button class="ctl" data-cat="read" aria-pressed="false">독서</button>
+        </div>
+        <div class="set" role="group" aria-label="정렬">
+          <button class="ctl" data-sort="recent" aria-pressed="true">최신순</button><span class="sep">/</span>
+          <button class="ctl" data-sort="random" aria-pressed="false">무작위</button>
+        </div>
+        <span class="tally" id="tally"></span>
+      </div>
+    </section>
+    <div id="out"></div>
+  </main>
+
+  <footer class="foot">
+    <span>© 2026</span>
+    <span>마지막 갱신 2026.09.12</span>
+    <span><a href="#index">맨 위로</a></span>
+  </footer>
+</div>
+
+
+<div class="shelf" id="shelf" hidden role="dialog" aria-modal="true" aria-label="시간 순서로 꺼내보기">
+  <div class="sh-top">
+    <span class="sh-date" id="shDate"></span>
+    <span class="sh-lead">Pull them out in order</span>
+    <button class="sh-close" id="shClose">닫기</button>
+  </div>
+  <div class="sh-stage" id="shStage">
+    <div class="sh-rack" id="shRack"></div>
+  </div>
+  <nav class="sh-tags" id="shTags" aria-hidden="true"></nav>
+  <div class="sh-foot">
+    <div class="sh-info" id="shInfo"></div>
+    <div class="sh-hint" id="shHint"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA — 이 배열만 교체하면 됩니다.
+   cat   : research | dev | read
+   cover : gridnum | stack | mono | alpha | plate | spine | redbar
+   ========================================================= */
+const CAT = {research:'연구', dev:'개발', read:'독서'};
+
+const ITEMS = [
+  {id:'r-014', cat:'research', date:'2026-08-21', title:'확산모델 기반 생성 실험 정리', sub:'실험 노트', meta:'Note 14', cover:'gridnum', tags:'생성모델 실험'},
+  {id:'d-022', cat:'dev',      date:'2026-08-09', title:'아카이브 사이트 v1', sub:'정적 사이트 + 색인', meta:'archive-site', cover:'mono', tags:'html css 바이브코딩'},
+  {id:'b-031', cat:'read',     date:'2026-07-30', title:'생각에 관한 생각', sub:'대니얼 카너먼', meta:'2011', cover:'plate', tags:'인지 심리'},
+  {id:'r-013', cat:'research', date:'2026-07-12', title:'선행연구 30편 비교표', sub:'리뷰', meta:'Review 03', cover:'alpha', tags:'문헌조사'},
+  {id:'d-021', cat:'dev',      date:'2026-06-28', title:'논문 PDF 파서', sub:'표·그림 추출 파이프라인', meta:'pdf-parse', cover:'redbar', tags:'python 파이프라인'},
+  {id:'b-030', cat:'read',     date:'2026-06-05', title:'디자인의 디자인', sub:'하라 켄야', meta:'2003', cover:'spine', tags:'디자인'},
+  {id:'r-012', cat:'research', date:'2026-05-19', title:'측정 오차 재현 실험', sub:'3차 반복', meta:'Note 12', cover:'spine', tags:'실험 통계'},
+  {id:'d-020', cat:'dev',      date:'2026-04-27', title:'읽은 책 추적기', sub:'로컬 우선 웹앱', meta:'reading-log', cover:'mono', tags:'웹앱 바이브코딩'},
+  {id:'b-029', cat:'read',     date:'2026-04-02', title:'사피엔스', sub:'유발 하라리', meta:'2011', cover:'plate', tags:'역사'},
+  {id:'r-011', cat:'research', date:'2026-03-14', title:'학회 발표 슬라이드', sub:'구두 발표 12분', meta:'Talk 02', cover:'gridnum', tags:'발표'},
+
+  {id:'d-019', cat:'dev',      date:'2025-12-18', title:'CLI 메모 도구', sub:'터미널에서 쓰는 기록', meta:'jot', cover:'alpha', tags:'cli rust'},
+  {id:'b-028', cat:'read',     date:'2025-11-22', title:'단단한 개발자', sub:'독서 메모', meta:'2019', cover:'stack', tags:'개발 에세이'},
+  {id:'r-010', cat:'research', date:'2025-10-08', title:'데이터셋 정제 기준', sub:'라벨링 가이드', meta:'Note 10', cover:'alpha', tags:'데이터 라벨링'},
+  {id:'d-018', cat:'dev',      date:'2025-09-03', title:'논문 크롤러', sub:'arXiv 수집 스크립트', meta:'paper-crawl', cover:'mono', tags:'크롤러 python'},
+  {id:'b-027', cat:'read',     date:'2025-07-16', title:'총, 균, 쇠', sub:'재러드 다이아몬드', meta:'1997', cover:'spine', tags:'역사'},
+  {id:'r-009', cat:'research', date:'2025-05-29', title:'평가지표 설계 메모', sub:'초안', meta:'Note 09', cover:'gridnum', tags:'평가 지표'},
+
+  {id:'d-017', cat:'dev',      date:'2024-12-11', title:'포트폴리오 리빌드', sub:'정적 생성기 이전', meta:'portfolio', cover:'redbar', tags:'프론트엔드'},
+  {id:'b-026', cat:'read',     date:'2024-10-05', title:'미움받을 용기', sub:'기시미 이치로', meta:'2013', cover:'stack', tags:'철학'},
+  {id:'r-008', cat:'research', date:'2024-08-20', title:'첫 논문 투고본', sub:'v1 제출', meta:'Paper 01', cover:'plate', tags:'논문 투고'},
+  {id:'d-016', cat:'dev',      date:'2024-06-14', title:'실험 결과 대시보드', sub:'로그 시각화', meta:'exp-board', cover:'alpha', tags:'시각화'},
+];
+
+/* ========================= covers ========================= */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const parts = d => ({y4:d.slice(0,4), y:d.slice(2,4), m:d.slice(5,7), d:d.slice(8,10)});
+
+function cover(it){
+  const t = esc(it.title), s = esc(it.sub), m = esc(it.meta), k = esc(CAT[it.cat]);
+  const p = parts(it.date);
+  const num = (it.id.match(/\d+/) || ['0'])[0];
+
+  switch(it.cover){
+    case 'gridnum': return '<div class="cv t-gridnum">'
+      + '<div class="row"><span class="kick">' + k + '<br>' + s + '</span><span class="no">' + num + '</span></div>'
+      + '<div class="mid"><span class="a">' + t + '</span><span class="b">' + m + '</span></div>'
+      + '<div class="foot">' + p.m + ' · ' + p.y + '</div>'
+      + '</div>';
+
+    case 'stack': return '<div class="cv t-stack">'
+      + '<div class="rule"></div>'
+      + '<div class="l1">' + t + '</div>'
+      + '<div class="l2">' + s + '</div>'
+      + '<div class="l3">' + k + ' ' + m + '</div>'
+      + '<div class="l3">' + k + ' ' + m + '</div>'
+      + '</div>';
+
+    case 'mono': return '<div class="cv t-mono dark">'
+      + '<div class="head">~/' + m + '</div>'
+      + '<div class="lines">'
+      +   '<span class="hi">' + t + '</span>'
+      +   '<span class="lo">' + s + '</span>'
+      +   '<span class="lo">' + esc(it.tags) + '</span>'
+      +   '<span class="lo">— ' + p.m + '/' + p.y + '</span>'
+      + '</div>'
+      + '<span class="caret" aria-hidden="true"></span>'
+      + '</div>';
+
+    case 'alpha': return '<div class="cv t-alpha">'
+      + '<div class="abc">a bcd<br>e fgh<br>i jkl<br>m no<br>p qrs<br>t uv<br>w xyz</div>'
+      + '<div class="word">' + t + '</div>'
+      + '<div class="sub">' + k + ' ' + m + ' / ' + p.m + '.' + p.y + '</div>'
+      + '</div>';
+
+    case 'plate': return '<div class="cv t-plate">'
+      + '<div class="top"></div>'
+      + '<div class="ttl">' + t + '</div>'
+      + '<div class="au">' + s + '</div>'
+      + '<div class="yr">' + m + '</div>'
+      + '<div class="bot"></div>'
+      + '</div>';
+
+    case 'spine': return '<div class="cv t-spine dark">'
+      + '<div class="meta">' + k + '<br>' + p.m + '.' + p.y + '<br>' + m + '</div>'
+      + '<div class="vert' + (it.cat === 'read' ? ' accent' : '') + '">' + t + '</div>'
+      + '</div>';
+
+    case 'redbar': return '<div class="cv t-redbar">'
+      + '<div class="bar"><span>' + t + '</span></div>'
+      + '<div class="body">' + k + ' / ' + m + '<br>' + s + '<br>' + p.m + '.' + p.y + '</div>'
+      + '</div>';
+  }
+  return '';
+}
+
+/* ========================= render ========================= */
+const out = document.getElementById('out');
+const tally = document.getElementById('tally');
+const state = {cat:'all', sort:'recent', q:''};
+
+function card(it, i){
+  const p = parts(it.date);
+  return '<a class="item" href="#' + it.id + '" style="animation-delay:' + (Math.min(i,24) * 16) + 'ms">'
+    + '<span class="frame">' + cover(it) + '</span>'
+    + '<span class="cap"><span class="t">' + esc(it.title) + '</span><span class="n">' + p.m + '.' + p.d + '</span></span>'
+    + '</a>';
+}
+
+function filtered(){
+  const q = state.q.trim().toLowerCase();
+  let list = ITEMS.filter(function(it){
+    const inCat = state.cat === 'all' || it.cat === state.cat;
+    const hay = (it.title + ' ' + it.sub + ' ' + it.meta + ' ' + it.tags + ' ' + CAT[it.cat]).toLowerCase();
+    return inCat && (!q || hay.indexOf(q) !== -1);
+  });
+  list.sort((a,b) => b.date.localeCompare(a.date));
+  if (state.sort === 'random'){
+    for (let i = list.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+    }
+  }
+  return list;
+}
+
+function render(){
+  const list = filtered();
+  tally.textContent = list.length + '개';
+
+  if (!list.length){
+    out.innerHTML = '<p class="empty"><b>해당하는 기록이 없습니다.</b>검색어를 지우거나 분류를 \u2018전체\u2019로 바꿔 보세요.</p>';
+    return;
+  }
+
+  if (state.sort === 'random'){
+    out.innerHTML = '<section class="year"><h3>무작위</h3><div class="grid">'
+      + list.map(card).join('') + '</div></section>';
+    return;
+  }
+
+  const years = [];
+  list.forEach(it => { const y = it.date.slice(0,4); if (years.indexOf(y) === -1) years.push(y); });
+
+  let n = 0;
+  out.innerHTML = years.map(function(y){
+    const rows = list.filter(it => it.date.slice(0,4) === y).map(it => card(it, n++)).join('');
+    return '<section class="year"><h3>' + y + '</h3><div class="grid">' + rows + '</div></section>';
+  }).join('');
+}
+
+function renderUpdates(){
+  const recent = ITEMS.slice().sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
+  document.getElementById('updates').innerHTML = recent.map(function(it){
+    const p = parts(it.date);
+    return '<li><span class="d">' + p.d + '.' + p.m + '.' + p.y + '</span>'
+      + '<a href="#' + it.id + '">' + esc(it.title) + '</a></li>';
+  }).join('');
+}
+
+document.querySelectorAll('[data-cat]').forEach(function(b){
+  b.addEventListener('click', function(){
+    state.cat = b.dataset.cat;
+    document.querySelectorAll('[data-cat]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    render();
+  });
+});
+
+document.querySelectorAll('[data-sort]').forEach(function(b){
+  b.addEventListener('click', function(){
+    state.sort = b.dataset.sort;
+    document.querySelectorAll('[data-sort]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    render();
+  });
+});
+
+let timer;
+document.getElementById('q').addEventListener('input', function(e){
+  clearTimeout(timer);
+  const v = e.target.value;
+  timer = setTimeout(function(){ state.q = v; render(); }, 120);
+});
+
+renderUpdates();
+render();
+
+/* =========================================================
+   SHELF — 직교투영 3D 선반
+   카메라: rotateX(-32deg) rotateY(38deg), perspective 없음
+     · 세로선은 수직 유지
+     · 줄(world X)은 화면상 왼쪽 아래 → 오른쪽 위
+     · +X 가 시점에서 멀어지므로 앞쪽(왼쪽 아래) 장이 뒤를 가린다
+   ========================================================= */
+(function(){
+  var shelf  = document.getElementById('shelf');
+  var stage  = document.getElementById('shStage');
+  var rack   = document.getElementById('shRack');
+  var info   = document.getElementById('shInfo');
+  var dateEl = document.getElementById('shDate');
+  var tagsEl = document.getElementById('shTags');
+  var hintEl = document.getElementById('shHint');
+  var openBtn  = document.getElementById('openShelf');
+  var closeBtn = document.getElementById('shClose');
+
+  var RX = -32, RY = 38;                 // 카메라 각도
+  var CAM  = 'rotateX(' + RX + 'deg) rotateY(' + RY + 'deg)';
+  var BILL = 'rotateY(' + (-RY) + 'deg) rotateX(' + (-RX) + 'deg)';  // 카메라 상쇄(정면 고정)
+
+  var list = [], active = 0, pinned = false, dragging = false;
+  var W = 0, H = 0, STEP = 26, GAP = 46, PULL = 0, LIFT = 0, SPINE = 38, EDGE = 30;
+
+  function dims(){
+    H     = Math.max(180, Math.min(300, Math.round(window.innerHeight * 0.34)));
+    W     = Math.round(H / 1.37);
+    STEP  = window.innerWidth < 640 ? 17 : 26;
+    SPINE = Math.round(STEP * 1.45);
+    EDGE  = Math.round(STEP * 1.15);
+    GAP   = Math.round(STEP * 1.9);
+    PULL  = Math.round(STEP * 1.7);
+    LIFT  = Math.round(H * 0.80);
+  }
+
+  function build(){
+    dims();
+    list = ITEMS.slice().sort(function(a, b){ return a.date.localeCompare(b.date); });
+
+    var tones = ['#ebe9e3', '#e2dfd7', '#f3f1ec'];
+    var html = '', lastYear = '';
+
+    list.forEach(function(it, i){
+      var dark = it.cat === 'dev';
+      var bg   = dark ? '#101010' : tones[i % 3];
+      var fg   = dark ? '#cfcfcf' : '#1a1a1a';
+      var ln   = dark ? '#2a2a2a' : '#cbc8c1';
+
+      html += '<button class="slab" type="button" data-i="' + i + '"'
+           +  ' aria-label="' + esc(it.title) + '"'
+           +  ' style="left:' + (-W / 2) + 'px;top:' + (-H / 2) + 'px;'
+           +  'width:' + W + 'px;height:' + H + 'px;'
+           +  'animation-delay:' + Math.min(i * 26, 700) + 'ms">'
+           +  '<span class="face">' + cover(it) + '</span>'
+           +  '<span class="edge" style="height:' + EDGE + 'px;background:' + bg + '">'
+           +    '<i style="top:' + Math.round(EDGE * 0.34) + 'px;background:' + ln + '"></i>'
+           +    '<i style="top:' + Math.round(EDGE * 0.62) + 'px;background:' + ln + '"></i>'
+           +    '<i style="bottom:0;background:' + ln + '"></i>'
+           +  '</span>'
+           +  '<span class="spine" style="width:' + SPINE + 'px;background:' + bg
+           +  ';color:' + fg + ';box-shadow:inset 1px 0 0 ' + ln + '">'
+           +  '<span class="sp-t">' + esc(it.title) + '</span></span>'
+           +  '</button>';
+
+      var y = it.date.slice(0, 4);
+      if (y !== lastYear){
+        lastYear = y;
+        html += '<span class="sh-tick" data-x="' + (i * STEP) + '" style="left:0;top:'
+             +  Math.round(H / 2 + 26) + 'px;transform:translateX(' + (i * STEP) + 'px) ' + BILL + '">'
+             +  y + '</span>';
+      }
+    });
+
+    rack.innerHTML = html;
+  }
+
+  function layout(){
+    rack.style.transform = CAM + ' translateX(' + (-(active * STEP)) + 'px)';
+
+    var slabs = rack.querySelectorAll('.slab');
+    for (var k = 0; k < slabs.length; k++){
+      var el = slabs[k];
+      var i  = +el.dataset.i;
+      var x  = i * STEP;
+      if (i === active){
+        el.classList.add('is-out');
+        el.style.transform = 'translateX(' + (x - PULL) + 'px) translateY(' + (-LIFT)
+                           + 'px) rotateY(-90deg)';
+      } else {
+        el.classList.remove('is-out');
+        el.style.transform = 'translateX(' + (x + (i > active ? GAP : 0)) + 'px) rotateY(-90deg)';
+      }
+    }
+  }
+
+  function paintInfo(){
+    var it = list[active];
+    if (!it) return;
+    info.innerHTML = '<div class="t">' + esc(it.title) + '</div>'
+                   + '<div class="m">' + esc(CAT[it.cat]) + ' · ' + esc(it.sub)
+                   + ' · ' + it.date.replace(/-/g, '.') + ' · ' + esc(it.meta) + '</div>';
+    dateEl.textContent = it.date.replace(/-/g, '.') + '   ' + (active + 1) + ' / ' + list.length;
+    markTags(it);
+  }
+
+  function paintHint(){
+    hintEl.innerHTML = pinned
+      ? '<span class="on">고정됨</span> · 다시 클릭하면 해제 · ← → 이동 · Esc 로 닫기'
+      : '마우스를 좌우로 움직여 넘기기 · 클릭하면 고정 · Esc 로 닫기';
+  }
+
+  function setActive(i){
+    i = Math.max(0, Math.min(list.length - 1, i));
+    if (i === active) return;
+    active = i;
+    layout();
+    paintInfo();
+  }
+
+  function buildTags(){
+    var freq = {};
+    ITEMS.forEach(function(it){
+      it.tags.split(/\s+/).forEach(function(t){ if (t) freq[t] = (freq[t] || 0) + 1; });
+    });
+    var top = Object.keys(freq).sort(function(a, b){
+      return freq[b] - freq[a] || a.localeCompare(b);
+    }).slice(0, 12);
+    tagsEl.innerHTML = '<ul>' + top.map(function(t){
+      return '<li data-t="' + esc(t) + '">' + esc(t) + '<span class="n">' + freq[t] + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  function markTags(it){
+    var set = it ? it.tags.split(/\s+/) : [];
+    tagsEl.querySelectorAll('li').forEach(function(li){
+      li.classList.toggle('on', set.indexOf(li.dataset.t) !== -1);
+    });
+  }
+
+  var pendingX = null, raf = 0;
+  function scrub(){
+    raf = 0;
+    if (pendingX === null) return;
+    var r = stage.getBoundingClientRect();
+    var t = (pendingX - r.left) / r.width;
+    t = Math.max(0, Math.min(1, t));
+    setActive(Math.round(t * (list.length - 1)));
+    pendingX = null;
+  }
+  function queue(x){
+    pendingX = x;
+    if (!raf) raf = requestAnimationFrame(scrub);
+  }
+
+  stage.addEventListener('pointermove', function(e){
+    if (pinned && !dragging) return;
+    queue(e.clientX);
+  });
+  stage.addEventListener('pointerdown', function(e){ dragging = true; queue(e.clientX); });
+  window.addEventListener('pointerup', function(){ dragging = false; });
+
+  stage.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.slab') : null;
+    if (b) setActive(+b.dataset.i);
+    pinned = !pinned;
+    stage.classList.toggle('pinned', pinned);
+    paintHint();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (shelf.hidden) return;
+    if (e.key === 'Escape'){ closeShelf(); return; }
+    var d = 0;
+    if (e.key === 'ArrowRight') d = 1;
+    else if (e.key === 'ArrowLeft') d = -1;
+    else if (e.key === 'Home'){ e.preventDefault(); pin(); setActive(0); return; }
+    else if (e.key === 'End'){ e.preventDefault(); pin(); setActive(list.length - 1); return; }
+    if (!d) return;
+    e.preventDefault();
+    pin();
+    setActive(active + d);
+  });
+
+  function pin(){
+    pinned = true;
+    stage.classList.add('pinned');
+    paintHint();
+  }
+
+  function openShelf(){
+    build();
+    buildTags();
+    active = Math.floor((ITEMS.length - 1) / 2);
+    pinned = false;
+    stage.classList.remove('pinned');
+    shelf.hidden = false;
+    document.body.style.overflow = 'hidden';
+    layout();
+    paintInfo();
+    paintHint();
+    closeBtn.focus();
+  }
+
+  function closeShelf(){
+    shelf.hidden = true;
+    document.body.style.overflow = '';
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener('click', openShelf);
+  closeBtn.addEventListener('click', function(e){ e.stopPropagation(); closeShelf(); });
+
+  var rt;
+  window.addEventListener('resize', function(){
+    if (shelf.hidden) return;
+    clearTimeout(rt);
+    rt = setTimeout(function(){ var keep = active; build(); active = keep; layout(); paintInfo(); }, 180);
+  });
+})();
+
+
+</script>
+</body>
+</html>
