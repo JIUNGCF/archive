@@ -419,17 +419,13 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
         <span class="pull-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
         <button class="pull-link" id="openShelf">Pull them out in order</button>
       </p>
-      <h2>색인</h2>
+      <h2>카테고리</h2>
       <div class="controls">
         <div class="set" role="group" aria-label="분류">
           <button class="ctl" data-cat="all" aria-pressed="true">전체</button><span class="sep">/</span>
           <button class="ctl" data-cat="research" aria-pressed="false">연구</button><span class="sep">/</span>
           <button class="ctl" data-cat="dev" aria-pressed="false">개발</button><span class="sep">/</span>
           <button class="ctl" data-cat="read" aria-pressed="false">독서</button>
-        </div>
-        <div class="set" role="group" aria-label="정렬">
-          <button class="ctl" data-sort="recent" aria-pressed="true">최신순</button><span class="sep">/</span>
-          <button class="ctl" data-sort="random" aria-pressed="false">무작위</button>
         </div>
         <span class="tally" id="tally"></span>
       </div>
@@ -447,7 +443,7 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 
 <div class="detail" id="detail" hidden>
   <header class="dt-top">
-    <a href="#index">← 색인</a>
+    <a href="#index">← 카테고리</a>
     <span class="dt-meta" id="dtMeta"></span>
   </header>
   <div class="dt-body">
@@ -512,7 +508,7 @@ const CAT = {research:'연구', dev:'개발', read:'독서'};
 
 const ITEMS = [
   {id:'r-014', cat:'research', date:'2026-08-21', title:'확산모델 기반 생성 실험 정리', sub:'실험 노트', meta:'Note 14', cover:'gridnum', tags:'생성모델 실험'},
-  {id:'d-022', cat:'dev',      date:'2026-08-09', title:'아카이브 사이트 v1', sub:'정적 사이트 + 색인', meta:'archive-site', cover:'mono', tags:'html css 바이브코딩'},
+  {id:'d-022', cat:'dev',      date:'2026-08-09', title:'아카이브 사이트 v1', sub:'정적 사이트 + 카테고리', meta:'archive-site', cover:'mono', tags:'html css 바이브코딩'},
   {id:'b-031', cat:'read',     date:'2026-07-30', title:'생각에 관한 생각', sub:'대니얼 카너먼', meta:'2011', cover:'plate', tags:'인지 심리'},
   {id:'r-013', cat:'research', date:'2026-07-12', title:'선행연구 30편 비교표', sub:'리뷰', meta:'Review 03', cover:'alpha', tags:'문헌조사'},
   {id:'d-021', cat:'dev',      date:'2026-06-28', title:'논문 PDF 파서', sub:'표·그림 추출 파이프라인', meta:'pdf-parse', cover:'redbar', tags:'python 파이프라인'},
@@ -600,7 +596,7 @@ function cover(it){
 /* ========================= render ========================= */
 const out = document.getElementById('out');
 const tally = document.getElementById('tally');
-const state = {cat:'all', sort:'recent', q:''};
+const state = {cat:'all', q:''};
 
 function card(it, i){
   const p = parts(it.date);
@@ -618,12 +614,6 @@ function filtered(){
     return inCat && (!q || hay.indexOf(q) !== -1);
   });
   list.sort((a,b) => b.date.localeCompare(a.date));
-  if (state.sort === 'random'){
-    for (let i = list.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      const tmp = list[i]; list[i] = list[j]; list[j] = tmp;
-    }
-  }
   return list;
 }
 
@@ -633,12 +623,6 @@ function render(){
 
   if (!list.length){
     out.innerHTML = '<p class="empty"><b>해당하는 기록이 없습니다.</b>검색어를 지우거나 분류를 \u2018전체\u2019로 바꿔 보세요.</p>';
-    return;
-  }
-
-  if (state.sort === 'random'){
-    out.innerHTML = '<section class="year"><h3>무작위</h3><div class="grid">'
-      + list.map(card).join('') + '</div></section>';
     return;
   }
 
@@ -665,14 +649,6 @@ document.querySelectorAll('[data-cat]').forEach(function(b){
   b.addEventListener('click', function(){
     state.cat = b.dataset.cat;
     document.querySelectorAll('[data-cat]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-    render();
-  });
-});
-
-document.querySelectorAll('[data-sort]').forEach(function(b){
-  b.addEventListener('click', function(){
-    state.sort = b.dataset.sort;
-    document.querySelectorAll('[data-sort]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     render();
   });
 });
@@ -911,7 +887,7 @@ render();
 
 /* =========================================================
    DETAIL — 세부 페이지
-   해시가 항목 id(#r-014 …)면 세부, 그 외에는 색인을 보여준다.
+   해시가 항목 id(#r-014 …)면 세부, 그 외에는 카테고리를 보여준다.
    좌측 sticky 도판은 IntersectionObserver 로 본문 스크롤에 따라 교체.
    DETAIL 에 없는 항목은 ITEMS 데이터로 최소 페이지를 생성(fallback).
    ========================================================= */
@@ -937,10 +913,10 @@ const DETAIL = {
     ]
   },
   'd-022': {
-    lead:'이 사이트 자체의 제작 기록. 빌드 도구 없이 index.html 하나로 색인·검색·3D 선반까지 구현했다.',
+    lead:'이 사이트 자체의 제작 기록. 빌드 도구 없이 index.html 하나로 카테고리·검색·3D 선반까지 구현했다.',
     sections:[
       {h:'구성', p:[
-        '전체 데이터는 ITEMS 배열 하나다. 항목을 추가하면 색인 그리드, 최근 기록, 검색, 3D 선반이 전부 따라온다.',
+        '전체 데이터는 ITEMS 배열 하나다. 항목을 추가하면 카테고리 그리드, 최근 기록, 검색, 3D 선반이 전부 따라온다.',
         '프레임워크 없이 문자열 템플릿으로 렌더링한다. 파일 하나를 열면 전부 보인다는 점이 유지보수의 핵심이다.'
       ]},
       {h:'표지 시스템', p:[
@@ -1047,7 +1023,7 @@ const DETAIL = {
         + s.p.map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('')
         + '</section>';
     });
-    html += '<p class="dt-end"><a href="#index">← 색인으로 돌아가기</a></p>';
+    html += '<p class="dt-end"><a href="#index">← 카테고리로 돌아가기</a></p>';
     mainEl.innerHTML = html;
 
     pageEl.hidden = true;
