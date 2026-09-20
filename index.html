@@ -244,6 +244,56 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
   .dt-main{max-width:68ch;padding:0 0 60px}
 }
 
+/* ---------- contact : 메일 초안 ---------- */
+.ct-wrap{max-width:64ch;padding:2vh 0 18vh}
+.ct-h{font-size:20px;line-height:1.25;letter-spacing:-0.02em;display:flex;align-items:center;gap:0 9px;outline:none}
+.ct-caret{display:inline-block;flex:0 0 auto;width:8px;height:18px;background:var(--red)}
+@media (prefers-reduced-motion:no-preference){
+  .ct-caret{animation:ctBlink 1.06s step-end infinite}
+}
+@keyframes ctBlink{0%,100%{opacity:1}50%{opacity:0}}
+.ct-sub{color:var(--dim);line-height:1.7;margin:12px 0 26px;max-width:46em}
+
+/* 행 구분선만으로 형태를 만든다 — 입력 필드 자체에는 테두리가 없다 */
+.ct-row{
+  display:grid;
+  grid-template-columns:86px minmax(0,1fr);
+  gap:0 12px;
+  align-items:start;
+  border-top:1px solid var(--rule);
+  padding:10px 0;
+}
+.ct-lab{color:var(--dim);padding-top:1px}
+.ct-fix{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
+.ct-in,.ct-ta{
+  display:block;
+  width:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--fg);
+  font:inherit;
+  letter-spacing:inherit;
+  caret-color:var(--red);
+}
+.ct-ta{min-height:170px;resize:vertical;line-height:1.7}
+/* 박스 대신 행의 실선과 라벨 색으로 초점을 알린다 */
+.ct-in:focus,.ct-ta:focus,.ct-in:focus-visible,.ct-ta:focus-visible{outline:none}
+.ct-row:focus-within{border-top-color:var(--red)}
+.ct-row:focus-within .ct-lab{color:var(--red)}
+
+.ct-bar{display:flex;align-items:baseline;justify-content:space-between;gap:0 16px;border-top:1px solid var(--rule);padding-top:14px}
+.ct-send{background:var(--fg);color:var(--bg);padding:6px 18px}
+.ct-send:hover{background:var(--red);color:var(--fg)}
+.ct-count{color:var(--dim);font-variant-numeric:tabular-nums}
+.ct-note{color:var(--dim);line-height:1.7;margin:26px 0 0;max-width:46em}
+.ct-links{display:flex;flex-wrap:wrap;gap:4px 26px;color:var(--dim);margin:14px 0 0}
+.ct-links b{font-weight:400;margin-right:7px}
+@media (max-width:520px){
+  .ct-row{grid-template-columns:minmax(0,1fr);gap:4px 0}
+}
+
 /* ---------- detail : 전체 화면 트리거 ---------- */
 .dt-openfig{display:block;position:relative;width:100%;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:zoom-in}
 .dt-zoom{position:absolute;right:8px;bottom:8px;background:#000;color:#fff;padding:2px 7px;font-size:10px;letter-spacing:.02em;opacity:0}
@@ -398,7 +448,7 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
         <li><a href="#index">지금 하는 일</a></li>
         <li><a href="#index">노트</a></li>
         <li><a href="#index">소개</a></li>
-        <li><a href="#index">연락</a></li>
+        <li><a href="#contact">연락</a></li>
       </ul>
     </nav>
   </header>
@@ -505,6 +555,12 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
    cover : gridnum | stack | mono | alpha | plate | spine | redbar
    ========================================================= */
 const CAT = {research:'연구', dev:'개발', read:'독서'};
+
+const CONTACT = {
+  email: 'hanjiwoong0105@naver.com',
+  github: 'https://github.com/JIUNGCF',
+  githubLabel: 'JIUNGCF'
+};
 
 const ITEMS = [
   {id:'r-014', cat:'research', date:'2026-08-21', title:'확산모델 기반 생성 실험 정리', sub:'실험 노트', meta:'Note 14', cover:'gridnum', tags:'생성모델 실험'},
@@ -952,6 +1008,9 @@ const DETAIL = {
 (function(){
   var pageEl   = document.querySelector('.page');
   var detailEl = document.getElementById('detail');
+  /* 연락 페이지는 같은 컨테이너를 innerHTML 로 덮어쓰므로 원래 껍데기를 보관해 둔다 */
+  var detailShell = detailEl.innerHTML;
+  var mode = 'article';
   var figsEl   = document.getElementById('dtFigs');
   var capEl    = document.getElementById('dtCap');
   var mainEl   = document.getElementById('dtMain');
@@ -998,8 +1057,20 @@ const DETAIL = {
     mainEl.querySelectorAll('[data-fig]').forEach(function(el){ io.observe(el); });
   }
 
+  /* 껍데기를 다시 심고 끊어진 참조와 리스너를 되살린다 */
+  function mountArticle(){
+    detailEl.innerHTML = detailShell;
+    figsEl = document.getElementById('dtFigs');
+    capEl  = document.getElementById('dtCap');
+    mainEl = document.getElementById('dtMain');
+    metaEl = document.getElementById('dtMeta');
+    document.getElementById('dtOpenFig').addEventListener('click', openViewer);
+    mode = 'article';
+  }
+
   function openDetail(it){
     closeViewer();
+    if (mode !== 'article') mountArticle();
     var d = detailOf(it);
 
     cur = it;
@@ -1034,6 +1105,75 @@ const DETAIL = {
     document.getElementById('dtTitle').focus({preventScroll:true});
   }
 
+  /* ---- 연락 : 메일 초안 ---- */
+  function contactHTML(){
+    var mail = esc(CONTACT.email);
+    return '<header class="dt-top">'
+      + '<a href="#index">\u2190 \uce74\ud14c\uace0\ub9ac\ub85c</a>'
+      + '<span class="dt-meta">\uc5f0\ub77d</span>'
+      + '<span class="dt-meta">Contact</span>'
+      + '</header>'
+      + '<div class="ct-wrap">'
+      + '<h2 class="ct-h" id="ctTitle" tabindex="-1">\uc5ec\uae30\uc11c \ubc14\ub85c \uc4f0\uc138\uc694'
+      +   '<span class="ct-caret" aria-hidden="true"></span></h2>'
+      + '<p class="ct-sub">\uba54\uc77c \uc571\uc744 \uc5f4 \ud544\uc694 \uc5c6\uc774, '
+      +   '\uc544\ub798\uc5d0 \uc801\uace0 \ubcf4\ub0b4\uae30\ub97c \ub204\ub974\uba74 \uadf8\ub300\ub85c \ub2f4\uaca8 \uac11\ub2c8\ub2e4.</p>'
+      + '<div class="ct-row"><span class="ct-lab">\ubc1b\ub294 \uc0ac\ub78c</span>'
+      +   '<span class="ct-fix">' + mail + '</span></div>'
+      + '<div class="ct-row"><label class="ct-lab" for="ctFrom">\ubcf4\ub0b4\ub294 \uc0ac\ub78c</label>'
+      +   '<input class="ct-in" id="ctFrom" type="email" autocomplete="email"></div>'
+      + '<div class="ct-row"><label class="ct-lab" for="ctSubj">\uc81c\ubaa9</label>'
+      +   '<input class="ct-in" id="ctSubj" type="text"></div>'
+      + '<div class="ct-row"><label class="ct-lab" for="ctBody">\ub0b4\uc6a9</label>'
+      +   '<textarea class="ct-ta" id="ctBody"></textarea></div>'
+      + '<div class="ct-bar">'
+      +   '<button class="ct-send" id="ctSend" type="button">\ubcf4\ub0b4\uae30</button>'
+      +   '<span class="ct-count" id="ctCount"></span></div>'
+      + '<p class="ct-note">\ubcf4\ub0b4\uae30\ub97c \ub204\ub974\uba74 \uae30\ubcf8 \uba54\uc77c \uc571\uc774 \uc5f4\ub9ac\uace0, '
+      +   '\uc704\uc5d0 \uc801\uc740 \ub0b4\uc6a9\uc774 \uadf8\ub300\ub85c \ub2f4\uae34 \ucd08\uc548\uc774 \ub9cc\ub4e4\uc5b4\uc9d1\ub2c8\ub2e4. '
+      +   '\ub9c8\uc9c0\ub9c9 \ud655\uc778\uacfc \ubc1c\uc1a1\uc740 \uba54\uc77c \uc571\uc5d0\uc11c \uc774\ub904\uc9d1\ub2c8\ub2e4.</p>'
+      + '<p class="ct-links">'
+      +   '<span><b>\uc9c1\uc811 \ubcf4\ub0b4\uae30</b><a href="mailto:' + mail + '">' + mail + '</a></span>'
+      +   '<span><b>GitHub</b><a href="' + esc(CONTACT.github) + '" target="_blank" rel="noopener">'
+      +   esc(CONTACT.githubLabel) + '</a></span></p>'
+      + '</div>';
+  }
+
+  /* innerHTML 로 매번 새로 그려지므로 렌더 직후 여기서 다시 연결한다 */
+  function bindContact(){
+    var bodyEl = document.getElementById('ctBody');
+    var cntEl  = document.getElementById('ctCount');
+
+    function paintCount(){ cntEl.textContent = bodyEl.value.length + '\uc790'; }
+    bodyEl.addEventListener('input', paintCount);
+    paintCount();
+
+    document.getElementById('ctSend').addEventListener('click', function(){
+      var subj = document.getElementById('ctSubj').value;
+      var from = document.getElementById('ctFrom').value.trim();
+      var text = bodyEl.value;
+      if (from) text += '\n\n\u2014 \ub2f5\uc7a5 \uc8fc\uc18c: ' + from;
+      location.href = 'mailto:' + CONTACT.email
+        + '?subject=' + encodeURIComponent(subj)
+        + '&body=' + encodeURIComponent(text);
+    });
+  }
+
+  function openContact(){
+    closeViewer();
+    if (io){ io.disconnect(); io = null; }
+    cur = null;
+    plates = [];
+    mode = 'contact';
+    detailEl.innerHTML = contactHTML();
+    pageEl.hidden = true;
+    detailEl.hidden = false;
+    document.title = '\uc5f0\ub77d \u2014 ' + baseTitle.split(' \u2014 ')[0];
+    window.scrollTo(0, 0);
+    bindContact();
+    document.getElementById('ctTitle').focus({preventScroll:true});
+  }
+
   function closeDetail(){
     if (detailEl.hidden) return;
     closeViewer();
@@ -1045,6 +1185,10 @@ const DETAIL = {
 
   function route(){
     var id = location.hash.slice(1);
+    if (id === 'contact'){
+      if (!(mode === 'contact' && !detailEl.hidden)) openContact();
+      return;
+    }
     var it = null;
     for (var k = 0; k < ITEMS.length; k++){
       if (ITEMS[k].id === id){ it = ITEMS[k]; break; }
@@ -1135,7 +1279,7 @@ const DETAIL = {
   document.addEventListener('keydown', function(e){
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (viewer.hidden){
-      if (detailEl.hidden) return;
+      if (detailEl.hidden || mode !== 'article') return;
       if (e.key === 'f' || e.key === 'F'){ e.preventDefault(); openViewer(); }
       return;
     }
