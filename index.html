@@ -1109,31 +1109,27 @@ const DETAIL = {
   function contactHTML(){
     var mail = esc(CONTACT.email);
     return '<header class="dt-top">'
-      + '<a href="#index">\u2190 \uce74\ud14c\uace0\ub9ac\ub85c</a>'
-      + '<span class="dt-meta">\uc5f0\ub77d</span>'
+      + '<a href="#index">← 카테고리로</a>'
+      + '<span class="dt-meta">연락</span>'
       + '<span class="dt-meta">Contact</span>'
       + '</header>'
       + '<div class="ct-wrap">'
-      + '<h2 class="ct-h" id="ctTitle" tabindex="-1">\uc5ec\uae30\uc11c \ubc14\ub85c \uc4f0\uc138\uc694'
+      + '<h2 class="ct-h" id="ctTitle" tabindex="-1">CONTACT'
       +   '<span class="ct-caret" aria-hidden="true"></span></h2>'
-      + '<p class="ct-sub">\uba54\uc77c \uc571\uc744 \uc5f4 \ud544\uc694 \uc5c6\uc774, '
-      +   '\uc544\ub798\uc5d0 \uc801\uace0 \ubcf4\ub0b4\uae30\ub97c \ub204\ub974\uba74 \uadf8\ub300\ub85c \ub2f4\uaca8 \uac11\ub2c8\ub2e4.</p>'
-      + '<div class="ct-row"><span class="ct-lab">\ubc1b\ub294 \uc0ac\ub78c</span>'
+      + '<p class="ct-sub">하고 싶은 말을 담아 이곳에 적어주세요.</p>'
+      + '<div class="ct-row"><span class="ct-lab">받는 사람</span>'
       +   '<span class="ct-fix">' + mail + '</span></div>'
-      + '<div class="ct-row"><label class="ct-lab" for="ctFrom">\ubcf4\ub0b4\ub294 \uc0ac\ub78c</label>'
+      + '<div class="ct-row"><label class="ct-lab" for="ctFrom">보내는 사람</label>'
       +   '<input class="ct-in" id="ctFrom" type="email" autocomplete="email"></div>'
-      + '<div class="ct-row"><label class="ct-lab" for="ctSubj">\uc81c\ubaa9</label>'
+      + '<div class="ct-row"><label class="ct-lab" for="ctSubj">제목</label>'
       +   '<input class="ct-in" id="ctSubj" type="text"></div>'
-      + '<div class="ct-row"><label class="ct-lab" for="ctBody">\ub0b4\uc6a9</label>'
+      + '<div class="ct-row"><label class="ct-lab" for="ctBody">내용</label>'
       +   '<textarea class="ct-ta" id="ctBody"></textarea></div>'
       + '<div class="ct-bar">'
-      +   '<button class="ct-send" id="ctSend" type="button">\ubcf4\ub0b4\uae30</button>'
+      +   '<button class="ct-send" id="ctSend" type="button">보내기</button>'
       +   '<span class="ct-count" id="ctCount"></span></div>'
-      + '<p class="ct-note">\ubcf4\ub0b4\uae30\ub97c \ub204\ub974\uba74 \uae30\ubcf8 \uba54\uc77c \uc571\uc774 \uc5f4\ub9ac\uace0, '
-      +   '\uc704\uc5d0 \uc801\uc740 \ub0b4\uc6a9\uc774 \uadf8\ub300\ub85c \ub2f4\uae34 \ucd08\uc548\uc774 \ub9cc\ub4e4\uc5b4\uc9d1\ub2c8\ub2e4. '
-      +   '\ub9c8\uc9c0\ub9c9 \ud655\uc778\uacfc \ubc1c\uc1a1\uc740 \uba54\uc77c \uc571\uc5d0\uc11c \uc774\ub904\uc9d1\ub2c8\ub2e4.</p>'
       + '<p class="ct-links">'
-      +   '<span><b>\uc9c1\uc811 \ubcf4\ub0b4\uae30</b><a href="mailto:' + mail + '">' + mail + '</a></span>'
+      +   '<span><b>직접 보내기</b><a href="mailto:' + mail + '">' + mail + '</a></span>'
       +   '<span><b>GitHub</b><a href="' + esc(CONTACT.github) + '" target="_blank" rel="noopener">'
       +   esc(CONTACT.githubLabel) + '</a></span></p>'
       + '</div>';
@@ -1144,7 +1140,7 @@ const DETAIL = {
     var bodyEl = document.getElementById('ctBody');
     var cntEl  = document.getElementById('ctCount');
 
-    function paintCount(){ cntEl.textContent = bodyEl.value.length + '\uc790'; }
+    function paintCount(){ cntEl.textContent = bodyEl.value.length + '자'; }
     bodyEl.addEventListener('input', paintCount);
     paintCount();
 
@@ -1152,7 +1148,7 @@ const DETAIL = {
       var subj = document.getElementById('ctSubj').value;
       var from = document.getElementById('ctFrom').value.trim();
       var text = bodyEl.value;
-      if (from) text += '\n\n\u2014 \ub2f5\uc7a5 \uc8fc\uc18c: ' + from;
+      if (from) text += '\n\n— 답장 주소: ' + from;
       location.href = 'mailto:' + CONTACT.email
         + '?subject=' + encodeURIComponent(subj)
         + '&body=' + encodeURIComponent(text);
