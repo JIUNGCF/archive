@@ -15,6 +15,8 @@
   --ink:#121212;
   --red:#e0301e;
   --pad:22px;
+  --lab:#7a766e;   /* 탑승권 라벨 */
+  --line:#c9c5bc;  /* 탑승권 밑줄 */
 }
 *{box-sizing:border-box}
 html{background:var(--bg)}
@@ -198,37 +200,87 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .t-redbar .body{margin-top:auto;font-size:9px;line-height:1.45;color:#5f5f5f}
 
 /* ---------- detail page ---------- */
-.detail{max-width:2400px;margin:0 auto;padding:var(--pad) 28px}
+/* 세부 페이지는 문서 스크롤을 쓰지 않는다. 화면에 고정된 무대 위에서
+   휠 · 트랙패드 · 방향키 · 스와이프 입력을 JS 가 받아 도판과 글을 함께 움직인다 */
+.detail{
+  max-width:2400px;margin:0 auto;padding:var(--pad) 28px;
+  --ease:cubic-bezier(.16,1,.3,1);      /* 빠르게 출발해 길게 감속하며 안착 */
+  --ease-io:cubic-bezier(.65,0,.35,1);  /* 안내 페이드 */
+  --gut:28px;                           /* 화면 양옆 여백 */
+}
+/* 도판 무대가 왼쪽 벽에 붙도록 왼쪽 여백은 없애고, 머리줄 · 캡션에만 여백을 준다 */
+.detail.paged{position:fixed;top:0;right:0;bottom:0;left:0;max-width:none;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none;touch-action:none;padding:var(--pad) var(--gut) 0 0}
 .dt-top{display:flex;align-items:baseline;justify-content:space-between;gap:0 16px;padding-bottom:30px}
+.paged .dt-top{flex:0 0 auto;padding:0 0 0 var(--gut)}
 .dt-meta{color:var(--dim)}
 .dt-body{
+  flex:1 1 auto;min-height:0;
   display:grid;
-  /* \uc67c\ucabd(\ub3c4\ud310)\uc774 \ub0a8\ub294 \ud3ed\uc744 \uc804\ubd80 \ud761\uc218, \uc624\ub978\ucabd(\ubcf8\ubb38)\uc740 \uc77d\uae30 \uc88b\uc740 \ud3ed \uace0\uc815 */
-  grid-template-columns:minmax(0,1fr) minmax(0,68ch);
-  grid-template-areas:"fig text";
-  gap:0 52px;
-  align-items:start;
+  /* 왼쪽 = 도판 무대(남는 폭 전부), 오른쪽 = 글 열 */
+  grid-template-columns:minmax(0,1fr) clamp(320px,34vw,600px);
+  grid-template-rows:minmax(0,1fr);
+  gap:0 clamp(32px,4vw,80px);
+  padding:2.5vh 0 3vh;
 }
-.dt-left{grid-area:fig;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;min-width:0}
-/* \ub3c4\ud310 \uc2a4\ud14c\uc774\uc9c0 \ub192\uc774 \uc608\uc0b0 = calc(100vh - 160px).
-   \ub3c4\ud310\uc740 <img> \uac00 \uc544\ub2c8\ub77c 137% \ube44\uc728 \ubc15\uc2a4\uc774\ubbc0\ub85c
-   \uac19\uc740 \uc81c\uc57d\uc744 \ud3ed \uc0c1\ud55c (\ub192\uc774/1.37) \ub85c \ud658\uc0b0\ud574 \uac78\uc5b4 \uc138\ub85c\ub85c \ub118\uce58\uc9c0 \uc54a\uac8c \ud55c\ub2e4 */
-.dt-figwrap{width:min(100%,calc((100vh - 160px)/1.37));margin:0 auto}
-/* 도판도 padding 비율 박스 — .frame 과 동일한 원리 */
-.dt-figs{display:block;position:relative;width:100%;height:0;padding-top:137%;overflow:hidden}
-.dt-figs .fig{position:absolute;top:0;right:0;bottom:0;left:0;overflow:hidden;background:var(--paper);color:var(--ink);opacity:0}
-.dt-figs .fig.on{opacity:1}
+.dt-left{min-width:0;min-height:0;display:flex;flex-direction:column;padding-left:var(--gut)}
+/* 도판 무대 : 사진은 원래 비율 그대로 무대 안에서 최대로, 무대 가운데에 둔다 */
+.dt-figwrap{position:relative;flex:1 1 auto;min-height:0}
+.dt-figwrap .dt-openfig{position:absolute;top:0;right:0;bottom:0;left:0}
+.dt-figs{position:absolute;top:0;right:0;bottom:0;left:0;overflow:hidden}
+/* 도판의 투명도 · 크기 · 겹침 순서는 JS(render)가 매 프레임 직접 정한다 */
+.dt-figs .fig{position:absolute;top:0;right:0;bottom:0;left:0;opacity:0;transform-origin:50% 50%;will-change:opacity,transform}
+/* 사진 : 틀 없이 contain. 가로 사진은 폭을, 세로 사진은 높이를 채운다 */
+.t-photo{padding:0;background:none}
+.t-photo img{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
+/* 표지 · 타이포 도판 : 원래 260px 판(137%)을 무대 높이에 맞춰 통째로 확대 (--ps 는 JS) */
+.dt-figs .plate{position:absolute;left:50%;top:50%;width:260px;height:356.2px;overflow:hidden;background:var(--paper);color:var(--ink);transform:translate(-50%,-50%) scale(var(--ps,1));transform-origin:50% 50%}
+/* 캡션 : 무대 아래 한 줄 */
+.dt-cap{flex:0 0 auto;margin:10px 0 0;display:flex;justify-content:space-between;gap:0 12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.dt-cap #dtCap{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dt-count{flex:0 0 auto}
+
+/* 본문 열 : 글 전체를 한 줄기(.dt-flow)로 이어 두고, JS 가 매 프레임 transform 으로
+   현재 절을 도판 옆에 데려온다. 절 밝기도 JS 가 위치에 따라 연속으로 정한다.
+   아래 여백(27px)은 캡션 줄 높이 — 본문 열의 세로 중심을 도판 무대의 중심과 맞춘다 */
+.dt-main{position:relative;min-width:0;height:calc(100% - 27px);overflow:hidden}
+/* 열 끝에서 글이 칼같이 끊기지 않고 흐려지게 — mask 대신 배경색 그라데이션 덮개(매 프레임 비용 없음) */
+.dt-main::before,.dt-main::after{content:"";position:absolute;left:0;right:0;height:28px;z-index:1;pointer-events:none}
+.dt-main::before{top:0;background:linear-gradient(var(--bg),rgba(0,0,0,0))}
+.dt-main::after{bottom:0;background:linear-gradient(rgba(0,0,0,0),var(--bg))}
+.dt-flow{position:absolute;top:0;left:0;right:0;will-change:transform}
+.dt-step{opacity:.3;cursor:pointer}
+.dt-step.on{cursor:auto}
+.dt-step + .dt-step{margin-top:52px}
+.dt-main h2{font-size:30px;line-height:1.2;letter-spacing:-0.025em;outline:none}
+.dt-lead{font-size:17px;line-height:1.6;color:#cfcfcf;margin:16px 0 0;letter-spacing:-0.015em}
+.dt-sec h3{font-size:15px;border-top:1px solid var(--rule);padding-top:14px}
+.dt-sec h3 .no{color:var(--dim);margin-right:10px;font-variant-numeric:tabular-nums;font-weight:400}
+.dt-sec p{margin:12px 0 0;font-size:15px;color:#c9c9c9;line-height:1.75}
+.dt-end{margin-top:40px;font-size:13px}
+
+/* 넘기는 동안의 움직임은 전부 JS 의 프레임 루프가 맡는다 (CSS transition 없음).
+   여기서는 처음 열 때의 입장만 : 글은 살짝 떠오르고, 도판은 살짝 확대된 채 안착 */
 @media (prefers-reduced-motion:no-preference){
-  .dt-figs .fig{transition:opacity .35s ease}
+  .dt-main.enter{animation:dtIn .6s var(--ease) backwards}
+  .dt-figs.enter{animation:dtFigIn .6s var(--ease) backwards}
 }
-.dt-cap{margin:9px auto 0;width:min(100%,calc((100vh - 160px)/1.37));color:var(--dim);font-variant-numeric:tabular-nums}
-.dt-main{grid-area:text;min-width:0;padding:14vh 0 34vh}
-.dt-main h2{font-size:20px;line-height:1.25;letter-spacing:-0.02em;outline:none}
-.dt-lead{font-size:13px;line-height:1.6;color:#cfcfcf;margin:14px 0 0}
-.dt-sec{border-top:1px solid var(--rule);margin-top:44px;padding-top:12px}
-.dt-sec h3 .no{color:var(--dim);margin-right:8px;font-variant-numeric:tabular-nums;font-weight:400}
-.dt-sec p{margin:10px 0 0;color:#c9c9c9;line-height:1.7}
-.dt-end{margin-top:52px}
+@keyframes dtIn{from{opacity:0;transform:translateY(18px)}}
+@keyframes dtFigIn{from{opacity:0;transform:scale(1.02)}}
+
+/* 처음 한 번 : 아래로 넘기라는 안내 */
+.dt-hint{position:absolute;z-index:3;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--dim);font-size:11px;letter-spacing:.02em;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .9s var(--ease-io)}
+.dt-hint.on{opacity:1}
+.dt-hint-l{position:relative;display:block;width:3px;height:30px;overflow:hidden;background:linear-gradient(#2e2e2e,#2e2e2e) center/1px 100% no-repeat}
+.dt-hint-l i{position:absolute;left:0;top:0;width:3px;height:9px;border-radius:2px;background:var(--fg)}
+@media (prefers-reduced-motion:no-preference){
+  .dt-hint-l i{animation:hintDrop 1.7s var(--ease-io) infinite}
+}
+@keyframes hintDrop{
+  0%{transform:translateY(-10px);opacity:0}
+  25%{opacity:1}
+  70%{opacity:1}
+  100%{transform:translateY(30px);opacity:0}
+}
 
 /* 섹션 도판(타이포 플레이트) */
 .t-fig{padding:16px}
@@ -236,73 +288,146 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .t-fig .fp-h{margin-top:auto;font-size:17px;line-height:1.3;letter-spacing:-0.02em}
 .t-fig .fp-m{font-size:10px;color:#6d6d6d;margin-top:8px}
 
-/* 섹션 도판(사진) — 비율 박스 안에서 잘리지 않게 contain */
-.t-photo{padding:0}
-.t-photo img{display:block;width:100%;height:100%;object-fit:contain}
-
 /* 세부 : 메타 표 · 링크 (데이터에 있을 때만 그려진다) */
-.dt-mt{border-collapse:collapse;margin:18px 0 0;line-height:1.6}
+.dt-mt{border-collapse:collapse;margin:18px 0 0;line-height:1.6;font-size:14px}
 .dt-mt th{font-weight:400;text-align:left;color:var(--dim);padding:0 18px 0 0;vertical-align:top;white-space:nowrap}
 .dt-mt td{color:#c9c9c9;padding:0}
-.dt-links{border-top:1px solid var(--rule);margin-top:44px;padding-top:12px}
+.dt-links{border-top:1px solid var(--rule);margin-top:44px;padding-top:12px;font-size:14px}
 .dt-links li{margin-top:4px}
 
 @media (max-width:900px){
-  .dt-body{grid-template-columns:minmax(0,1fr);grid-template-areas:"fig" "text";gap:26px 0}
-  .dt-left{position:static;height:auto;display:block}
-  .dt-figwrap,.dt-cap{width:min(300px,72vw);margin-left:0;margin-right:0}
-  /* 1\uc5f4\uc77c \ub550 \uc5f4\uc774 \ub9c9\uc544\uc8fc\uc9c0 \uc54a\uc73c\ubbc0\ub85c \uc77d\uae30 \ud3ed\uc744 \uc9c1\uc811 \uc81c\ud55c(2\uc5f4\uacfc \ub3d9\uc77c\ud55c 68ch) */
-  .dt-main{max-width:68ch;padding:0 0 60px}
+  /* 1열 : 도판 무대 위(화면 폭 전부), 본문 아래. 그래도 스크롤 없이 단계로 넘긴다 */
+  .detail.paged{padding-right:0}
+  .paged .dt-top{padding-right:var(--gut)}
+  .dt-body{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,46vh) minmax(0,1fr);gap:22px 0;padding:16px 0 0}
+  .dt-left{padding-left:0}
+  .dt-cap{padding:0 var(--gut)}
+  .dt-main{height:100%;margin:0 var(--gut)}
+  .dt-main h2{font-size:24px}
+  .dt-lead{font-size:15px}
+  .dt-sec h3,.dt-sec p{font-size:14px}
 }
 
-/* ---------- contact : 메일 초안 ---------- */
-.ct-wrap{max-width:64ch;padding:2vh 0 18vh}
-.ct-h{font-size:20px;line-height:1.25;letter-spacing:-0.02em;display:flex;align-items:center;gap:0 9px;outline:none}
-.ct-caret{display:inline-block;flex:0 0 auto;width:8px;height:18px;background:var(--red)}
-@media (prefers-reduced-motion:no-preference){
-  .ct-caret{animation:ctBlink 1.06s step-end infinite}
-}
-@keyframes ctBlink{0%,100%{opacity:1}50%{opacity:0}}
-.ct-sub{color:var(--dim);line-height:1.7;margin:12px 0 26px;max-width:46em}
+/* ---------- contact : 탑승권 ----------
+   색인 쪽 클래스(.grid .main .top …)와 겹치지 않게 모든 이름에 tk- 를 붙인다 */
+html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가로 스크롤을 만들지 않게 — 연락 페이지에서만 */
+.tk-wrap{padding:0 0 12vh}
+.tk-wrap input,.tk-wrap select,.tk-wrap textarea{font:inherit;color:inherit;letter-spacing:inherit}
+.tk-top{display:flex;align-items:baseline;gap:18px;padding-bottom:30px}
+.tk-top .tk-crumb{color:var(--dim)}
+.tk-top .tk-tag{margin-left:auto;color:var(--dim)}
+.tk-intro{color:var(--dim);margin:6vh auto 18px;max-width:980px;outline:none}
 
-/* 행 구분선만으로 형태를 만든다 — 입력 필드 자체에는 테두리가 없다 */
-.ct-row{
-  display:grid;
-  grid-template-columns:86px minmax(0,1fr);
-  gap:0 12px;
-  align-items:start;
-  border-top:1px solid var(--rule);
-  padding:10px 0;
-}
-.ct-lab{color:var(--dim);padding-top:1px}
-.ct-fix{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
-.ct-in,.ct-ta{
-  display:block;
-  width:100%;
-  margin:0;
-  padding:0;
-  border:0;
-  background:transparent;
-  color:var(--fg);
-  font:inherit;
-  letter-spacing:inherit;
-  caret-color:var(--red);
-}
-.ct-ta{min-height:170px;resize:vertical;line-height:1.7}
-/* 박스 대신 행의 실선과 라벨 색으로 초점을 알린다 */
-.ct-in:focus,.ct-ta:focus,.ct-in:focus-visible,.ct-ta:focus-visible{outline:none}
-.ct-row:focus-within{border-top-color:var(--red)}
-.ct-row:focus-within .ct-lab{color:var(--red)}
+/* 무대 */
+.tk-stage{position:relative;max-width:980px;margin:0 auto}
+.tk-slot{position:relative;height:12px;border-radius:6px;background:#1b1b1b;box-shadow:inset 0 -1px 0 #2c2c2c;margin:0 -10px}
+.tk-slot i{position:absolute;right:16px;top:4px;width:4px;height:4px;border-radius:50%;background:#3a3a3a}
+.tk-printing .tk-slot i{background:var(--red);animation:tk-blink .32s steps(1) infinite}
+@keyframes tk-blink{50%{opacity:.2}}
+.tk-feed{overflow:hidden;padding-bottom:20px;margin-top:-6px}
+.tk-feed.tk-ready{overflow:visible}
 
-.ct-bar{display:flex;align-items:baseline;justify-content:space-between;gap:0 16px;border-top:1px solid var(--rule);padding-top:14px}
-.ct-send{background:var(--fg);color:var(--bg);padding:6px 18px}
-.ct-send:hover{background:var(--red);color:var(--fg)}
-.ct-count{color:var(--dim);font-variant-numeric:tabular-nums}
-.ct-note{color:var(--dim);line-height:1.7;margin:26px 0 0;max-width:46em}
-.ct-links{display:flex;flex-wrap:wrap;gap:4px 26px;color:var(--dim);margin:14px 0 0}
-.ct-links b{font-weight:400;margin-right:7px}
-@media (max-width:520px){
-  .ct-row{grid-template-columns:minmax(0,1fr);gap:4px 0}
+/* 탑승권 */
+.tk-ticket{position:relative;display:flex;background:transparent;color:var(--ink);transform:translateY(-104%)}
+.tk-feed.tk-go .tk-ticket{animation:tk-feed 1.35s cubic-bezier(.22,.8,.24,1) .2s forwards}
+@keyframes tk-feed{to{transform:translateY(0)}}
+
+.tk-main{position:relative;flex:1 1 auto;min-width:0;background:var(--paper);border-radius:6px 0 0 6px}
+.tk-stub{position:relative;flex:0 0 230px;background:var(--paper);border-left:2px dashed #bdb8ad;border-radius:0 6px 6px 0;
+  padding:18px 18px 16px;display:flex;flex-direction:column}
+.tk-stub::before,.tk-stub::after{content:"";position:absolute;left:-12px;width:22px;height:22px;border-radius:50%;background:var(--bg)}
+.tk-stub::before{top:-11px}
+.tk-stub::after{bottom:-11px}
+
+.tk-strip{display:flex;justify-content:space-between;gap:12px;background:var(--ink);color:var(--paper);
+  padding:9px 22px;border-radius:6px 0 0 0;font-size:11px;letter-spacing:.08em}
+.tk-strip b{font-weight:700}
+
+.tk-route{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;gap:0 18px;padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.tk-pt .tk-lab,.tk-f .tk-lab,.tk-stub .tk-lab{display:block;font-size:10px;letter-spacing:.06em;color:var(--lab);margin-bottom:3px}
+.tk-pt b{display:block;font-size:clamp(38px,5.4vw,60px);line-height:.92;letter-spacing:-0.035em;font-weight:700;white-space:nowrap}
+.tk-pt .tk-sub{display:block;font-size:12px;color:var(--lab);margin-top:5px;min-height:1.2em;max-width:14ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tk-pt.tk-r{text-align:right}
+.tk-path{position:relative;height:26px;margin-bottom:22px}
+.tk-path::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1.5px dashed #a9a497}
+.tk-path svg{position:absolute;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%);background:var(--paper);padding:0 4px;box-sizing:content-box}
+
+.tk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 20px;padding:16px 22px 6px}
+.tk-f{display:block;min-width:0}
+.tk-f.tk-w2{grid-column:span 2}
+.tk-f.tk-w4{grid-column:1 / -1}
+.tk-f input,.tk-f select,.tk-f textarea{display:block;width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);
+  color:var(--ink);font-size:14px;line-height:1.5;padding:3px 0 5px;border-radius:0;outline:0;resize:none}
+.tk-f input::placeholder,.tk-f textarea::placeholder{color:#aaa59a}
+.tk-f input:focus,.tk-f select:focus,.tk-f textarea:focus{border-bottom-color:var(--ink)}
+.tk-f select{cursor:pointer;-webkit-appearance:none;appearance:none}
+.tk-f .tk-ro{display:block;font-size:14px;line-height:1.5;padding:3px 0 5px;border-bottom:1px solid transparent;font-variant-numeric:tabular-nums}
+.tk-f .tk-err{display:block;min-height:15px;font-style:normal;font-size:11px;color:var(--red);margin-top:3px}
+.tk-f.tk-bad input,.tk-f.tk-bad textarea{border-bottom-color:var(--red)}
+
+.tk-act{display:flex;align-items:center;gap:16px;padding:10px 22px 20px}
+.tk-send{border:0;background:var(--ink);color:var(--paper);padding:10px 22px;font-size:13px;cursor:pointer}
+.tk-send:hover{background:var(--red);color:#fff}
+.tk-send:disabled{opacity:.6;cursor:default}
+.tk-fine{font-size:10px;color:var(--lab);margin-left:auto;text-align:right}
+.tk-fail{display:block;color:var(--red);font-size:11px;padding:0 22px 14px}
+
+.tk-stub dl{margin:6px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12px}
+.tk-stub dt{font-size:10px;letter-spacing:.06em;color:var(--lab);margin:0;padding-top:1px}
+.tk-stub dd{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tk-bars{display:flex;align-items:stretch;height:48px;margin-top:auto;padding-top:14px}
+.tk-bars i{display:block;background:var(--ink);flex:0 0 auto}
+.tk-code{margin-top:6px;font-size:10px;letter-spacing:.14em;color:var(--lab);font-variant-numeric:tabular-nums}
+
+/* 도장 */
+.tk-stamp{position:absolute;right:36px;top:46%;padding:6px 14px 5px;border:3px solid var(--red);color:var(--red);
+  font-size:24px;font-weight:700;letter-spacing:.12em;text-align:center;line-height:1;border-radius:4px;
+  opacity:0;transform:rotate(-12deg) scale(1.9);pointer-events:none;mix-blend-mode:multiply}
+.tk-stamp small{display:block;font-size:10px;letter-spacing:.3em;margin-top:4px}
+.tk-stamped .tk-stamp{animation:tk-stamp .34s cubic-bezier(.2,1.5,.45,1) forwards}
+@keyframes tk-stamp{to{opacity:.92;transform:rotate(-12deg) scale(1)}}
+.tk-stamped .tk-main{animation:tk-thump .26s ease-out .12s}
+@keyframes tk-thump{40%{transform:translateY(3px) scale(.996)}}
+
+/* 떼어내고 날려 보내기 */
+.tk-stub{transition:transform .5s cubic-bezier(.3,1.35,.5,1)}
+.tk-torn .tk-stub{transform:translate(20px,8px) rotate(3.5deg)}
+.tk-main{transition:transform 1.05s cubic-bezier(.6,.04,.98,.34),opacity .8s ease-in .2s}
+.tk-flown .tk-main{transform:translate(70vw,-80vh) rotate(-16deg) scale(.4);opacity:0}
+
+.tk-sky{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;transition:opacity .6s ease}
+.tk-sky circle{fill:var(--dim)}
+.tk-sky .tk-pl{fill:var(--fg)}
+
+.tk-done{position:absolute;left:0;top:0;bottom:0;right:250px;display:flex;flex-direction:column;justify-content:center;
+  padding:0 8px;opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease;pointer-events:none}
+.tk-landed .tk-done{opacity:1;transform:none;pointer-events:auto}
+.tk-done h2{font-size:clamp(26px,3.4vw,42px);line-height:1.1;letter-spacing:-0.03em;margin:0;color:var(--fg)}
+.tk-done p{color:var(--dim);margin:12px 0 0;font-size:13.5px;line-height:1.7;max-width:44ch}
+.tk-done .tk-again{margin-top:20px;color:var(--fg)}
+
+.tk-alt{max-width:980px;margin:34px auto 0;color:var(--dim);display:flex;flex-wrap:wrap;gap:0 20px}
+
+/* 좁은 화면 : 떼어내는 쪽이 아래로 */
+@media (max-width:760px){
+  .tk-ticket{flex-direction:column}
+  .tk-main{border-radius:6px 6px 0 0}
+  .tk-strip{border-radius:6px 6px 0 0}
+  .tk-stub{flex-basis:auto;border-left:0;border-top:2px dashed #bdb8ad;border-radius:0 0 6px 6px}
+  .tk-stub::before{left:-11px;top:-12px}
+  .tk-stub::after{left:auto;right:-11px;top:-12px;bottom:auto}
+  .tk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tk-f.tk-w2{grid-column:1 / -1}
+  .tk-fine{display:none}
+  .tk-torn .tk-stub{transform:translate(6px,22px) rotate(2deg)}
+  .tk-done{right:0;bottom:auto;height:auto;top:0;padding-top:40px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .tk-ticket{transform:none}
+  .tk-feed.tk-go .tk-ticket{animation:none}
+  .tk-main,.tk-stub,.tk-done{transition:none}
+  .tk-stamped .tk-main{animation:none}
 }
 
 /* ---------- detail : 전체 화면 트리거 ---------- */
@@ -456,10 +581,10 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
     </div>
     <nav class="navrow" aria-label="메뉴">
       <ul>
-        <li><a href="#index">지금 하는 일</a></li>
-        <li><a href="#index">노트</a></li>
         <li><a href="#index">소개</a></li>
+        <li><a href="#index">지금 하는 일</a></li>
         <li><a href="#contact">연락</a></li>
+        <li><a href="#index">노트</a></li>
       </ul>
     </nav>
   </header>
@@ -515,9 +640,12 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
           <span class="dt-zoom" aria-hidden="true">전체 화면 (F)</span>
         </button>
       </div>
-      <p class="dt-cap" id="dtCap"></p>
+      <p class="dt-cap"><span id="dtCap"></span><span class="dt-count" id="dtCount"></span></p>
     </div>
     <article class="dt-main" id="dtMain"></article>
+  </div>
+  <div class="dt-hint" id="dtHint" aria-hidden="true">
+    <span>스크롤해서 넘기기</span><span class="dt-hint-l"><i></i></span>
   </div>
 </div>
 
@@ -567,10 +695,15 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
    ========================================================= */
 const CAT = {research:'연구', dev:'개발', read:'독서'};
 
+/* 연락(탑승권) 설정
+   web3formsKey 가 비어 있으면 : 애니메이션 뒤 메일 앱(mailto)을 연다
+   web3formsKey 를 넣으면     : 메일 앱 없이 바로 메일로 전송된다
+   (키 발급 : https://web3forms.com 에서 받는 메일 주소만 입력)
+   gates = 연락 종류. 게이트 선택 목록은 여기만 고치면 된다 */
 const CONTACT = {
-  email: 'hanjiwoong0105@naver.com',
-  github: 'https://github.com/JIUNGCF',
-  githubLabel: 'JIUNGCF'
+  to: 'hanjiwoong0105@naver.com',
+  web3formsKey: '',
+  gates: ['업무', '연구 협업', '개발 문의', '개인', '기타']
 };
 
 let ITEMS = [];
@@ -939,7 +1072,9 @@ render();
 /* =========================================================
    DETAIL — 세부 페이지
    해시가 항목 id(#r-014 …)면 세부, 그 외에는 카테고리를 보여준다.
-   좌측 sticky 도판은 IntersectionObserver 로 본문 스크롤에 따라 교체.
+   세부 페이지는 스크롤하지 않고 '단계'로 넘긴다. 단계 0 = 표지 + 머리말,
+   단계 n = n번째 절. 도판과 글이 같은 순간에 함께 바뀐다.
+   화면보다 긴 절은 같은 절 안에서 나눠 내려간 뒤 다음 절로 넘어간다.
    DETAIL 에 없는 항목은 ITEMS 데이터로 최소 페이지를 생성(fallback).
    머리말은 lede(admin 형식) 또는 lead(기존 형식). 절에 fig 가 있고
    figures[fig].src 가 있으면 타이포 도판 대신 그 사진을 쓴다.
@@ -954,9 +1089,16 @@ render();
   var capEl    = document.getElementById('dtCap');
   var mainEl   = document.getElementById('dtMain');
   var metaEl   = document.getElementById('dtMeta');
-  var io = null;
+  var countEl  = document.getElementById('dtCount');
+  var hintEl   = document.getElementById('dtHint');
   var baseTitle = document.title;
   var plates = [], activeFig = 0, cur = null, capBase = '';
+  /* 단계 상태
+     steps[k] = {el, stops[]}  : 단계(머리말 · 절)와 그 단계에서 글 줄기를 놓을 세로 위치들
+     path[i]  = {k, y}         : 모든 정지점을 순서대로 펼친 길. pos · target 은 이 길 위의 실수 위치
+     입력은 target 을 움직이고, 화면(pos)은 매 프레임 target 을 지수 감속으로 따라간다 */
+  var steps = [], path = [], figEls = [], pos = 0, target = 0, shown = -1;
+  var hintTimer = 0, flowEl = null;
 
   function nn(i){ return (i < 10 ? '0' : '') + i; }
 
@@ -983,24 +1125,185 @@ render();
     };
   }
 
-  function setFig(i){
-    activeFig = i;
-    var figs = figsEl.children;
-    for (var k = 0; k < figs.length; k++) figs[k].classList.toggle('on', k === i);
-    var c = plates[i] && plates[i].cap;
+  /* 또렷한 단계가 바뀔 때 : 캡션 · 쪽수 · 접근성 표시 */
+  function markActive(k){
+    shown = activeFig = k;
+    steps.forEach(function(st, j){
+      st.el.classList.toggle('on', j === k);
+      if (j === k) st.el.setAttribute('aria-current', 'true');
+      else st.el.removeAttribute('aria-current');
+    });
+    var c = plates[k] && plates[k].cap;
     capEl.textContent = capBase + (c ? ' · ' + c : '');
+    countEl.textContent = nn(k + 1) + ' / ' + nn(steps.length);
   }
 
-  function observe(){
-    if (io){ io.disconnect(); io = null; }
-    if (!('IntersectionObserver' in window)) return;
-    io = new IntersectionObserver(function(ents){
-      ents.forEach(function(en){
-        if (en.isIntersecting) setFig(+en.target.dataset.fig);
-      });
-    }, {rootMargin:'-40% 0px -50% 0px', threshold:0});
-    mainEl.querySelectorAll('[data-fig]').forEach(function(el){ io.observe(el); });
+  /* ---- 단계 넘기기 ---- */
+  function articleOn(){ return mode === 'article' && !detailEl.hidden && viewer.hidden && steps.length; }
+
+  /* 단계마다 글 줄기(.dt-flow)를 놓을 세로 위치(정지점).
+     · 글 전체가 열에 들어가면 움직이지 않는다 (가운데 정렬, 밝기만 바뀜)
+     · 아니면 현재 절을 도판의 세로 중심에 맞춘다. 1열(도판 위 · 글 아래)은 위에 붙인다
+     · 열보다 긴 절은 열 높이의 70% 씩 나눠 내려간다
+     · 어느 경우든 줄기의 처음과 끝이 흐림 영역(PAD) 밖으로 벗어나지 않게 자른다 */
+  var oneCol = window.matchMedia('(max-width:900px)');
+  var PAD = 28;   // .dt-main 위아래 흐림 폭
+  function stopsOf(el){
+    var H = mainEl.clientHeight, F = flowEl.offsetHeight, top = el.offsetTop, h = el.offsetHeight;
+    if (F <= H - 2 * PAD) return [Math.round((H - F) / 2)];
+    var lo = H - PAD - F;
+    function clamp(y){ return Math.round(Math.max(lo, Math.min(PAD, y))); }
+    if (h <= H - 2 * PAD) return [clamp(oneCol.matches ? PAD - top : H / 2 - top - h / 2)];
+    var out = [], last = H - PAD - top - h, gap = Math.max(80, Math.round(H * 0.7));
+    /* 끝까지 남은 거리가 짧으면(간격의 30% 미만) 따로 멈추지 않고 끝으로 바로 간다 */
+    for (var y = PAD - top; y > last + gap * 0.3; y -= gap) out.push(clamp(y));
+    out.push(clamp(last));
+    return out.filter(function(v, i){ return i === 0 || v !== out[i - 1]; });
   }
+
+  function firstStop(k){
+    for (var i = 0; i < path.length; i++) if (path[i].k === k) return i;
+    return 0;
+  }
+
+  /* pos 한 값으로 화면 전체를 그린다. 모든 값이 pos 의 연속 함수라 끊김이 없다
+     · 글 줄기 위치 : 인접한 두 정지점 사이를 보간
+     · 절 밝기     : 현재 위치에서 멀어질수록 0.3 까지 흐려짐
+     · 도판        : 다음 장을 위에 얹어 페이드인하고, 이전 장은 조금 늦게 따라 사라진다.
+                     사진마다 비율이 달라 다음 장이 이전 장을 다 덮지 못하므로
+                     이전 장도 끝까지 서서히 빠져야 마지막에 툭 꺼지지 않는다 */
+  function smooth(t){ return t * t * (3 - 2 * t); }
+  function render(){
+    if (!path.length) return;
+    var i = Math.min(Math.floor(pos), path.length - 1), f = pos - i;
+    var a = path[i], b = path[Math.min(i + 1, path.length - 1)];
+    var y = a.y + (b.y - a.y) * f, kp = a.k + (b.k - a.k) * f;
+    flowEl.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0)';
+    steps.forEach(function(st, j){
+      var o = (0.3 + 0.7 * Math.max(0, 1 - Math.abs(kp - j))).toFixed(3);
+      if (st.o !== o){ st.el.style.opacity = o; st.o = o; }
+    });
+    var base = Math.floor(kp), t = kp - base, e = smooth(t);
+    var out = 1 - smooth(Math.max(0, (t - 0.35) / 0.65));
+    figEls.forEach(function(el, j){
+      var op = j === base ? out : j === base + 1 ? e : 0;
+      var key = op.toFixed(3);
+      if (el._k === key) return;
+      el._k = key;
+      el.style.opacity = key;
+      el.style.zIndex = j === base + 1 ? 2 : j === base ? 1 : 0;
+      el.style.transform = j === base + 1 ? 'scale(' + (1 + 0.03 * (1 - e)).toFixed(4) + ')' : '';
+    });
+    var act = Math.round(kp);
+    if (act !== shown) markActive(act);
+  }
+
+  /* 지수 감속 추종. 프레임 속도와 무관하게 같은 시간(TAU)에 같은 비율만큼 다가간다 */
+  var TAU = 0.1, raf = 0, lastT = 0;
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function tick(t){
+    var dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 1 / 60;
+    lastT = t;
+    pos += (target - pos) * (1 - Math.exp(-dt / TAU));
+    if (Math.abs(target - pos) < 0.0005) pos = target;
+    render();
+    if (pos !== target) raf = requestAnimationFrame(tick);
+    else { raf = 0; lastT = 0; }
+  }
+  function setTarget(v){
+    target = Math.max(0, Math.min(path.length - 1, v));
+    if (still.matches){ pos = target; render(); return; }
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+  function moveTo(v){ hideHint(); setTarget(v); }
+  function go(d){ moveTo(d > 0 ? Math.floor(target + 1e-3) + 1 : Math.ceil(target - 1e-3) - 1); }
+
+  /* 다시 잴 때(열기 · 크기 변경 · 글꼴 로드) : 지금 보던 단계의 첫 정지점에 그대로 놓는다 */
+  function measure(){
+    if (!steps.length || detailEl.hidden) return;
+    var keep = shown < 0 ? 0 : shown;
+    /* 표지 · 타이포 도판(260 × 356.2 판)을 무대에 꽉 차게 키우는 배율 */
+    var r = figsEl.getBoundingClientRect();
+    figsEl.style.setProperty('--ps', Math.min(r.width / 260, r.height / 356.2).toFixed(4));
+    steps.forEach(function(st){ st.stops = stopsOf(st.el); });
+    path = [];
+    steps.forEach(function(st, k){ st.stops.forEach(function(y){ path.push({k:k, y:y}); }); });
+    if (raf){ cancelAnimationFrame(raf); raf = 0; lastT = 0; }
+    pos = target = firstStop(keep);
+    render();
+  }
+
+  function showHint(){
+    clearTimeout(hintTimer);
+    if (steps.length < 2) return;
+    hintTimer = setTimeout(function(){
+      hintEl.classList.add('on');
+      hintTimer = setTimeout(hideHint, 2800);
+    }, 600);
+  }
+  function hideHint(){
+    clearTimeout(hintTimer);
+    if (hintEl) hintEl.classList.remove('on');
+  }
+
+  /* 휠 · 트랙패드 · 터치 : 한 제스처에 한 정지점씩.
+     · 움직인 양이 COMMIT(한 단위의 12% ≈ 36px)을 넘는 순간 곧바로 다음 정지점으로 출발하고
+     · 그 제스처가 끝날 때까지(입력이 GAP ms 끊길 때까지) 남은 입력은 무시한다
+       → 세게 쓸어도, 트랙패드 관성이 이어져도, 휠을 빠르게 굴려도 하나씩 걸린다
+     · 문턱 전에는 글이 입력을 살짝 따라오고, 넘지 못하고 멈추면 제자리로 돌아간다 */
+  var UNIT = 300, COMMIT = 0.12, GAP = 180;
+  var snapTimer = 0, from = 0, lastIn = 0, locked = false;
+  function nudge(d){
+    var now = performance.now();
+    if (now - lastIn > GAP){ from = Math.round(target); locked = false; }   // 새 제스처
+    lastIn = now;
+    clearTimeout(snapTimer);
+    if (locked) return;
+    var moved = target + d - from;
+    if (Math.abs(moved) >= COMMIT){ locked = true; moveTo(from + (moved > 0 ? 1 : -1)); }
+    else moveTo(from + moved);
+  }
+  function snap(){ if (!locked) setTarget(from); }
+
+  detailEl.addEventListener('wheel', function(e){
+    if (!articleOn()) return;
+    e.preventDefault();
+    var dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * mainEl.clientHeight : e.deltaY;
+    nudge(dy / UNIT);
+    snapTimer = setTimeout(snap, GAP);
+  }, {passive:false});
+
+  /* 흐린 절을 누르면 그 절로 (링크는 그대로 동작) */
+  detailEl.addEventListener('click', function(e){
+    if (!articleOn() || e.target.closest('a')) return;
+    var el = e.target.closest('.dt-step');
+    for (var k = 0; el && k < steps.length; k++){
+      if (steps[k].el === el && k !== shown){ moveTo(firstStop(k)); return; }
+    }
+  });
+
+  var touchY = null;
+  detailEl.addEventListener('touchstart', function(e){
+    touchY = articleOn() ? e.touches[0].clientY : null;
+    from = Math.round(target); locked = false;   // 손가락을 댈 때마다 새 제스처
+  }, {passive:true});
+  detailEl.addEventListener('touchmove', function(e){
+    if (touchY === null) return;
+    e.preventDefault();
+    lastIn = performance.now();   // 손가락을 뗄 때까지는 잠시 멈춰도 같은 제스처
+    var y = e.touches[0].clientY;
+    nudge((touchY - y) / Math.max(200, mainEl.clientHeight * 0.45));
+    touchY = y;
+  }, {passive:false});
+  detailEl.addEventListener('touchend', function(){
+    if (touchY === null) return;
+    touchY = null;
+    snap();
+  });
+
+  /* 크기가 바뀐 그 프레임에 다시 잰다 — 도판(CSS)과 글(JS)의 중심이 어긋나지 않게 */
+  if ('ResizeObserver' in window) new ResizeObserver(function(){ measure(); }).observe(detailEl);
+  else window.addEventListener('resize', measure);
 
   /* 껍데기를 다시 심고 끊어진 참조와 리스너를 되살린다 */
   function mountArticle(){
@@ -1009,7 +1312,10 @@ render();
     capEl  = document.getElementById('dtCap');
     mainEl = document.getElementById('dtMain');
     metaEl = document.getElementById('dtMeta');
+    countEl = document.getElementById('dtCount');
+    hintEl  = document.getElementById('dtHint');
     document.getElementById('dtOpenFig').addEventListener('click', openViewer);
+    document.documentElement.classList.remove('tk-on');
     mode = 'article';
   }
 
@@ -1025,18 +1331,21 @@ render();
     d.sections.forEach(function(s, i){
       var f = typeof s.fig === 'number' ? figures[s.fig] : null;
       plates.push(f && f.src
-        ? {html:photoPlate(f, f.cap || s.h), label:s.h, cap:f.cap}
+        ? {html:photoPlate(f, f.cap || s.h), label:s.h, cap:f.cap, photo:true}
         : {html:figPlate(it, i + 1, s.h), label:s.h});
     });
-    figsEl.innerHTML = plates.map(function(f, i){
-      return '<span class="fig' + (i ? '' : ' on') + '">' + f.html + '</span>';
+    /* 사진은 무대에 원래 비율로, 표지 · 타이포 도판은 260px 판(.plate)째로 확대해 건다 */
+    figsEl.innerHTML = plates.map(function(f){
+      return '<span class="fig">' + (f.photo ? f.html : '<span class="plate">' + f.html + '</span>') + '</span>';
     }).join('');
     capBase = it.id + ' · ' + it.date.replace(/-/g, '.');
     capEl.textContent = capBase;
     metaEl.textContent = [CAT[it.cat], it.sub, it.meta].filter(Boolean).join(' · ');
 
+    /* 글 전체를 한 줄기(.dt-flow)로. 단계마다 하나의 블록(.dt-step) */
     var lede = d.lede != null ? d.lede : d.lead;
-    var html = '<header class="dt-head" data-fig="0">'
+    var html = '<div class="dt-flow">'
+      + '<header class="dt-step dt-head">'
       + '<h2 id="dtTitle" tabindex="-1">' + esc(it.title) + '</h2>'
       + (lede ? '<p class="dt-lead">' + esc(lede) + '</p>' : '');
     /* meta 는 [라벨, 값] 쌍의 배열. 비어 있으면 표를 그리지 않는다 */
@@ -1046,90 +1355,371 @@ render();
       }).join('') + '</tbody></table>';
     }
     html += '</header>';
-    d.sections.forEach(function(s, i){
-      html += '<section class="dt-sec" data-fig="' + (i + 1) + '">'
-        + '<h3><span class="no">' + nn(i + 1) + '</span>' + esc(s.h) + '</h3>'
-        + (s.p || []).map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('')
-        + '</section>';
-    });
-    /* links 는 {label, href} 의 배열 */
+    /* links 는 {label, href} 의 배열. 링크와 돌아가기는 마지막 절에 붙인다 */
+    var tail = '';
     if (d.links && d.links.length){
-      html += '<ul class="dt-links">' + d.links.map(function(l){
+      tail += '<ul class="dt-links">' + d.links.map(function(l){
         return '<li><a href="' + esc(l.href) + '" target="_blank" rel="noopener">' + esc(l.label || l.href) + '</a></li>';
       }).join('') + '</ul>';
     }
-    html += '<p class="dt-end"><a href="#index">← 카테고리로 돌아가기</a></p>';
-    mainEl.innerHTML = html;
+    tail += '<p class="dt-end"><a href="#index">← 카테고리로 돌아가기</a></p>';
+    d.sections.forEach(function(s, i){
+      html += '<section class="dt-step dt-sec">'
+        + '<h3><span class="no">' + nn(i + 1) + '</span>' + esc(s.h) + '</h3>'
+        + (s.p || []).map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('')
+        + (i === d.sections.length - 1 ? tail : '')
+        + '</section>';
+    });
+    mainEl.innerHTML = html + '</div>';
+    flowEl = mainEl.firstChild;
+
+    steps = [];
+    mainEl.querySelectorAll('.dt-step').forEach(function(el){ steps.push({el:el, stops:[0]}); });
+    figEls = [].slice.call(figsEl.children);
+    shown = -1;
+    /* 입장 애니메이션을 매번 처음부터 */
+    [mainEl, figsEl].forEach(function(el){
+      el.classList.remove('enter');
+      void el.offsetWidth;
+      el.classList.add('enter');
+    });
 
     pageEl.hidden = true;
+    detailEl.classList.add('paged');
     detailEl.hidden = false;
     document.title = it.title + ' — 한지웅의 아카이브';
     window.scrollTo(0, 0);
-    observe();
+    measure();
+    showHint();
     document.getElementById('dtTitle').focus({preventScroll:true});
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
   }
 
-  /* ---- 연락 : 메일 초안 ---- */
-  function contactHTML(){
-    var mail = esc(CONTACT.email);
-    return '<header class="dt-top">'
-      + '<a href="#index">← 카테고리로</a>'
+  /* ---- 연락 : 탑승권 ----
+     #contact 에 들어올 때마다 새로 그리고, 출력구에서 프린터처럼 밀려 나온다.
+     id · 클래스는 전부 tk- 접두어 (색인 · 세부 페이지와 이름이 겹치지 않게) */
+  var tkRun = 0;   // 연락 페이지를 열 때마다 1 증가. 떠난 뒤 남은 타이머가 일하지 않게 한다
+  function tk(id){ return document.getElementById(id); }
+  var PLANE = 'M12 0 L2 -2 L-4 -10 L-7 -10 L-3 -2 L-9 -2 L-12 -6 L-14 -6 L-12 0 L-14 6 L-12 6 L-9 2 L-3 2 L-7 10 L-4 10 L2 2 Z';
+
+  function ticketHTML(){
+    var mail = esc(CONTACT.to);
+    return '<article class="tk-wrap">'
+      + '<header class="tk-top">'
+      +   '<a href="#index">홈으로</a>'
+      +   '<span class="tk-crumb">연락</span>'
+      +   '<span class="tk-tag">Contact</span>'
       + '</header>'
-      + '<div class="ct-wrap">'
-      + '<h2 class="ct-h" id="ctTitle" tabindex="-1">CONTACT'
-      +   '<span class="ct-caret" aria-hidden="true"></span></h2>'
-      + '<p class="ct-sub">하고 싶은 말을 담아 이곳에 적어주세요.</p>'
-      + '<div class="ct-row"><span class="ct-lab">받는 사람</span>'
-      +   '<span class="ct-fix">' + mail + '</span></div>'
-      + '<div class="ct-row"><label class="ct-lab" for="ctFrom">보내는 사람</label>'
-      +   '<input class="ct-in" id="ctFrom" type="email" autocomplete="email"></div>'
-      + '<div class="ct-row"><label class="ct-lab" for="ctSubj">제목</label>'
-      +   '<input class="ct-in" id="ctSubj" type="text"></div>'
-      + '<div class="ct-row"><label class="ct-lab" for="ctBody">내용</label>'
-      +   '<textarea class="ct-ta" id="ctBody"></textarea></div>'
-      + '<div class="ct-bar">'
-      +   '<button class="ct-send" id="ctSend" type="button">보내기</button>'
-      +   '<span class="ct-count" id="ctCount"></span></div>'
-      + '<p class="ct-links">'
-      +   '<span><b>직접 보내기</b><a href="mailto:' + mail + '">' + mail + '</a></span>'
-      +   '<span><b>GitHub</b><a href="' + esc(CONTACT.github) + '" target="_blank" rel="noopener">'
-      +   esc(CONTACT.githubLabel) + '</a></span></p>'
-      + '</div>';
+      + '<p class="tk-intro" id="tkIntro" tabindex="-1">탑승권을 작성해 보내면 한지웅에게 전달됩니다.</p>'
+      + '<div class="tk-stage" id="tkStage">'
+      +   '<div class="tk-slot" aria-hidden="true"><i></i></div>'
+      +   '<div class="tk-feed" id="tkFeed">'
+      +     '<form class="tk-ticket" id="tkTicket" novalidate>'
+      +       '<div class="tk-main" id="tkMain">'
+      +         '<div class="tk-strip"><b>HAN JIUNG ARCHIVE</b><span>BOARDING PASS · 탑승권</span></div>'
+      +         '<div class="tk-route">'
+      +           '<div class="tk-pt"><span class="tk-lab">FROM · 출발</span><b id="tkFromCode">YOU</b><span class="tk-sub" id="tkFromName">방문자</span></div>'
+      +           '<div class="tk-path" aria-hidden="true"><svg viewBox="-16 -12 32 24"><path fill="#121212" d="' + PLANE + '"/></svg></div>'
+      +           '<div class="tk-pt tk-r"><span class="tk-lab">TO · 도착</span><b>HJW</b><span class="tk-sub">한지웅</span></div>'
+      +         '</div>'
+      +         '<div class="tk-grid">'
+      +           '<label class="tk-f tk-w2"><span class="tk-lab">승객 이름 · PASSENGER</span>'
+      +             '<input id="tkName" autocomplete="name"><em class="tk-err"></em></label>'
+      +           '<label class="tk-f tk-w2"><span class="tk-lab">답장 받을 메일 · E-MAIL</span>'
+      +             '<input id="tkMail" type="email" autocomplete="email"><em class="tk-err"></em></label>'
+      +           '<label class="tk-f tk-w4"><span class="tk-lab">제목 · SUBJECT</span>'
+      +             '<input id="tkSubj"><em class="tk-err"></em></label>'
+      +           '<label class="tk-f"><span class="tk-lab">게이트 · GATE</span>'
+      +             '<select id="tkGate"></select><em class="tk-err"></em></label>'
+      +           '<div class="tk-f"><span class="tk-lab">편명 · FLIGHT</span><span class="tk-ro" id="tkFlight">—</span></div>'
+      +           '<div class="tk-f"><span class="tk-lab">좌석 · SEAT</span><span class="tk-ro" id="tkSeat">—</span></div>'
+      +           '<div class="tk-f"><span class="tk-lab">탑승 · BOARDING</span><span class="tk-ro" id="tkBoard">—</span></div>'
+      +           '<label class="tk-f tk-w4"><span class="tk-lab">내용 · MESSAGE</span>'
+      +             '<textarea id="tkMsg" rows="3"></textarea><em class="tk-err"></em></label>'
+      +         '</div>'
+      +         '<div class="tk-act">'
+      +           '<button class="tk-send" id="tkSend" type="submit">탑승권 보내기</button>'
+      +           '<span class="tk-fine">이 탑승권은 양도할 수 없습니다 · 답장은 적어 주신 메일로 갑니다</span>'
+      +         '</div>'
+      +         '<span class="tk-fail" id="tkFail" hidden></span>'
+      +         '<div class="tk-stamp" aria-hidden="true">CONFIRM<small>SENT</small></div>'
+      +       '</div>'
+      +       '<div class="tk-stub" id="tkStub">'
+      +         '<span class="tk-lab">BOARDING PASS</span>'
+      +         '<dl>'
+      +           '<dt>승객</dt><dd id="tkSName">방문자</dd>'
+      +           '<dt>게이트</dt><dd id="tkSGate">—</dd>'
+      +           '<dt>좌석</dt><dd id="tkSSeat">—</dd>'
+      +           '<dt>날짜</dt><dd id="tkSDate">—</dd>'
+      +         '</dl>'
+      +         '<div class="tk-bars" id="tkBars" aria-hidden="true"></div>'
+      +         '<span class="tk-code" id="tkSCode">—</span>'
+      +       '</div>'
+      +     '</form>'
+      +   '</div>'
+      +   '<svg class="tk-sky" id="tkSky" aria-hidden="true"></svg>'
+      +   '<div class="tk-done" id="tkDone" role="status" aria-live="polite">'
+      +     '<h2>탑승권을 보냈습니다</h2>'
+      +     '<p id="tkDText"></p>'
+      +     '<a href="#" class="tk-again" id="tkAgain">새 탑승권 쓰기</a>'
+      +   '</div>'
+      + '</div>'
+      + '<p class="tk-alt">'
+      +   '<span>직접 보내기 <a href="mailto:' + mail + '">' + mail + '</a></span>'
+      +   '<span>GitHub <a href="https://github.com/JIUNGCF" target="_blank" rel="noopener">JIUNGCF</a></span>'
+      + '</p>'
+      + '</article>';
   }
 
   /* innerHTML 로 매번 새로 그려지므로 렌더 직후 여기서 다시 연결한다 */
-  function bindContact(){
-    var bodyEl = document.getElementById('ctBody');
-    var cntEl  = document.getElementById('ctCount');
+  function bindTicket(run){
+    var stage = tk('tkStage'), feed = tk('tkFeed'), ticket = tk('tkTicket'), sky = tk('tkSky');
+    function live(){ return run === tkRun && mode === 'contact' && !detailEl.hidden; }
 
-    function paintCount(){ cntEl.textContent = bodyEl.value.length + '자'; }
-    bodyEl.addEventListener('input', paintCount);
-    paintCount();
+    /* 자동으로 채우는 칸 : 편명 · 좌석 · 탑승 시각 · 날짜 */
+    function pad(n){ return (n < 10 ? '0' : '') + n; }
+    function fill(){
+      var d = new Date();
+      var seat = (1 + Math.floor(Math.random() * 32)) + 'ABCDEF'.charAt(Math.floor(Math.random() * 6));
+      var flight = 'HJ ' + pad(d.getMonth() + 1) + pad(d.getDate());
+      tk('tkFlight').textContent = flight;
+      tk('tkSeat').textContent = seat;
+      tk('tkBoard').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
+      tk('tkSSeat').textContent = seat;
+      tk('tkSDate').textContent = d.getFullYear() + '.' + pad(d.getMonth() + 1) + '.' + pad(d.getDate());
+      tk('tkSCode').textContent = flight + ' · ' + seat;
+      drawBars();
+    }
 
-    document.getElementById('ctSend').addEventListener('click', function(){
-      var subj = document.getElementById('ctSubj').value;
-      var from = document.getElementById('ctFrom').value.trim();
-      var text = bodyEl.value;
-      if (from) text += '\n\n— 답장 주소: ' + from;
-      location.href = 'mailto:' + CONTACT.email
-        + '?subject=' + encodeURIComponent(subj)
-        + '&body=' + encodeURIComponent(text);
+    /* 이름으로 출발지 코드 만들기 : 한글은 앞 세 글자, 영문은 머리글자 */
+    function codeOf(n){
+      n = n.trim();
+      if (!n) return 'YOU';
+      if (/[가-힣]/.test(n)) return n.replace(/\s+/g, '').slice(0, 3);
+      var w = n.split(/\s+/);
+      var c = w.length > 1 ? w.map(function(x){ return x.charAt(0); }).join('') : n;
+      return (c.replace(/[^a-z]/gi, '').slice(0, 3).toUpperCase()) || 'YOU';
+    }
+
+    /* 이름과 좌석으로 매번 다른 바코드 */
+    function hash(s){ var h = 2166136261; for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+    function drawBars(){
+      var seed = hash(tk('tkName').value + tk('tkSSeat').textContent) || 7, out = '';
+      for (var i = 0; i < 46; i++){
+        seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+        out += '<i style="width:' + (1 + seed % 3) + 'px;margin-right:' + (1 + (seed >>> 8) % 2) + 'px"></i>';
+      }
+      tk('tkBars').innerHTML = out;
+    }
+
+    function gates(){
+      tk('tkGate').innerHTML = CONTACT.gates.map(function(g){ return '<option>' + esc(g) + '</option>'; }).join('');
+      tk('tkSGate').textContent = CONTACT.gates[0];
+    }
+
+    tk('tkName').addEventListener('input', function(){
+      var v = this.value.trim();
+      tk('tkFromCode').textContent = codeOf(v);
+      tk('tkFromName').textContent = v || '방문자';
+      tk('tkSName').textContent = v || '방문자';
+      drawBars();
     });
+    tk('tkGate').addEventListener('change', function(){ tk('tkSGate').textContent = this.value; });
+    tk('tkMsg').addEventListener('input', function(){ this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'; });
+
+    /* 입력 확인 : 이름 · 메일 · 내용 */
+    function setErr(id, msg){
+      var w = tk(id).closest('.tk-f');
+      w.classList.toggle('tk-bad', !!msg);
+      w.querySelector('.tk-err').textContent = msg || '';
+    }
+    ['tkName', 'tkMail', 'tkMsg'].forEach(function(id){
+      tk(id).addEventListener('input', function(){ setErr(id, ''); });
+    });
+    function check(){
+      var ok = true;
+      if (!tk('tkName').value.trim()){ setErr('tkName', '이름을 적어 주세요.'); ok = false; }
+      var m = tk('tkMail').value.trim();
+      if (!m){ setErr('tkMail', '답장 받을 메일을 적어 주세요.'); ok = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m)){ setErr('tkMail', '메일 주소 형식을 확인해 주세요.'); ok = false; }
+      if (!tk('tkMsg').value.trim()){ setErr('tkMsg', '내용을 적어 주세요.'); ok = false; }
+      return ok;
+    }
+
+    /* 전송 : 키가 없으면 mailto, 있으면 Web3Forms */
+    function data(){
+      return {
+        name: tk('tkName').value.trim(),
+        email: tk('tkMail').value.trim(),
+        subject: tk('tkSubj').value.trim(),
+        gate: tk('tkGate').value,
+        message: tk('tkMsg').value.trim(),
+        seat: tk('tkSSeat').textContent,
+        flight: tk('tkFlight').textContent
+      };
+    }
+    function subjectOf(d){ return '[아카이브 · ' + d.gate + '] ' + (d.subject || d.name + '님의 탑승권'); }
+    function send(d){
+      if (!CONTACT.web3formsKey) return Promise.resolve('mailto');
+      return fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: JSON.stringify({
+          access_key: CONTACT.web3formsKey,
+          subject: subjectOf(d),
+          from_name: '한지웅의 아카이브',
+          name: d.name, email: d.email, message: d.message,
+          gate: d.gate, seat: d.seat, flight: d.flight
+        })
+      }).then(function(r){ return r.json(); })
+        .then(function(j){ return j && j.success ? 'sent' : 'fail'; })
+        .catch(function(){ return 'fail'; });
+    }
+    function openMail(d){
+      var body = d.message + '\n\n— ' + d.name + ' (' + d.email + ')\n— 게이트 ' + d.gate + ' · 좌석 ' + d.seat + ' · ' + d.flight;
+      location.href = 'mailto:' + CONTACT.to
+        + '?subject=' + encodeURIComponent(subjectOf(d))
+        + '&body=' + encodeURIComponent(body);
+    }
+
+    /* 비행 경로 : 지나간 자리에 점을 찍는다 */
+    function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+    function takeoff(){
+      return new Promise(function(done){
+        var sr = stage.getBoundingClientRect(), mr = tk('tkMain').getBoundingClientRect();
+        var sx = mr.left - sr.left + mr.width * 0.5, sy = mr.top - sr.top + mr.height * 0.45;
+        var ex = sr.width + 120, ey = -Math.max(220, sr.top + 120);
+        var cx = sx + (ex - sx) * 0.72, cy = sy + 10;
+        var NS = 'http://www.w3.org/2000/svg';
+        sky.style.opacity = 1;
+        sky.innerHTML = '';
+        var trail = document.createElementNS(NS, 'path');
+        trail.setAttribute('d', 'M' + sx + ' ' + sy + ' Q' + cx + ' ' + cy + ' ' + ex + ' ' + ey);
+        trail.setAttribute('fill', 'none');
+        sky.appendChild(trail);
+        var plane = document.createElementNS(NS, 'path');
+        plane.setAttribute('class', 'tk-pl');
+        plane.setAttribute('d', PLANE);
+        sky.appendChild(plane);
+
+        var L = trail.getTotalLength(), T = 1150, t0 = null, lastDot = 0;
+        function step(ts){
+          if (!live()){ done(); return; }
+          if (t0 === null) t0 = ts;
+          var t = Math.min(1, (ts - t0) / T), s = t * t;
+          var l = L * s, p = trail.getPointAtLength(l), q = trail.getPointAtLength(Math.min(L, l + 1));
+          var a = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
+          plane.setAttribute('transform', 'translate(' + p.x + ' ' + p.y + ') rotate(' + a + ')');
+          while (lastDot + 14 < l - 18){
+            lastDot += 14;
+            var pt = trail.getPointAtLength(lastDot), c = document.createElementNS(NS, 'circle');
+            c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y); c.setAttribute('r', 1.6);
+            sky.insertBefore(c, plane);
+          }
+          if (t < 1) requestAnimationFrame(step);
+          else { setTimeout(function(){ sky.style.opacity = 0; }, 500); done(); }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    /* 보내기 순서 : 도장 → 떼어내기 → 날아가기 → 이륙 → 완료 */
+    ticket.addEventListener('submit', async function(e){
+      e.preventDefault();
+      tk('tkFail').hidden = true;
+      if (!check()) return;
+
+      var d = data(), btn = tk('tkSend');
+      btn.disabled = true;
+      btn.textContent = '발권 중...';
+
+      var result = await send(d);
+      if (!live()) return;
+      if (result === 'fail'){
+        btn.disabled = false;
+        btn.textContent = '탑승권 보내기';
+        tk('tkFail').hidden = false;
+        tk('tkFail').textContent = '전송에 실패했습니다. 잠시 뒤 다시 보내거나 아래 메일 주소로 직접 보내 주세요.';
+        return;
+      }
+
+      ticket.querySelectorAll('input,select,textarea').forEach(function(el){ el.readOnly = true; el.disabled = el.tagName === 'SELECT'; });
+      tk('tkDText').textContent = result === 'sent'
+        ? '답장은 ' + d.email + ' 로 드리겠습니다. 떼어 낸 쪽은 기념으로 남겨 두세요.'
+        : '메일 앱이 열리면 보내기를 눌러 주세요. 열리지 않으면 아래 주소로 직접 보내 주시면 됩니다.';
+
+      ticket.classList.add('tk-stamped');
+      if (still.matches){
+        stage.classList.add('tk-landed');
+        tk('tkMain').style.visibility = 'hidden';
+      } else {
+        await wait(560);
+        if (!live()) return;
+        ticket.classList.add('tk-torn');
+        await wait(380);
+        if (!live()) return;
+        ticket.classList.add('tk-flown');
+        await takeoff();
+        if (!live()) return;
+        stage.classList.add('tk-landed');
+      }
+      if (result === 'mailto') setTimeout(function(){ if (live()) openMail(d); }, 400);
+    });
+
+    /* 다시 쓰기 */
+    tk('tkAgain').addEventListener('click', function(e){
+      e.preventDefault();
+      stage.classList.remove('tk-landed');
+      ticket.classList.remove('tk-stamped', 'tk-torn', 'tk-flown');
+      tk('tkMain').style.visibility = '';
+      ticket.reset();
+      ticket.querySelectorAll('input,select,textarea').forEach(function(el){ el.readOnly = false; el.disabled = false; });
+      tk('tkFromCode').textContent = 'YOU'; tk('tkFromName').textContent = '방문자';
+      tk('tkSName').textContent = '방문자'; tk('tkSGate').textContent = CONTACT.gates[0];
+      tk('tkSend').disabled = false; tk('tkSend').textContent = '탑승권 보내기';
+      tk('tkMsg').style.height = '';
+      sky.innerHTML = '';
+      fill();
+      print();
+    });
+
+    /* 등장 : 프린터에서 출력되듯 */
+    function print(){
+      if (still.matches){ feed.classList.add('tk-ready'); return; }
+      feed.classList.remove('tk-ready', 'tk-go');
+      void feed.offsetWidth;
+      stage.classList.add('tk-printing');
+      feed.classList.add('tk-go');
+      setTimeout(function(){
+        if (!live()) return;
+        stage.classList.remove('tk-printing');
+        feed.classList.add('tk-ready');
+      }, 1600);
+    }
+
+    gates();
+    fill();
+    print();
   }
 
   function openContact(){
     closeViewer();
-    if (io){ io.disconnect(); io = null; }
+    hideHint();
     cur = null;
     plates = [];
+    steps = []; path = []; figEls = [];
+    if (raf){ cancelAnimationFrame(raf); raf = 0; lastT = 0; }
     mode = 'contact';
-    detailEl.innerHTML = contactHTML();
+    tkRun++;
+    detailEl.classList.remove('paged');
+    detailEl.innerHTML = ticketHTML();
+    document.documentElement.classList.add('tk-on');
     pageEl.hidden = true;
     detailEl.hidden = false;
-    document.title = '\uc5f0\ub77d \u2014 ' + baseTitle.split(' \u2014 ')[0];
+    document.title = '연락 — ' + baseTitle.split(' — ')[0];
     window.scrollTo(0, 0);
-    bindContact();
-    document.getElementById('ctTitle').focus({preventScroll:true});
+    bindTicket(tkRun);
+    tk('tkIntro').focus({preventScroll:true});
   }
 
   function closeDetail(){
@@ -1138,7 +1728,9 @@ render();
     detailEl.hidden = true;
     pageEl.hidden = false;
     document.title = baseTitle;
-    if (io){ io.disconnect(); io = null; }
+    hideHint();
+    detailEl.classList.remove('paged');
+    document.documentElement.classList.remove('tk-on');
   }
 
   function route(){
@@ -1210,6 +1802,8 @@ render();
     if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
     viewer.hidden = true;
     document.body.style.overflow = '';
+    /* 뷰어에서 넘긴 도판에 맞춰 본문 단계도 옮긴다 */
+    if (mode === 'article' && steps.length && vwI !== shown) moveTo(firstStop(vwI));
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
@@ -1239,6 +1833,10 @@ render();
     if (viewer.hidden){
       if (detailEl.hidden || mode !== 'article') return;
       if (e.key === 'f' || e.key === 'F'){ e.preventDefault(); openViewer(); }
+      else if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){ e.preventDefault(); go(1); }
+      else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)){ e.preventDefault(); go(-1); }
+      else if (e.key === 'Home'){ e.preventDefault(); moveTo(0); }
+      else if (e.key === 'End'){ e.preventDefault(); moveTo(path.length - 1); }
       return;
     }
     if (e.key === 'Escape'){
