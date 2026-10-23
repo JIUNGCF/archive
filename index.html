@@ -15,7 +15,7 @@
   --ink:#121212;
   --red:#e0301e;
   --pad:22px;
-  --lab:#7a766e;   /* 탑승권 라벨 */
+  --lab:#121212;   /* 탑승권 라벨 · 보조 글씨 (흰 종이 위 가독성을 위해 검정) */
   --line:#c9c5bc;  /* 탑승권 밑줄 */
 }
 *{box-sizing:border-box}
@@ -311,7 +311,7 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 /* ---------- contact : 탑승권 ----------
    색인 쪽 클래스(.grid .main .top …)와 겹치지 않게 모든 이름에 tk- 를 붙인다 */
 html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가로 스크롤을 만들지 않게 — 연락 페이지에서만 */
-.tk-wrap{padding:0 0 12vh}
+.tk-wrap{padding:0 0 12vh;--tk-paper:#fff}   /* 탑승권 종이만 흰색 */
 .tk-wrap input,.tk-wrap select,.tk-wrap textarea{font:inherit;color:inherit;letter-spacing:inherit}
 .tk-top{display:flex;align-items:baseline;gap:18px;padding-bottom:30px}
 .tk-top .tk-crumb{color:var(--dim)}
@@ -332,15 +332,21 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 .tk-feed.tk-go .tk-ticket{animation:tk-feed 1.35s cubic-bezier(.22,.8,.24,1) .2s forwards}
 @keyframes tk-feed{to{transform:translateY(0)}}
 
-.tk-main{position:relative;flex:1 1 auto;min-width:0;background:var(--paper);border-radius:6px 0 0 6px}
-.tk-stub{position:relative;flex:0 0 230px;background:var(--paper);border-left:2px dashed #bdb8ad;border-radius:0 6px 6px 0;
-  padding:18px 18px 16px;display:flex;flex-direction:column}
-.tk-stub::before,.tk-stub::after{content:"";position:absolute;left:-12px;width:22px;height:22px;border-radius:50%;background:var(--bg)}
-.tk-stub::before{top:-11px}
-.tk-stub::after{bottom:-11px}
+.tk-main{position:relative;flex:1 1 auto;min-width:0;background:var(--tk-paper);border-radius:10px 0 0 10px}
+.tk-stub{position:relative;flex:0 0 240px;background:var(--tk-paper);border-radius:0 10px 10px 0;
+  padding:18px 18px 16px 30px;display:flex;flex-direction:column}
+/* 절취선 위아래의 반원 홈 */
+.tk-stub::before,.tk-stub::after{content:"";position:absolute;left:-13px;width:26px;height:26px;border-radius:50%;background:var(--bg);z-index:1}
+.tk-stub::before{top:-13px}
+.tk-stub::after{bottom:-13px}
+/* 절취선 : 점선 대신 종이를 뚫은 구멍 줄 (본체와 떼어내는 쪽 경계에 걸쳐 놓는다) */
+.tk-perf{position:absolute;top:16px;bottom:16px;left:-4px;width:8px;
+  background:radial-gradient(circle,var(--bg) 2.4px,transparent 2.9px) 50% 0/8px 11px repeat-y}
+.tk-tear{position:absolute;left:9px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;
+  font-size:8.5px;letter-spacing:.24em;color:var(--lab);white-space:nowrap;pointer-events:none}
 
-.tk-strip{display:flex;justify-content:space-between;gap:12px;background:var(--ink);color:var(--paper);
-  padding:9px 22px;border-radius:6px 0 0 0;font-size:11px;letter-spacing:.08em}
+.tk-strip{display:flex;justify-content:space-between;gap:12px;background:var(--ink);color:#fff;
+  padding:9px 22px;border-radius:10px 0 0 0;font-size:11px;letter-spacing:.08em}
 .tk-strip b{font-weight:700}
 
 .tk-route{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;gap:0 18px;padding:20px 22px 16px;border-bottom:1px solid var(--line)}
@@ -350,7 +356,7 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 .tk-pt.tk-r{text-align:right}
 .tk-path{position:relative;height:26px;margin-bottom:22px}
 .tk-path::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1.5px dashed #a9a497}
-.tk-path svg{position:absolute;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%);background:var(--paper);padding:0 4px;box-sizing:content-box}
+.tk-path svg{position:absolute;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%);background:var(--tk-paper);padding:0 4px;box-sizing:content-box}
 
 .tk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 20px;padding:16px 22px 6px}
 .tk-f{display:block;min-width:0}
@@ -366,7 +372,7 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 .tk-f.tk-bad input,.tk-f.tk-bad textarea{border-bottom-color:var(--red)}
 
 .tk-act{display:flex;align-items:center;gap:16px;padding:10px 22px 20px}
-.tk-send{border:0;background:var(--ink);color:var(--paper);padding:10px 22px;font-size:13px;cursor:pointer}
+.tk-send{border:0;background:var(--ink);color:#fff;padding:10px 22px;font-size:13px;cursor:pointer}
 .tk-send:hover{background:var(--red);color:#fff}
 .tk-send:disabled{opacity:.6;cursor:default}
 .tk-fine{font-size:10px;color:var(--lab);margin-left:auto;text-align:right}
@@ -411,11 +417,13 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 /* 좁은 화면 : 떼어내는 쪽이 아래로 */
 @media (max-width:760px){
   .tk-ticket{flex-direction:column}
-  .tk-main{border-radius:6px 6px 0 0}
-  .tk-strip{border-radius:6px 6px 0 0}
-  .tk-stub{flex-basis:auto;border-left:0;border-top:2px dashed #bdb8ad;border-radius:0 0 6px 6px}
-  .tk-stub::before{left:-11px;top:-12px}
-  .tk-stub::after{left:auto;right:-11px;top:-12px;bottom:auto}
+  .tk-main{border-radius:10px 10px 0 0}
+  .tk-strip{border-radius:10px 10px 0 0}
+  .tk-stub{flex-basis:auto;border-radius:0 0 10px 10px;padding-left:18px}
+  .tk-stub::before{left:-13px;top:-13px}
+  .tk-stub::after{left:auto;right:-13px;top:-13px;bottom:auto}
+  .tk-perf{top:-4px;bottom:auto;left:16px;right:16px;width:auto;height:8px;background-size:11px 8px;background-repeat:repeat-x;background-position:0 50%}
+  .tk-tear{display:none}
   .tk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tk-f.tk-w2{grid-column:1 / -1}
   .tk-fine{display:none}
@@ -1445,6 +1453,8 @@ render();
       +         '<div class="tk-stamp" aria-hidden="true">CONFIRM<small>SENT</small></div>'
       +       '</div>'
       +       '<div class="tk-stub" id="tkStub">'
+      +         '<i class="tk-perf" aria-hidden="true"></i>'
+      +         '<span class="tk-tear" aria-hidden="true">✂ TEAR HERE · 절취선</span>'
       +         '<span class="tk-lab">BOARDING PASS</span>'
       +         '<dl>'
       +           '<dt>승객</dt><dd id="tkSName">방문자</dd>'
