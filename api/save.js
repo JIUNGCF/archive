@@ -36,7 +36,8 @@ async function ghJson(path, token, init){
   return r.json();
 }
 
-/* admin 은 pages: [{title, text, photos:[{file, sha}]}] 를 보낸다 (data 를 직접 넣어도 된다).
+/* admin 은 pages: [{title, text, en:{title, text}, photos:[{file, sha}]}] 와
+   en: {title, sub, lede, meta, tags} 를 보낸다 (사진은 data 를 직접 넣어도 된다).
    예전 형식(figures: [{file, data, title, text}], 사진 1장 = 1페이지)도 받아 준다. */
 function pagesOf(post){
   if (Array.isArray(post.pages)) return post.pages;
@@ -66,7 +67,14 @@ function toDetail(post, shas){
     s.p = paras(pg.text);
     sections.push(s);
   });
-  return { lede: post.lede || post.sub || '', meta: [], figures, sections, links: [] };
+  const out = { lede: post.lede || post.sub || '', meta: [], figures, sections, links: [] };
+  /* 영어 : en = {lede, sections:[{h, p}]} — sections 와 같은 순서. 비어 있는 칸은 사이트가 한국어를 쓴다 */
+  const pe = pagesOf(post).map(pg => pg.en || {});
+  const lede = post.en && post.en.lede ? String(post.en.lede) : '';
+  if (lede || pe.some(e => e.title || e.text)){
+    out.en = { lede, sections: pe.map(e => ({ h: e.title ? String(e.title) : '', p: paras(e.text) })) };
+  }
+  return out;
 }
 
 /* 사진 표지(cover: 'photo')는 coverFile 이 가리키는 사진을 쓴다. 없으면 첫 사진, 사진이 없으면 기본 표지 */
@@ -82,6 +90,10 @@ function toItem(post, shas){
     if (file) item.coverSrc = imgSrc(file, shas);
     else item.cover = 'gridnum';
   }
+  /* 영어 제목 · 설명 · 표기 · 태그 (적은 것만) */
+  const en = {};
+  ['title', 'sub', 'meta', 'tags'].forEach(k => { if (post.en && post.en[k]) en[k] = String(post.en[k]); });
+  if (Object.keys(en).length) item.en = en;
   return item;
 }
 

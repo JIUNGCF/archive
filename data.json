@@ -9,7 +9,11 @@
       "meta": "",
       "cover": "photo",
       "tags": "",
-      "coverSrc": "img/r-017-1.jpg?v=4cff422"
+      "coverSrc": "img/r-017-1.jpg?v=4cff422",
+      "en": {
+        "title": "Green Building Services Competition",
+        "sub": "Applying Geothermal Heat Pumps in Dense Cities"
+      }
     },
     {
       "id": "r-016",
@@ -20,7 +24,13 @@
       "meta": "최우수상",
       "cover": "photo",
       "tags": "공모전",
-      "coverSrc": "img/r-016-1.jpg"
+      "coverSrc": "img/r-016-1.jpg",
+      "en": {
+        "title": "Konkuk University Idea Competition",
+        "sub": "A Student-Centered Campus: Better Walking Through Parklets",
+        "meta": "Grand Prize",
+        "tags": "competition"
+      }
     },
     {
       "id": "a-015",
@@ -31,7 +41,12 @@
       "meta": "note 1",
       "cover": "photo",
       "tags": "서포터즈",
-      "coverSrc": "img/a-015-1.jpg"
+      "coverSrc": "img/a-015-1.jpg",
+      "en": {
+        "title": "Seoul Environmental Health Center Supporters",
+        "sub": "Seoul Environmental Health Center Supporters",
+        "tags": "supporters"
+      }
     }
   ],
   "detail": {
@@ -121,7 +136,45 @@
           ]
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "After a trip to South America in 2024, I became interested in the environment. Looking out over the vast nature of Patagonia, I hoped it would never be destroyed.",
+        "sections": [
+          {
+            "h": "Launch ceremony",
+            "p": [
+              "While looking for an activity to take on, I came across the supporters program at the Environmental Health Center. I knew nothing about environmental health, but I applied simply because it was about the environment. I submitted a personal statement and a record of my activities, and was finally accepted.",
+              "You may be familiar with the words 'environment' and 'health', but 'environmental health' as a term may feel unfamiliar. Had I not looked it up before applying, it would have been unfamiliar to me too.",
+              "It is a concept that aims to protect people's health and the integrity of ecosystems from environmental factors. Under Korea's Environmental Health Act, it means investigating and assessing how environmental pollution under the Framework Act on Environmental Policy and hazardous chemicals under the Chemicals Control Act affect human health and ecosystems, and preventing and managing those effects.",
+              "That is the dictionary definition, but I like to put it more simply. In the end, people live alongside the environment and are shaped by it, for better and for worse. As problems like pollution grow more serious and the environment begins to threaten public health, environmental health, to me, is the field that works to study and solve them."
+            ]
+          },
+          {
+            "h": "Content",
+            "p": [
+              "The main activity was creating one piece of environmental-health content each month, in the form of card news. Drawing on my architecture major, I wrote about topics such as building materials and indoor environmental quality (IEQ)."
+            ]
+          },
+          {
+            "h": "Offline event",
+            "p": [
+              "The Environmental Health Center's first offline event. I volunteered at the Environment Love Festival in Songpa and saw how many organizations and groups are working for the environment."
+            ]
+          },
+          {
+            "h": "Second offline event",
+            "p": [
+              "The supporters' second offline event. Our booth taught children about environmental health and ran a quiz. I still remember the bright, curious eyes of the kids who cared about the environment."
+            ]
+          },
+          {
+            "h": "Completion",
+            "p": [
+              "In the end, I finished as the top supporter and also received the Mayor of Seoul's award. The program played a decisive role in choosing my path: it deepened my interest in building services and energy, and in the environment."
+            ]
+          }
+        ]
+      }
     },
     "r-016": {
       "lede": "2024 건국대학교 아이디어 경진대회 최우수상 · 팀 체인지업\n\n2024년 건국대학교 아이디어 경진대회에 팀 체인지업으로 참가해 최우수상을 받은 제안이다. 일감호를 둘러싼 2차로 가운데 한 차선 위에 파클렛을 놓아, 새 부지 없이 폭 5m·길이 300m의 보행 휴식 공간을 만드는 것이 핵심이다.",
@@ -297,7 +350,107 @@
           ]
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "Grand Prize, 2024 Konkuk University Idea Competition · Team Change Up\n\nOur proposal for the 2024 Konkuk University Idea Competition, which won the Grand Prize under the team name Change Up. The core idea is to place parklets on one lane of the two-lane road around Ilgam Lake, creating a 5 m wide, 300 m long space for walking and resting without any new land.",
+        "sections": [
+          {
+            "h": "The proposal on one sheet",
+            "p": [
+              "This is the A1 panel we submitted. It holds everything on one sheet: the problem, the theory, installation, traffic verification and the master plan.",
+              "The large image in the middle shows parklet modules placed on the road beside Ilgam Lake. The sections that follow walk through the panel one part at a time."
+            ]
+          },
+          {
+            "h": "Students walking on the road, not the sidewalk",
+            "p": [
+              "Walk across campus on the way to a first-period class and you will easily see students crossing the road or walking along it. At peak hours, the sidewalks are simply too narrow for everyone. Cars and people end up sharing one path, and dangerous moments follow.",
+              "So our team saw this not as a matter of separating pedestrians from cars, but as a shortage of walking space itself. We believed a campus should be a place where students move safely, and also a place to rest and share their differences with one another."
+            ]
+          },
+          {
+            "h": "Nowhere to sit by Ilgam Lake",
+            "p": [
+              "Konkuk University has a great asset in Ilgam Lake. Outside festival periods, however, the area around the lake hardly feels like a space for students.",
+              "Including Cheongsimdae, there are 38 benches around Ilgam Lake, and they are crowded into just 9% of the 1.4 km shoreline. Against 22,409 enrolled students, that is only 1.7 benches per 1,000 students. Barcelona, known as a walkable city, has 16.9 per 1,000 residents."
+            ]
+          },
+          {
+            "h": "Is the campus safe from traffic accidents?",
+            "p": [
+              "The campus is busy with electric scooters and cars moving between the main and back gates. According to the Samsung Fire & Marine Insurance Traffic Safety Research Institute data we cited, accidents rose 59.8%, from 92 in 2021 to 147 in 2023. Over the same period, injuries rose 51.4%, from 37 to 56.",
+              "News stories about traffic accidents on campus kept appearing, too. Widening the walking area was therefore about more places to rest and, at the same time, about lowering the risk of accidents."
+            ]
+          },
+          {
+            "h": "Small, fast, cheap — tactical urbanism",
+            "p": [
+              "Tactical urbanism is a temporary, experimental planning approach that changes urban space quickly and at low cost. Because it uses short-term commitments to bring about long-term change, the risk is low and the payoff is high.",
+              "A well-known example is Barcelona's Superblock project. Barcelona first created pedestrian space by laying turf over on-street parking and painting the pavement. Having confirmed the effect, the city is now looking for ways to extend the approach citywide.",
+              "A parklet is one way to put this strategy into practice. Installed on a traffic lane, it widens the sidewalk, and people use it to rest, park bicycles or busk. Above all, it is cheap and easy to install and remove."
+            ]
+          },
+          {
+            "h": "Where and how to place them",
+            "p": [
+              "Our team proposed placing parklets on one lane of the two-lane road around Ilgam Lake. This gives a 5 m wide, 300 m long space for walking and resting without developing any new land.",
+              "Since one lane disappears, we redesigned vehicle circulation. We divided the campus into three zones, A, B and C, and changed the road beside the lake from two lanes to a single one-way lane. Then we checked, zone by zone, how cars would enter and leave through the main and back gates.",
+              "Narrowing a lane helps safety in itself. A Johns Hopkins University report concludes that wide lanes make drivers comfortable and lead to speeding, while narrow lanes slow them down. In San Francisco's Pavement to Parks program, 61% of pedestrians on parklets said they felt very safe from traffic."
+            ]
+          },
+          {
+            "h": "The parklet module",
+            "p": [
+              "We designed the parklet as modules that can be assembled and taken apart. The modules tessellate, so they join easily and can be set up or cleared away whenever needed.",
+              "We also built small drawers into the modules, so students can leave notebooks or books there and share them. The module was meant to be more than a seat: a place to exchange memories and stories.",
+              "The materials are nyatoh wood, laminated timber, MDF, standard plywood and memory foam. We listed the price of each material on the panel to show a realistic cost range. We also chose wood because its growth rings, a symbol of diligence and perseverance, fit the university's values."
+            ]
+          },
+          {
+            "h": "Beside Ilgam Lake",
+            "p": [
+              "This scene composites parklets onto a photo of the actual road beside Ilgam Lake. The parklet takes up one lane, separated from traffic by traffic cones.",
+              "Students sit on it, talk and rest while looking out over the lake, while cars keep passing in the remaining lane. Adding space for students without blocking traffic is exactly what this scene is meant to show."
+            ]
+          },
+          {
+            "h": "Won't fewer lanes mean traffic jams?",
+            "p": [
+              "Removing a lane could cause congestion, so our team first counted the traffic ourselves. On Monday, September 30, 2024, from 7:50 to 8:50 a.m., 75 cars passed through the main gate and 235 through the back gate. The back gate was busiest from 8:00 to 8:10, with 74 cars.",
+              "Using these figures, we calculated the shock-wave speed with Newell's Traffic Flow Model, entering the campus speed limit of 30 km/h, a congested speed of 15 km/h, 310 vehicles per hour, and 217 after applying a reduction factor. The shock-wave speed came out negative, at −22.3 km/h, so we predicted that no congestion would occur.",
+              "Finally, we analyzed pedestrian flow with Urbano, a Grasshopper plug-in for Rhino, and checked that it matched the measured data."
+            ]
+          },
+          {
+            "h": "We asked the students",
+            "p": [
+              "We surveyed 23 students. 96% said they had stepped off the sidewalk onto the road while walking on campus. The most common reason was that the sidewalk was too narrow (65%), followed by the road being easier to walk on (27%).",
+              "Asked whether they felt safe from traffic accidents, only 22% said yes, in sharp contrast to the more than 60% who felt very safe in the San Francisco case. Asked whether there were enough places to sit, rest or eat, 43% answered 'no' or 'not at all'.",
+              "We also asked what difference parklets might make. The most common answers were that the campus would feel more vibrant and that they would be nice for sitting down for a moment. Some noted, though, that depending on the location, more people might pass by than stay."
+            ]
+          },
+          {
+            "h": "Growing green space: the master plan",
+            "p": [
+              "Tactical urbanism is short-term change in service of long-term change. So our team saw parklets not as the final answer, but as the first step in a master plan Konkuk University could build on.",
+              "The top of the section drawing is today's road; the bottom is the walkway widened by parklets. As such attempts add up, the green space around Ilgam Lake grows, and so does the room for students to stay. The two plans on the left set the lake's surroundings today and after the change side by side."
+            ]
+          },
+          {
+            "h": "Grand Prize, 2024 Idea Competition",
+            "p": [
+              "On October 29, 2024, this proposal won the Grand Prize at Konkuk University's 2024 Idea Competition. Our team name was Change Up.",
+              "In short, parklets are a new kind of campus street that can be tried at low cost. They give students more room to rest and to meet, lower the risk of accidents, and don't block traffic. We hoped this would be a small first step toward a student-centered campus."
+            ]
+          },
+          {
+            "h": "Event photos",
+            "p": [
+              "Shout out to Yubin, Seungju, Kangmin and me"
+            ]
+          }
+        ]
+      }
     },
     "r-017": {
       "lede": "유휴부지를 활용한 공동주택과 학교의 열 공유 그리드 · 2024 건축친환경설비 기술 공모전\n\n2024년 건축친환경설비 기술 공모전의 Green Shift Building Technology 경진대회, 창의 아이디어 분야에 낸 제안이다. 기존 건물이 빽빽한 도심에서 지열을 쓰기 위해, 학교 운동장에 지중열 교환기를 놓고 학교와 공동주택이 이를 시간대별로 나눠 쓰는 방법을 제안했다.",
@@ -444,7 +597,88 @@
           ]
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "A heat-sharing grid for apartments and schools on idle land · 2024 Green Building Services Technology Competition\n\nOur entry to the Creative Idea category of the Green Shift Building Technology Contest, part of the 2024 Green Building Services Technology Competition. To make geothermal energy usable in dense cities where buildings already fill every lot, we proposed placing ground heat exchangers under a school playground and letting the school and the nearby apartments share them by time of day.",
+        "sections": [
+          {
+            "h": "The proposal on one sheet",
+            "p": [
+              "This is the A0 panel we submitted. It runs from the introduction to the core idea, verification, conclusion and further research. The core question was a single one: how can we use geothermal energy in a city that is already packed with buildings?",
+              "Han Jiung and Ok Yubin worked on it together, under the guidance of Professor Lim Hyunwoo of the Department of Architectural Engineering at Konkuk University."
+            ]
+          },
+          {
+            "h": "Why geothermal, and why apartments",
+            "p": [
+              "Buildings account for more than 30% of energy consumption across all sectors. According to the Ministry of Land, Infrastructure and Transport's 2022 building energy statistics, total energy use rose 5.9% from the previous year, and use per unit of floor area rose 2.7%.",
+              "Meanwhile, the government aims to cut building energy consumption by more than 30% by 2050 and to make Zero Energy Building (ZEB) certification mandatory. ZEB certification requires an energy self-sufficiency rate of at least 20%, so renewable energy is essential. Among renewables, geothermal has the advantage of staying steady all year round, unaffected by weather or outside conditions.",
+              "And among building types, apartments use the most energy. In Seoul's statistics, apartments show the highest consumption of electricity, gas and district heating alike. Cutting the energy use of apartments therefore has a large effect on the building sector as a whole."
+            ]
+          },
+          {
+            "h": "Under the playground, not under the building",
+            "p": [
+              "Ground heat exchangers are usually drilled beneath the building itself. In a city where buildings already stand, that isn't possible, and there is almost no room left inside an apartment complex for new boreholes.",
+              "So we looked at placing ground heat exchangers in idle urban spaces and connecting them to a mechanical room that supplies the buildings. Idle spaces could be parks, school playgrounds or roads. We chose school playgrounds because most schools sit inside an apartment complex or right next to one.",
+              "As a concrete site, we chose Jamil Elementary School and Jamsil Ells Apartments in Jamsil-dong, Songpa-gu. The black columns in the drawing are the ground heat exchangers placed around the edge of the playground."
+            ]
+          },
+          {
+            "h": "Open-loop instead of closed-loop heat pumps",
+            "p": [
+              "Closed-loop geothermal heat pumps are the norm today. But they are hard to repair when they fail, and they need many boreholes and therefore a large area. Packing many ground heat exchangers into a small plot can also raise ground temperatures, creating an underground heat island.",
+              "Open-loop geothermal heat pumps, by contrast, must be drilled deeper, which makes construction harder. But one borehole serves about 1,000 m², ten times the roughly 100 m² of a closed-loop one, and its diameter is only 210 mm. We therefore judged open-loop to be the best fit for dense cities."
+            ]
+          },
+          {
+            "h": "Two buildings with opposite schedules",
+            "p": [
+              "Hourly electricity consumption coefficients from the Korean Statistical Information Service (KOSIS) show schools and apartments tracing opposite curves. Schools use the most from 9 a.m. to 5 p.m.; apartments use the most from 5 p.m. to midnight.",
+              "If the two buildings share ground heat exchangers, fewer are needed. A single borehole can simply send heating and cooling energy to whichever building is at peak demand at that hour."
+            ]
+          },
+          {
+            "h": "School by day, apartments by night",
+            "p": [
+              "At school, students and staff use the building from 8 a.m. to 5 p.m. Apartments are used from around 6 p.m., when people come home from work and school, until around 8 a.m., when they leave again. So one ground heat exchanger sends heating and cooling energy to the school by day and to the apartments by night.",
+              "This way the ground heat exchangers work around the clock instead of only at certain hours. And since the two buildings share what would otherwise be two separate sets, the number needed is cut in half. Drilling costs, land area and construction time all go down as a result."
+            ]
+          },
+          {
+            "h": "A heat-sharing grid built around the school",
+            "p": [
+              "We called this approach the Thermal Sharing Grid System. First, the apartments and the school inside the complex are tied into one thermal grid, and a geothermal system is built under the school playground, an idle space. Heating and cooling energy is then shared within the grid, between the school and the apartments and from block to block.",
+              "The apartments shaded green in the drawing are those whose heating and cooling the playground's ground heat exchangers can cover."
+            ]
+          },
+          {
+            "h": "A 320 m playground edge, 32 boreholes",
+            "p": [
+              "The playground shared by Jamil Elementary and High School has a perimeter of 320 m. Placing a ground heat exchanger every 10 m fits 32 boreholes.",
+              "During the day, the school uses 23 of them, matched to its 23,000 m² of floor area, and the apartments use the remaining 9. After 5 p.m., however, all 32 go to the apartments. In other words, apartments that could otherwise use only 9 boreholes get all 32 at the hours when they use the most energy."
+            ]
+          },
+          {
+            "h": "Next steps toward zero-energy buildings",
+            "p": [
+              "Schools and public facilities must reach ZEB Grade 4 by 2025. Geothermal heat pumps help meet that goal by raising energy self-sufficiency.",
+              "Running a geothermal heat pump still takes electricity, though, so passive design that improves insulation and airtightness has to come with it. And if solar equipment such as BIPV or BAPV generates the needed electricity on site, we come one step closer to a truly zero-energy building."
+            ]
+          },
+          {
+            "h": "Award",
+            "p": []
+          },
+          {
+            "h": "That was rough,,,",
+            "p": [
+              "We really went through it,,, all-night meetings at a convenience store, studying,,",
+              "But thanks to it, I came away with a huge amount of building-services knowledge."
+            ]
+          }
+        ]
+      }
     }
   }
 }

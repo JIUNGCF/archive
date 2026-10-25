@@ -177,6 +177,20 @@ select option{background:#111;color:#fff}
 .edit .t::placeholder{color:#333}
 .edit .d{width:100%;font-size:14.5px;line-height:1.85;margin-top:8px;min-height:7em}
 .edit .d::placeholder{color:#333}
+
+/* ---------- English ---------- */
+details.en{margin-top:14px;padding:10px 0 12px;border-bottom:1px solid var(--rule)}
+details.en > summary,.en-p > summary{cursor:pointer;color:var(--dim);list-style:none;display:flex;align-items:baseline;gap:10px}
+details.en > summary::-webkit-details-marker,.en-p > summary::-webkit-details-marker{display:none}
+details.en > summary::before,.en-p > summary::before{content:"+";width:10px;color:#4f4f4f}
+details.en[open] > summary::before,.en-p[open] > summary::before{content:"\2212"}
+details.en > summary:hover,.en-p > summary:hover{color:var(--fg)}
+details.en .hint,.en-p .hint{color:#4a4a4a;font-size:11px}
+details.en .title{font-size:clamp(20px,2.4vw,30px);margin-top:12px}
+details.en .meta{border:0;margin-top:10px;padding:4px 0 0}
+.en-p{margin-top:18px;padding-top:12px;border-top:1px dashed var(--rule)}
+.en-p .t{font-size:16px;margin-top:10px}
+.en-p .d{font-size:13.5px;min-height:5em}
 .edit .nav{display:flex;align-items:baseline;gap:0 18px;margin-top:22px;padding-top:14px;border-top:1px solid var(--rule)}
 .edit .nav button{color:var(--dim);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
 .edit .nav button:hover{color:var(--red)}
@@ -274,6 +288,18 @@ select option{background:#111;color:#fff}
     <span class="cell"><label for="fMeta">표기</label><input class="mk" id="fMeta" placeholder="Note 15"></span>
     <span class="cell"><label for="fTags">태그</label><input class="tags" id="fTags" placeholder="공백으로 구분"></span>
   </div>
+
+  <!-- 영어 : 사이트에서 EN 을 고르면 보이는 글. 비워 두면 한국어가 나간다 -->
+  <details class="en" id="enHead">
+    <summary>English <span class="hint">비워 두면 영어 화면에도 한국어가 나갑니다</span></summary>
+    <input class="title en-t" id="fTitleEn" placeholder="Title">
+    <input class="sub" id="fSubEn" placeholder="One-line description">
+    <textarea class="lede" id="fLedeEn" placeholder="Introduction (optional)"></textarea>
+    <div class="meta en-m">
+      <span class="cell"><label for="fMetaEn">Label</label><input class="mk" id="fMetaEn" placeholder="Note 15"></span>
+      <span class="cell"><label for="fTagsEn">Tags</label><input class="tags" id="fTagsEn" placeholder="space separated"></span>
+    </div>
+  </details>
 
   <div class="covers">
     <p class="lab">표지</p>
@@ -417,14 +443,23 @@ function drawEdit(focus){
     + '<p class="fn">' + esc(fnText()) + '</p>'
     + '<input class="t" id="eT" value="' + esc(p.title) + '" placeholder="이 페이지의 제목">'
     + '<textarea class="d" id="eD" placeholder="이 페이지에 대한 글">' + esc(p.text) + '</textarea>'
+    + '<details class="en-p" id="enPage"' + (enOpen || p.titleEn || p.textEn ? ' open' : '') + '>'
+    +   '<summary>English <span class="hint">이 페이지의 영어 제목 · 글</span></summary>'
+    +   '<input class="t" id="eTEn" value="' + esc(p.titleEn || '') + '" placeholder="Page title">'
+    +   '<textarea class="d" id="eDEn" placeholder="Text for this page">' + esc(p.textEn || '') + '</textarea>'
+    + '</details>'
     + '<div class="nav">'
     +   '<button id="prev" type="button"' + (sel === 0 ? ' disabled' : '') + '>이전 페이지</button>'
     +   '<button id="next" type="button"' + (sel === P.pages.length - 1 ? ' disabled' : '') + '>다음 페이지</button>'
     +   '<span class="pos">' + (sel + 1) + ' / ' + P.pages.length + '</span>'
     + '</div>';
   grow($('eD'));
+  grow($('eDEn'));
+  /* 영어 칸을 펼치거나 접으면 다른 페이지로 가도 그대로 */
+  $('enPage').addEventListener('toggle', function(){ enOpen = this.open; if (this.open) grow($('eDEn')); });
   if (focus) $('eT').focus();
 }
+var enOpen = false;
 function grow(el){ el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
 
 function select(i){
@@ -573,7 +608,9 @@ document.addEventListener('input', function(e){
   t.classList.remove('miss');
   if (t.id === 'eT'){ P.pages[sel].title = t.value; drawList(); }
   else if (t.id === 'eD'){ P.pages[sel].text = t.value; grow(t); drawList(); }
-  else if (t.id === 'fLede'){ grow(t); }
+  else if (t.id === 'eTEn'){ P.pages[sel].titleEn = t.value; }
+  else if (t.id === 'eDEn'){ P.pages[sel].textEn = t.value; grow(t); }
+  else if (t.id === 'fLede' || t.id === 'fLedeEn'){ grow(t); }
   else if (['fTitle','fSub','fMeta','fTags','fId','fDate'].indexOf(t.id) !== -1){ drawStrip(); if (t.id === 'fId') drawFn(); }
   draft();
 });
@@ -624,6 +661,8 @@ function mergeUp(i){
   a.photos = a.photos.concat(b.photos);
   a.title = a.title || b.title;
   a.text = [a.text, b.text].filter(Boolean).join('\n\n');
+  a.titleEn = a.titleEn || b.titleEn;
+  a.textEn = [a.textEn, b.textEn].filter(Boolean).join('\n\n');
   P.pages.splice(i, 1);
   if (sel === i){ sel = i - 1; ph += n; }
   else if (sel > i) sel--;
@@ -714,8 +753,9 @@ function payload(byRef){
     cover: cp ? 'photo' : (P.cover === 'photo' ? 'gridnum' : P.cover),
     coverFile: cp ? fileName(cp.i, cp.j) : undefined,
     replaces: P.editing || undefined,   // 고치던 글의 원래 주소 (주소를 바꿨으면 서버가 원래 글을 지운다)
+    en: { title:v('fTitleEn'), sub:v('fSubEn'), lede:v('fLedeEn'), meta:v('fMetaEn'), tags:v('fTagsEn') },
     pages: P.pages.map(function(p, i){
-      return { title:p.title, text:p.text, photos:p.photos.map(function(f, j){
+      return { title:p.title, text:p.text, en:{ title:p.titleEn || '', text:p.textEn || '' }, photos:p.photos.map(function(f, j){
         return byRef ? { file:fileName(i, j), sha:f.sha } : { file:fileName(i, j), data:f.url };
       }) };
     })
@@ -860,11 +900,11 @@ function draft(){
   if (!ready) return;
   try {
     localStorage.setItem('archive-post', JSON.stringify({
-      f:['fTitle','fSub','fLede','fCat','fDate','fId','fMeta','fTags'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
+      f:['fTitle','fSub','fLede','fCat','fDate','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
       cover:P.cover,
       coverId:P.coverPhoto && P.coverPhoto.id,
       pages:P.pages.map(function(p){ return {
-        title:p.title, text:p.text,
+        title:p.title, text:p.text, titleEn:p.titleEn || '', textEn:p.textEn || '',
         ids:p.photos.map(function(f){ return f.id; }),
         names:p.photos.map(function(f){ return f.name; })
       }; }),
@@ -919,6 +959,7 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
   try { s = JSON.parse(localStorage.getItem('archive-post') || 'null'); } catch (e) {}
   if (!s){ ready = true; readyResolve(); return; }
   Object.keys(s.f || {}).forEach(function(k){ if ($(k)) $(k).value = s.f[k]; });
+  $('enHead').open = ['fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].some(function(k){ return !!$(k).value; });
   P.cover = s.cover || P.cover;
   P.editing = s.editing || null;
   pending = (s.pending || []).slice();
@@ -942,7 +983,7 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
     pages.forEach(function(p){
       var photos = (p.ids || []).map(function(id){ return byId[id]; }).filter(Boolean);
       photos.forEach(function(f){ used[f.id] = true; });
-      if (photos.length) P.pages.push({ title:p.title || '', text:p.text || '', photos:photos });
+      if (photos.length) P.pages.push({ title:p.title || '', text:p.text || '', titleEn:p.titleEn || '', textEn:p.textEn || '', photos:photos });
       else keepText(p);
     });
     P.coverPhoto = byId[s.coverId] || null;
@@ -958,10 +999,10 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
 function clearAll(){
   P.pages = []; P.cover = 'gridnum'; P.coverPhoto = null; P.editing = null;
   pending = []; sel = -1; ph = 0;
-  ['fTitle','fSub','fLede','fId','fMeta','fTags'].forEach(function(k){ $(k).value = ''; });
+  ['fTitle','fSub','fLede','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].forEach(function(k){ $(k).value = ''; });
   $('fCat').value = 'research';
   $('fDate').value = today();
-  grow($('fLede'));
+  grow($('fLede')); grow($('fLedeEn'));
   try { localStorage.removeItem('archive-post'); } catch (e) {}
   idbDo('readwrite', function(st){ st.clear(); }).catch(function(){});
   redraw();
@@ -1140,13 +1181,23 @@ async function editPost(id){
     $('fId').value = it.id;
     $('fMeta').value = it.meta || '';
     $('fTags').value = it.tags || '';
+    /* 영어 */
+    var ie = it.en || {}, de = d.en || {}, des = de.sections || [];
+    $('fTitleEn').value = ie.title || '';
+    $('fSubEn').value = ie.sub || '';
+    $('fLedeEn').value = de.lede || '';
+    $('fMetaEn').value = ie.meta || '';
+    $('fTagsEn').value = ie.tags || '';
+    $('enHead').open = !!(ie.title || ie.sub || de.lede || ie.meta || ie.tags);
+    grow($('fLedeEn'));
 
     var skipped = 0;
-    secs.forEach(function(x){
+    secs.forEach(function(x, i){
       var photos = x.nums.map(function(n){ return Object.assign({}, got[figures[n].src], { id:newId() }); });
       if (!photos.length){ skipped++; return; }
-      var cap = figures[x.nums[0]].cap;
-      P.pages.push({ title:cap != null ? cap : (x.s.h || ''), text:(x.s.p || []).join('\n\n'), photos:photos });
+      var cap = figures[x.nums[0]].cap, e = des[i] || {};
+      P.pages.push({ title:cap != null ? cap : (x.s.h || ''), text:(x.s.p || []).join('\n\n'),
+        titleEn:e.h || '', textEn:(e.p || []).join('\n\n'), photos:photos });
     });
     allPhotos().forEach(keepPhoto);
     P.cover = it.cover || 'gridnum';

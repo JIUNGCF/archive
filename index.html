@@ -92,6 +92,13 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
   border-radius:2px;
 }
 .search::placeholder{color:#8f8f8f}
+/* 검색 옆 언어 선택 KO / EN */
+.srow{display:flex;align-items:center;gap:0 10px}
+.srow .search{flex:1 1 auto;min-width:0}
+.lang{flex:0 0 auto;display:flex;align-items:baseline;gap:0 4px;color:#4f4f4f}
+.lang button{color:var(--dim);letter-spacing:.04em}
+.lang button[aria-pressed="true"]{color:var(--fg);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
+.lang button:hover{color:var(--red)}
 .rail .status{margin:12px 0 0}
 .rail .updates{margin-top:30px}
 .rail .updates h3{font-weight:400}
@@ -627,25 +634,30 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 
   <header class="masthead">
     <div class="brand">
-      <h1>한지웅의 아카이브</h1>
+      <h1 data-i18n="site">한지웅의 아카이브</h1>
       <p>HAN JIUNG ARCHIVE</p>
     </div>
-    <nav class="navrow" aria-label="메뉴">
+    <nav class="navrow" aria-label="메뉴" data-i18n-aria="menu">
       <ul>
-        <li><a href="#index">소개</a></li>
-        <li><a href="#index">지금 하는 일</a></li>
-        <li><a href="#contact">연락</a></li>
-        <li><a href="#index">노트</a></li>
+        <li><a href="#index" data-i18n="nav_about">소개</a></li>
+        <li><a href="#index" data-i18n="nav_now">지금 하는 일</a></li>
+        <li><a href="#contact" data-i18n="nav_contact">연락</a></li>
+        <li><a href="#index" data-i18n="nav_notes">노트</a></li>
       </ul>
     </nav>
   </header>
 
   <aside class="rail">
-    <label class="sr-only" for="q">검색</label>
-    <input id="q" class="search" type="search" placeholder="검색" autocomplete="off">
-    <p class="status">2026년 기록 업데이트 중</p>
+    <div class="srow">
+      <label class="sr-only" for="q" data-i18n="search">검색</label>
+      <input id="q" class="search" type="search" placeholder="검색" data-i18n-ph="search" autocomplete="off">
+      <span class="lang" role="group" aria-label="언어 · Language">
+        <button type="button" data-lang="ko" aria-pressed="true">KO</button><span class="sep">/</span><button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </span>
+    </div>
+    <p class="status" data-i18n="status">2026년 기록 업데이트 중</p>
     <div class="updates">
-      <h3>최근 기록</h3>
+      <h3 data-i18n="recent">최근 기록</h3>
       <ul id="updates"></ul>
     </div>
   </aside>
@@ -656,14 +668,14 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
         <span class="pull-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
         <button class="pull-link" id="openShelf">Pull them out in order</button>
       </p>
-      <h2>카테고리</h2>
+      <h2 data-i18n="categories">카테고리</h2>
       <div class="controls">
-        <div class="set" role="group" aria-label="분류">
-          <button class="ctl" data-cat="all" aria-pressed="true">전체</button><span class="sep">/</span>
-          <button class="ctl" data-cat="research" aria-pressed="false">연구</button><span class="sep">/</span>
-          <button class="ctl" data-cat="activity" aria-pressed="false">활동</button><span class="sep">/</span>
-          <button class="ctl" data-cat="dev" aria-pressed="false">개발</button><span class="sep">/</span>
-          <button class="ctl" data-cat="read" aria-pressed="false">독서</button>
+        <div class="set" role="group" aria-label="분류" data-i18n-aria="catGroup">
+          <button class="ctl" data-cat="all" aria-pressed="true" data-i18n="all">전체</button><span class="sep">/</span>
+          <button class="ctl" data-cat="research" aria-pressed="false" data-i18n="cat_research">연구</button><span class="sep">/</span>
+          <button class="ctl" data-cat="activity" aria-pressed="false" data-i18n="cat_activity">활동</button><span class="sep">/</span>
+          <button class="ctl" data-cat="dev" aria-pressed="false" data-i18n="cat_dev">개발</button><span class="sep">/</span>
+          <button class="ctl" data-cat="read" aria-pressed="false" data-i18n="cat_read">독서</button>
         </div>
         <span class="tally" id="tally"></span>
       </div>
@@ -673,45 +685,45 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 
   <footer class="foot">
     <span>© 2026</span>
-    <span>마지막 갱신 2026.09.12</span>
-    <span><a href="#index">맨 위로</a></span>
-    <span class="admin"><a id="adminLink" href="admin.html">관리</a></span>
+    <span data-i18n="lastUpdated">마지막 갱신 2026.09.12</span>
+    <span><a href="#index" data-i18n="toTop">맨 위로</a></span>
+    <span class="admin"><a id="adminLink" href="admin.html" data-i18n="admin">관리</a></span>
   </footer>
 </div>
 
 
 <div class="detail" id="detail" hidden>
   <header class="dt-top">
-    <a href="#index">← 카테고리</a>
-    <span class="dt-right"><span class="dt-meta" id="dtMeta"></span><a class="dt-edit" id="dtEdit" hidden>수정</a></span>
+    <a href="#index" data-i18n="backCat">← 카테고리</a>
+    <span class="dt-right"><span class="dt-meta" id="dtMeta"></span><a class="dt-edit" id="dtEdit" hidden data-i18n="edit">수정</a></span>
   </header>
   <div class="dt-body">
     <div class="dt-left">
       <div class="dt-figwrap">
-        <button class="dt-openfig" id="dtOpenFig" type="button" aria-label="도판 전체 화면으로 보기">
+        <button class="dt-openfig" id="dtOpenFig" type="button" aria-label="도판 전체 화면으로 보기" data-i18n-aria="openFig">
           <span class="dt-figs" id="dtFigs"></span>
-          <span class="dt-zoom" aria-hidden="true">전체 화면 (F)</span>
+          <span class="dt-zoom" aria-hidden="true" data-i18n="zoom">전체 화면 (F)</span>
         </button>
-        <button class="dt-pn dt-pn-l" type="button" data-flip="-1" aria-label="이전 사진" hidden>←</button>
-        <button class="dt-pn dt-pn-r" type="button" data-flip="1" aria-label="다음 사진" hidden>→</button>
+        <button class="dt-pn dt-pn-l" type="button" data-flip="-1" aria-label="이전 사진" data-i18n-aria="prevPhoto" hidden>←</button>
+        <button class="dt-pn dt-pn-r" type="button" data-flip="1" aria-label="다음 사진" data-i18n-aria="nextPhoto" hidden>→</button>
       </div>
       <p class="dt-cap"><span id="dtCap"></span>
-        <span class="dt-phn" id="dtPhn" hidden><button type="button" data-flip="-1" aria-label="이전 사진">←</button><span id="dtPhNo"></span><button type="button" data-flip="1" aria-label="다음 사진">→</button></span>
+        <span class="dt-phn" id="dtPhn" hidden><button type="button" data-flip="-1" aria-label="이전 사진" data-i18n-aria="prevPhoto">←</button><span id="dtPhNo"></span><button type="button" data-flip="1" aria-label="다음 사진" data-i18n-aria="nextPhoto">→</button></span>
         <span class="dt-count" id="dtCount"></span></p>
     </div>
     <article class="dt-main" id="dtMain"></article>
   </div>
   <div class="dt-hint" id="dtHint" aria-hidden="true">
-    <span>스크롤해서 넘기기</span><span class="dt-hint-l"><i></i></span>
+    <span data-i18n="scrollHint">스크롤해서 넘기기</span><span class="dt-hint-l"><i></i></span>
   </div>
 </div>
 
 
-<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="도판 전체 화면">
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="도판 전체 화면" data-i18n-aria="viewer">
   <div class="vw-top">
     <span class="vw-id" id="vwId"></span>
     <span class="vw-lead" id="vwLead"></span>
-    <button class="vw-close" id="vwClose">닫기</button>
+    <button class="vw-close" id="vwClose" data-i18n="close">닫기</button>
   </div>
   <div class="vw-stage" id="vwStage">
     <span class="vw-frame" id="vwFrame"><span class="vw-plate" id="vwPlate"></span></span>
@@ -719,20 +731,20 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
   <div class="vw-foot">
     <div class="vw-info" id="vwInfo"></div>
     <div class="vw-nav">
-      <button type="button" id="vwPrev">← 이전</button>
+      <button type="button" id="vwPrev" data-i18n="prev">← 이전</button>
       <span class="vw-count" id="vwCount"></span>
-      <button type="button" id="vwNext">다음 →</button>
-      <button type="button" id="vwFull">브라우저 전체 화면</button>
+      <button type="button" id="vwNext" data-i18n="next">다음 →</button>
+      <button type="button" id="vwFull" data-i18n="fullscreen">브라우저 전체 화면</button>
     </div>
   </div>
 </div>
 
 
-<div class="shelf" id="shelf" hidden role="dialog" aria-modal="true" aria-label="시간 순서로 꺼내보기">
+<div class="shelf" id="shelf" hidden role="dialog" aria-modal="true" aria-label="시간 순서로 꺼내보기" data-i18n-aria="shelf">
   <div class="sh-top">
     <span class="sh-date" id="shDate"></span>
     <span class="sh-lead">Pull them out in order</span>
-    <button class="sh-close" id="shClose">닫기</button>
+    <button class="sh-close" id="shClose" data-i18n="close">닫기</button>
   </div>
   <div class="sh-stage" id="shStage">
     <div class="sh-rack" id="shRack"></div>
@@ -750,7 +762,147 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
    cat   : research | activity | dev | read
    cover : gridnum | stack | mono | alpha | plate | spine | redbar
    ========================================================= */
-const CAT = {research:'연구', activity:'활동', dev:'개발', read:'독서'};
+
+/* =========================================================
+   LANG — 한국어 / English (검색 옆 KO / EN)
+   화면 글자는 L 사전에서, 글 내용은 data.json 의 en 필드에서 (없으면 한국어 그대로).
+   처음에는 브라우저 언어를 따르고, 고르면 기억한다.
+   언어를 바꾸면 ITEMS · DETAIL 을 그 언어로 다시 만들고 onLang 에 등록된 화면을 다시 그린다
+   ========================================================= */
+const L = {
+  ko: {
+    site:'한지웅의 아카이브', docTitle:'한지웅의 아카이브 — 연구 · 활동 · 개발 · 독서', menu:'메뉴',
+    nav_about:'소개', nav_now:'지금 하는 일', nav_contact:'연락', nav_notes:'노트',
+    search:'검색', status:'2026년 기록 업데이트 중', recent:'최근 기록',
+    categories:'카테고리', catGroup:'분류', all:'전체',
+    cat_research:'연구', cat_activity:'활동', cat_dev:'개발', cat_read:'독서',
+    count:'{n}개', emptyB:'해당하는 기록이 없습니다.', emptyT:'검색어를 지우거나 분류를 ‘전체’로 바꿔 보세요.',
+    loadFailB:'기록을 불러오지 못했습니다.', loadFailT:'로컬에서는 Live Server 로 열어야 합니다.',
+    lastUpdated:'마지막 갱신 2026.09.12', toTop:'맨 위로', admin:'관리',
+    backCat:'← 카테고리', edit:'수정', openFig:'도판 전체 화면으로 보기', zoom:'전체 화면 (F)',
+    prevPhoto:'이전 사진', nextPhoto:'다음 사진', photoN:'사진 {i} / {n}', scrollHint:'스크롤해서 넘기기',
+    cover:'표지', backToIndex:'← 카테고리로 돌아가기',
+    fbLead:'{sub}. 이 기록의 본문은 아직 정리 중입니다.', fbH:'기록',
+    fbP1:'{cat} 분류, 식별자 {id}, 정리일 {date}.', fbP2:'표기 {meta} · 태그 {tags}',
+    viewer:'도판 전체 화면', close:'닫기', prev:'← 이전', next:'다음 →',
+    fullscreen:'브라우저 전체 화면', exitFull:'전체 화면 해제',
+    shelf:'시간 순서로 꺼내보기',
+    shPinned:'<span class="on">고정됨</span> · 다시 클릭하면 해제 · ← → 이동 · Esc 로 닫기',
+    shFree:'마우스를 좌우로 움직여 넘기기 · 클릭하면 고정 · Esc 로 닫기',
+    tk_title:'연락', tk_home:'홈으로', tk_crumb:'연락', tk_intro:'탑승권을 작성해 보내면 한지웅에게 전달됩니다.',
+    tk_pass:'BOARDING PASS · 탑승권', tk_from:'FROM · 출발', tk_to:'TO · 도착', tk_visitor:'방문자', tk_me:'한지웅',
+    tk_name:'승객 이름 · PASSENGER', tk_mail:'답장 받을 메일 · E-MAIL', tk_subj:'제목 · SUBJECT', tk_gate:'게이트 · GATE',
+    tk_flight:'편명 · FLIGHT', tk_seat:'좌석 · SEAT', tk_board:'탑승 · BOARDING', tk_msg:'내용 · MESSAGE',
+    tk_send:'탑승권 보내기', tk_issuing:'발권 중...', tk_fine:'이 탑승권은 양도할 수 없습니다 · 답장은 적어 주신 메일로 갑니다',
+    tk_tear:'✂ TEAR HERE · 절취선', tk_sPass:'승객', tk_sGate:'게이트', tk_sSeat:'좌석', tk_sDate:'날짜',
+    tk_sent:'탑승권을 보냈습니다', tk_again:'새 탑승권 쓰기', tk_direct:'직접 보내기',
+    tk_errName:'이름을 적어 주세요.', tk_errMail:'답장 받을 메일을 적어 주세요.', tk_errMailFmt:'메일 주소 형식을 확인해 주세요.',
+    tk_errMsg:'내용을 적어 주세요.', tk_subjTag:'아카이브', tk_subjDefault:'{name}님의 탑승권',
+    tk_bodyMeta:'— 게이트 {gate} · 좌석 {seat} · {flight}',
+    tk_fail:'전송에 실패했습니다. 잠시 뒤 다시 보내거나 아래 메일 주소로 직접 보내 주세요.',
+    tk_doneSent:'답장은 {email} 로 드리겠습니다. 떼어 낸 쪽은 기념으로 남겨 두세요.',
+    tk_doneMail:'메일 앱이 열리면 보내기를 눌러 주세요. 열리지 않으면 아래 주소로 직접 보내 주시면 됩니다.',
+    gates:['업무', '연구 협업', '개발 문의', '개인', '기타']
+  },
+  en: {
+    site:'Han Jiung Archive', docTitle:'Han Jiung Archive — Research · Activity · Development · Reading', menu:'Menu',
+    nav_about:'About', nav_now:'Now', nav_contact:'Contact', nav_notes:'Notes',
+    search:'Search', status:'Updating records for 2026', recent:'Recent',
+    categories:'Categories', catGroup:'Category', all:'All',
+    cat_research:'Research', cat_activity:'Activity', cat_dev:'Development', cat_read:'Reading',
+    count:'{n} items', emptyB:'No matching records.', emptyT:'Clear the search or switch the category to ‘All’.',
+    loadFailB:'Could not load the records.', loadFailT:'When running locally, open the site with Live Server.',
+    lastUpdated:'Last updated 2026.09.12', toTop:'Back to top', admin:'Admin',
+    backCat:'← Categories', edit:'Edit', openFig:'View plate full screen', zoom:'Full screen (F)',
+    prevPhoto:'Previous photo', nextPhoto:'Next photo', photoN:'Photo {i} / {n}', scrollHint:'Scroll to turn the page',
+    cover:'Cover', backToIndex:'← Back to categories',
+    fbLead:'{sub}. The write-up for this record is still in progress.', fbH:'Record',
+    fbP1:'Category {cat}, ID {id}, filed {date}.', fbP2:'Label {meta} · Tags {tags}',
+    viewer:'Plate, full screen', close:'Close', prev:'← Prev', next:'Next →',
+    fullscreen:'Browser full screen', exitFull:'Exit full screen',
+    shelf:'Pull them out in order',
+    shPinned:'<span class="on">Pinned</span> · click again to release · ← → to move · Esc to close',
+    shFree:'Move the mouse left and right to browse · click to pin · Esc to close',
+    tk_title:'Contact', tk_home:'Home', tk_crumb:'Contact', tk_intro:'Fill in the boarding pass and it goes straight to Han Jiung.',
+    tk_pass:'BOARDING PASS', tk_from:'FROM', tk_to:'TO', tk_visitor:'Visitor', tk_me:'Han Jiung',
+    tk_name:'PASSENGER', tk_mail:'REPLY E-MAIL', tk_subj:'SUBJECT', tk_gate:'GATE',
+    tk_flight:'FLIGHT', tk_seat:'SEAT', tk_board:'BOARDING', tk_msg:'MESSAGE',
+    tk_send:'Send boarding pass', tk_issuing:'Issuing...', tk_fine:'Non-transferable · replies go to the e-mail you entered',
+    tk_tear:'✂ TEAR HERE', tk_sPass:'Passenger', tk_sGate:'Gate', tk_sSeat:'Seat', tk_sDate:'Date',
+    tk_sent:'Boarding pass sent', tk_again:'Write a new boarding pass', tk_direct:'Write directly',
+    tk_errName:'Please enter your name.', tk_errMail:'Please enter an e-mail for the reply.', tk_errMailFmt:'Please check the e-mail address.',
+    tk_errMsg:'Please write a message.', tk_subjTag:'Archive', tk_subjDefault:'Boarding pass from {name}',
+    tk_bodyMeta:'— Gate {gate} · Seat {seat} · {flight}',
+    tk_fail:'Sending failed. Please try again shortly, or write to the address below directly.',
+    tk_doneSent:'I’ll reply to {email}. Keep the stub as a souvenir.',
+    tk_doneMail:'When your mail app opens, press send. If it doesn’t, write to the address below directly.',
+    gates:['Work', 'Research collaboration', 'Development inquiry', 'Personal', 'Other']
+  }
+};
+let LANG = (function(){
+  try { const s = localStorage.getItem('archive-lang'); if (s === 'ko' || s === 'en') return s; } catch (e) {}
+  return /^ko/i.test(navigator.language || '') ? 'ko' : 'en';
+})();
+function t(k, v){
+  let s = L[LANG][k] != null ? L[LANG][k] : L.ko[k];
+  if (v && typeof s === 'string') Object.keys(v).forEach(function(n){ s = s.split('{' + n + '}').join(v[n]); });
+  return s;
+}
+const CAT = {};
+function applyStatic(){
+  document.documentElement.lang = LANG;
+  if (document.getElementById('detail').hidden) document.title = t('docTitle');
+  ['research', 'activity', 'dev', 'read'].forEach(function(c){ CAT[c] = t('cat_' + c); });
+  document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){ el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-lang]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)); });
+}
+
+/* 글 내용 : data.json 원본(RAW)에 en 이 있으면 그 언어로 덮어쓴 사본을 ITEMS · DETAIL 로 쓴다
+   item.en   = {title, sub, meta, tags}
+   detail.en = {lede, sections:[{h, p}]} — sections 와 같은 순서. 사진 캡션은 절 제목을 따른다 */
+let RAW = {items:[], detail:{}};
+function locItem(it){
+  const e = LANG === 'en' && it.en;
+  if (!e) return it;
+  const o = Object.assign({}, it);
+  ['title', 'sub', 'meta', 'tags'].forEach(function(k){ if (e[k]) o[k] = e[k]; });
+  return o;
+}
+function locDetail(d){
+  const e = LANG === 'en' && d && d.en;
+  if (!e) return d;
+  const o = Object.assign({}, d), es = e.sections || [];
+  if (e.lede){ o.lede = e.lede; delete o.lead; }
+  o.figures = (d.figures || []).map(function(f){ return Object.assign({}, f); });
+  o.sections = (d.sections || []).map(function(s, i){
+    const x = es[i] || {}, r = Object.assign({}, s);
+    if (x.h) r.h = x.h;
+    if (x.p && x.p.length) r.p = x.p;
+    if (x.h) (Array.isArray(s.figs) ? s.figs : typeof s.fig === 'number' ? [s.fig] : []).forEach(function(n){ if (o.figures[n]) o.figures[n].cap = x.h; });
+    return r;
+  });
+  return o;
+}
+function localize(){
+  ITEMS = RAW.items.map(locItem);
+  DETAIL = {};
+  Object.keys(RAW.detail).forEach(function(id){ DETAIL[id] = locDetail(RAW.detail[id]); });
+}
+const onLang = [];
+function setLang(l){
+  if (l === LANG) return;
+  LANG = l;
+  try { localStorage.setItem('archive-lang', l); } catch (e) {}
+  applyStatic();
+  localize();
+  onLang.forEach(function(f){ f(); });
+}
+document.querySelectorAll('[data-lang]').forEach(function(b){
+  b.addEventListener('click', function(){ setLang(b.dataset.lang); });
+});
+applyStatic();
 
 /* 관리자(글쓰기) 화면. 올리기는 서버가 있는 Vercel 에서만 되므로 다른 주소(GitHub Pages)에서는 Vercel 로 보낸다 */
 const ADMIN_URL = /vercel\.app$|^localhost$|^127\./.test(location.hostname)
@@ -763,11 +915,10 @@ function adminIn(){ try { return !!sessionStorage.getItem('archive-key'); } catc
    web3formsKey 가 비어 있으면 : 애니메이션 뒤 메일 앱(mailto)을 연다
    web3formsKey 를 넣으면     : 메일 앱 없이 바로 메일로 전송된다
    (키 발급 : https://web3forms.com 에서 받는 메일 주소만 입력)
-   gates = 연락 종류. 게이트 선택 목록은 여기만 고치면 된다 */
+   연락 종류(게이트) 목록은 위 L 사전의 gates (한국어 · 영어) 에서 고친다 */
 const CONTACT = {
   to: 'hanjiwoong0105@naver.com',
-  web3formsKey: '',
-  gates: ['업무', '연구 협업', '개발 문의', '개인', '기타']
+  web3formsKey: ''
 };
 
 let ITEMS = [];
@@ -874,10 +1025,10 @@ function filtered(){
 
 function render(){
   const list = filtered();
-  tally.textContent = list.length + '개';
+  tally.textContent = t('count', {n:list.length});
 
   if (!list.length){
-    out.innerHTML = '<p class="empty"><b>해당하는 기록이 없습니다.</b>검색어를 지우거나 분류를 \u2018전체\u2019로 바꿔 보세요.</p>';
+    out.innerHTML = '<p class="empty"><b>' + t('emptyB') + '</b>' + t('emptyT') + '</p>';
     return;
   }
 
@@ -917,6 +1068,7 @@ document.getElementById('q').addEventListener('input', function(e){
 
 renderUpdates();
 render();
+onLang.push(function(){ renderUpdates(); render(); });
 
 /* =========================================================
    SHELF — 직교투영 3D 선반
@@ -1045,9 +1197,7 @@ render();
   }
 
   function paintHint(){
-    hintEl.innerHTML = pinned
-      ? '<span class="on">고정됨</span> · 다시 클릭하면 해제 · ← → 이동 · Esc 로 닫기'
-      : '마우스를 좌우로 움직여 넘기기 · 클릭하면 고정 · Esc 로 닫기';
+    hintEl.innerHTML = t(pinned ? 'shPinned' : 'shFree');
   }
 
   function setActive(i){
@@ -1158,6 +1308,15 @@ render();
     clearTimeout(rt);
     rt = setTimeout(function(){ var keep = active; build(); active = keep; pos = target = keep; layout(); paintInfo(); }, 180);
   });
+
+  /* 언어를 바꾸면 열려 있는 선반을 그 언어로 다시 */
+  onLang.push(function(){
+    if (shelf.hidden) return;
+    var keep = active;
+    build(); buildTags();
+    active = keep; pos = target = keep;
+    layout(); paintInfo(); paintHint();
+  });
 })();
 
 
@@ -1185,7 +1344,6 @@ render();
   var metaEl   = document.getElementById('dtMeta');
   var countEl  = document.getElementById('dtCount');
   var hintEl   = document.getElementById('dtHint');
-  var baseTitle = document.title;
   var plates = [], activeFig = 0, cur = null, capBase = '';
   /* views : 전체 화면 뷰어가 한 장씩 넘기는 목록. 여러 장짜리 단계는 사진마다 하나씩 펼친다
      views[n] = {html, label, k(단계), j(그 단계 안의 사진)} */
@@ -1250,7 +1408,7 @@ render();
     capEl.textContent = capBase + (c ? ' · ' + c : '');
     var phn = document.getElementById('dtPhn');
     phn.hidden = !many;
-    if (many) document.getElementById('dtPhNo').textContent = '사진 ' + (p.sub + 1) + ' / ' + p.photos.length;
+    if (many) document.getElementById('dtPhNo').textContent = t('photoN', {i:p.sub + 1, n:p.photos.length});
     detailEl.querySelectorAll('[data-flip]').forEach(function(b){
       if (b.classList.contains('dt-pn')) b.hidden = !many;
       b.disabled = !many || (+b.dataset.flip < 0 ? p.sub === 0 : p.sub === p.photos.length - 1);
@@ -1260,10 +1418,10 @@ render();
   function detailOf(it){
     if (DETAIL[it.id]) return DETAIL[it.id];
     return {
-      lead: it.sub + '. 이 기록의 본문은 아직 정리 중입니다.',
-      sections: [{h:'기록', p:[
-        CAT[it.cat] + ' 분류, 식별자 ' + it.id + ', 정리일 ' + it.date.replace(/-/g, '.') + '.',
-        '표기 ' + it.meta + ' · 태그 ' + it.tags
+      lead: t('fbLead', {sub:it.sub}),
+      sections: [{h:t('fbH'), p:[
+        t('fbP1', {cat:CAT[it.cat], id:it.id, date:it.date.replace(/-/g, '.')}),
+        t('fbP2', {meta:it.meta, tags:it.tags})
       ]}]
     };
   }
@@ -1361,9 +1519,11 @@ render();
   function go(d){ moveTo(d > 0 ? Math.floor(target + 1e-3) + 1 : Math.ceil(target - 1e-3) - 1); }
 
   /* 다시 잴 때(열기 · 크기 변경 · 글꼴 로드) : 지금 보던 단계의 첫 정지점에 그대로 놓는다 */
+  var keepAt = null;   // 다시 열 때(언어 바꾸기) 이 단계에 그대로 놓는다
   function measure(){
     if (!steps.length || detailEl.hidden) return;
-    var keep = shown < 0 ? 0 : shown;
+    var keep = keepAt != null ? Math.min(keepAt, steps.length - 1) : shown < 0 ? 0 : shown;
+    keepAt = null;
     /* 표지 · 타이포 도판(260 × 356.2 판)을 무대에 꽉 차게 키우는 배율 */
     var r = figsEl.getBoundingClientRect();
     figsEl.style.setProperty('--ps', Math.min(r.width / 260, r.height / 356.2).toFixed(4));
@@ -1488,6 +1648,7 @@ render();
     document.getElementById('dtOpenFig').addEventListener('click', openViewer);
     document.documentElement.classList.remove('tk-on');
     mode = 'article';
+    applyStatic();   // 껍데기는 처음 언어로 저장돼 있다
   }
 
   function openDetail(it){
@@ -1497,7 +1658,7 @@ render();
 
     cur = it;
     activeFig = 0;
-    plates = [{html:cover(it), label:'\ud45c\uc9c0'}];
+    plates = [{html:cover(it), label:t('cover')}];
     var figures = d.figures || [];
     d.sections.forEach(function(s, i){
       var ph = photosOf(s, figures), f = ph[0];
@@ -1544,7 +1705,7 @@ render();
         return '<li><a href="' + esc(l.href) + '" target="_blank" rel="noopener">' + esc(l.label || l.href) + '</a></li>';
       }).join('') + '</ul>';
     }
-    tail += '<p class="dt-end"><a href="#index">← 카테고리로 돌아가기</a></p>';
+    tail += '<p class="dt-end"><a href="#index">' + t('backToIndex') + '</a></p>';
     d.sections.forEach(function(s, i){
       html += '<section class="dt-step dt-sec">'
         + '<h3><span class="no">' + nn(i + 1) + '</span>' + esc(s.h) + '</h3>'
@@ -1569,7 +1730,7 @@ render();
     pageEl.hidden = true;
     detailEl.classList.add('paged');
     detailEl.hidden = false;
-    document.title = it.title + ' — 한지웅의 아카이브';
+    document.title = it.title + ' — ' + t('site');
     window.scrollTo(0, 0);
     measure();
     showHint();
@@ -1588,53 +1749,53 @@ render();
     var mail = esc(CONTACT.to);
     return '<article class="tk-wrap">'
       + '<header class="tk-top">'
-      +   '<a href="#index">홈으로</a>'
-      +   '<span class="tk-crumb">연락</span>'
+      +   '<a href="#index">' + t('tk_home') + '</a>'
+      +   '<span class="tk-crumb">' + t('tk_crumb') + '</span>'
       +   '<span class="tk-tag">Contact</span>'
       + '</header>'
-      + '<p class="tk-intro" id="tkIntro" tabindex="-1">탑승권을 작성해 보내면 한지웅에게 전달됩니다.</p>'
+      + '<p class="tk-intro" id="tkIntro" tabindex="-1">' + t('tk_intro') + '</p>'
       + '<div class="tk-stage" id="tkStage">'
       +   '<div class="tk-slot" aria-hidden="true"><i></i></div>'
       +   '<div class="tk-feed" id="tkFeed">'
       +     '<form class="tk-ticket" id="tkTicket" novalidate>'
       +       '<div class="tk-main" id="tkMain">'
-      +         '<div class="tk-strip"><b>HAN JIUNG ARCHIVE</b><span>BOARDING PASS · 탑승권</span></div>'
+      +         '<div class="tk-strip"><b>HAN JIUNG ARCHIVE</b><span>' + t('tk_pass') + '</span></div>'
       +         '<div class="tk-route">'
-      +           '<div class="tk-pt"><span class="tk-lab">FROM · 출발</span><b id="tkFromCode">YOU</b><span class="tk-sub" id="tkFromName">방문자</span></div>'
+      +           '<div class="tk-pt"><span class="tk-lab">' + t('tk_from') + '</span><b id="tkFromCode">YOU</b><span class="tk-sub" id="tkFromName">' + t('tk_visitor') + '</span></div>'
       +           '<div class="tk-path" aria-hidden="true"><svg viewBox="-16 -12 32 24"><path fill="#121212" d="' + PLANE + '"/></svg></div>'
-      +           '<div class="tk-pt tk-r"><span class="tk-lab">TO · 도착</span><b>HJW</b><span class="tk-sub">한지웅</span></div>'
+      +           '<div class="tk-pt tk-r"><span class="tk-lab">' + t('tk_to') + '</span><b>HJW</b><span class="tk-sub">' + t('tk_me') + '</span></div>'
       +         '</div>'
       +         '<div class="tk-grid">'
-      +           '<label class="tk-f tk-w2"><span class="tk-lab">승객 이름 · PASSENGER</span>'
+      +           '<label class="tk-f tk-w2"><span class="tk-lab">' + t('tk_name') + '</span>'
       +             '<input id="tkName" autocomplete="name"><em class="tk-err"></em></label>'
-      +           '<label class="tk-f tk-w2"><span class="tk-lab">답장 받을 메일 · E-MAIL</span>'
+      +           '<label class="tk-f tk-w2"><span class="tk-lab">' + t('tk_mail') + '</span>'
       +             '<input id="tkMail" type="email" autocomplete="email"><em class="tk-err"></em></label>'
-      +           '<label class="tk-f tk-w4"><span class="tk-lab">제목 · SUBJECT</span>'
+      +           '<label class="tk-f tk-w4"><span class="tk-lab">' + t('tk_subj') + '</span>'
       +             '<input id="tkSubj"><em class="tk-err"></em></label>'
-      +           '<label class="tk-f"><span class="tk-lab">게이트 · GATE</span>'
+      +           '<label class="tk-f"><span class="tk-lab">' + t('tk_gate') + '</span>'
       +             '<select id="tkGate"></select><em class="tk-err"></em></label>'
-      +           '<div class="tk-f"><span class="tk-lab">편명 · FLIGHT</span><span class="tk-ro" id="tkFlight">—</span></div>'
-      +           '<div class="tk-f"><span class="tk-lab">좌석 · SEAT</span><span class="tk-ro" id="tkSeat">—</span></div>'
-      +           '<div class="tk-f"><span class="tk-lab">탑승 · BOARDING</span><span class="tk-ro" id="tkBoard">—</span></div>'
-      +           '<label class="tk-f tk-w4"><span class="tk-lab">내용 · MESSAGE</span>'
+      +           '<div class="tk-f"><span class="tk-lab">' + t('tk_flight') + '</span><span class="tk-ro" id="tkFlight">—</span></div>'
+      +           '<div class="tk-f"><span class="tk-lab">' + t('tk_seat') + '</span><span class="tk-ro" id="tkSeat">—</span></div>'
+      +           '<div class="tk-f"><span class="tk-lab">' + t('tk_board') + '</span><span class="tk-ro" id="tkBoard">—</span></div>'
+      +           '<label class="tk-f tk-w4"><span class="tk-lab">' + t('tk_msg') + '</span>'
       +             '<textarea id="tkMsg" rows="3"></textarea><em class="tk-err"></em></label>'
       +         '</div>'
       +         '<div class="tk-act">'
-      +           '<button class="tk-send" id="tkSend" type="submit">탑승권 보내기</button>'
-      +           '<span class="tk-fine">이 탑승권은 양도할 수 없습니다 · 답장은 적어 주신 메일로 갑니다</span>'
+      +           '<button class="tk-send" id="tkSend" type="submit">' + t('tk_send') + '</button>'
+      +           '<span class="tk-fine">' + t('tk_fine') + '</span>'
       +         '</div>'
       +         '<span class="tk-fail" id="tkFail" hidden></span>'
       +         '<div class="tk-stamp" aria-hidden="true">CONFIRM<small>SENT</small></div>'
       +       '</div>'
       +       '<div class="tk-stub" id="tkStub">'
       +         '<i class="tk-perf" aria-hidden="true"></i>'
-      +         '<span class="tk-tear" aria-hidden="true">✂ TEAR HERE · 절취선</span>'
+      +         '<span class="tk-tear" aria-hidden="true">' + t('tk_tear') + '</span>'
       +         '<span class="tk-lab">BOARDING PASS</span>'
       +         '<dl>'
-      +           '<dt>승객</dt><dd id="tkSName">방문자</dd>'
-      +           '<dt>게이트</dt><dd id="tkSGate">—</dd>'
-      +           '<dt>좌석</dt><dd id="tkSSeat">—</dd>'
-      +           '<dt>날짜</dt><dd id="tkSDate">—</dd>'
+      +           '<dt>' + t('tk_sPass') + '</dt><dd id="tkSName">' + t('tk_visitor') + '</dd>'
+      +           '<dt>' + t('tk_sGate') + '</dt><dd id="tkSGate">—</dd>'
+      +           '<dt>' + t('tk_sSeat') + '</dt><dd id="tkSSeat">—</dd>'
+      +           '<dt>' + t('tk_sDate') + '</dt><dd id="tkSDate">—</dd>'
       +         '</dl>'
       +         '<div class="tk-bars" id="tkBars" aria-hidden="true"></div>'
       +         '<span class="tk-code" id="tkSCode">—</span>'
@@ -1643,13 +1804,13 @@ render();
       +   '</div>'
       +   '<svg class="tk-sky" id="tkSky" aria-hidden="true"></svg>'
       +   '<div class="tk-done" id="tkDone" role="status" aria-live="polite">'
-      +     '<h2>탑승권을 보냈습니다</h2>'
+      +     '<h2>' + t('tk_sent') + '</h2>'
       +     '<p id="tkDText"></p>'
-      +     '<a href="#" class="tk-again" id="tkAgain">새 탑승권 쓰기</a>'
+      +     '<a href="#" class="tk-again" id="tkAgain">' + t('tk_again') + '</a>'
       +   '</div>'
       + '</div>'
       + '<p class="tk-alt">'
-      +   '<span>직접 보내기 <a href="mailto:' + mail + '">' + mail + '</a></span>'
+      +   '<span>' + t('tk_direct') + ' <a href="mailto:' + mail + '">' + mail + '</a></span>'
       +   '<span>GitHub <a href="https://github.com/JIUNGCF" target="_blank" rel="noopener">JIUNGCF</a></span>'
       + '</p>'
       + '</article>';
@@ -1697,15 +1858,15 @@ render();
     }
 
     function gates(){
-      tk('tkGate').innerHTML = CONTACT.gates.map(function(g){ return '<option>' + esc(g) + '</option>'; }).join('');
-      tk('tkSGate').textContent = CONTACT.gates[0];
+      tk('tkGate').innerHTML = t('gates').map(function(g){ return '<option>' + esc(g) + '</option>'; }).join('');
+      tk('tkSGate').textContent = t('gates')[0];
     }
 
     tk('tkName').addEventListener('input', function(){
       var v = this.value.trim();
       tk('tkFromCode').textContent = codeOf(v);
-      tk('tkFromName').textContent = v || '방문자';
-      tk('tkSName').textContent = v || '방문자';
+      tk('tkFromName').textContent = v || t('tk_visitor');
+      tk('tkSName').textContent = v || t('tk_visitor');
       drawBars();
     });
     tk('tkGate').addEventListener('change', function(){ tk('tkSGate').textContent = this.value; });
@@ -1722,11 +1883,11 @@ render();
     });
     function check(){
       var ok = true;
-      if (!tk('tkName').value.trim()){ setErr('tkName', '이름을 적어 주세요.'); ok = false; }
+      if (!tk('tkName').value.trim()){ setErr('tkName', t('tk_errName')); ok = false; }
       var m = tk('tkMail').value.trim();
-      if (!m){ setErr('tkMail', '답장 받을 메일을 적어 주세요.'); ok = false; }
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m)){ setErr('tkMail', '메일 주소 형식을 확인해 주세요.'); ok = false; }
-      if (!tk('tkMsg').value.trim()){ setErr('tkMsg', '내용을 적어 주세요.'); ok = false; }
+      if (!m){ setErr('tkMail', t('tk_errMail')); ok = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m)){ setErr('tkMail', t('tk_errMailFmt')); ok = false; }
+      if (!tk('tkMsg').value.trim()){ setErr('tkMsg', t('tk_errMsg')); ok = false; }
       return ok;
     }
 
@@ -1742,7 +1903,7 @@ render();
         flight: tk('tkFlight').textContent
       };
     }
-    function subjectOf(d){ return '[아카이브 · ' + d.gate + '] ' + (d.subject || d.name + '님의 탑승권'); }
+    function subjectOf(d){ return '[' + t('tk_subjTag') + ' · ' + d.gate + '] ' + (d.subject || t('tk_subjDefault', {name:d.name})); }
     function send(d){
       if (!CONTACT.web3formsKey) return Promise.resolve('mailto');
       return fetch('https://api.web3forms.com/submit', {
@@ -1751,7 +1912,7 @@ render();
         body: JSON.stringify({
           access_key: CONTACT.web3formsKey,
           subject: subjectOf(d),
-          from_name: '한지웅의 아카이브',
+          from_name: t('site'),
           name: d.name, email: d.email, message: d.message,
           gate: d.gate, seat: d.seat, flight: d.flight
         })
@@ -1760,7 +1921,7 @@ render();
         .catch(function(){ return 'fail'; });
     }
     function openMail(d){
-      var body = d.message + '\n\n— ' + d.name + ' (' + d.email + ')\n— 게이트 ' + d.gate + ' · 좌석 ' + d.seat + ' · ' + d.flight;
+      var body = d.message + '\n\n— ' + d.name + ' (' + d.email + ')\n' + t('tk_bodyMeta', {gate:d.gate, seat:d.seat, flight:d.flight});
       location.href = 'mailto:' + CONTACT.to
         + '?subject=' + encodeURIComponent(subjectOf(d))
         + '&body=' + encodeURIComponent(body);
@@ -1815,22 +1976,22 @@ render();
 
       var d = data(), btn = tk('tkSend');
       btn.disabled = true;
-      btn.textContent = '발권 중...';
+      btn.textContent = t('tk_issuing');
 
       var result = await send(d);
       if (!live()) return;
       if (result === 'fail'){
         btn.disabled = false;
-        btn.textContent = '탑승권 보내기';
+        btn.textContent = t('tk_send');
         tk('tkFail').hidden = false;
-        tk('tkFail').textContent = '전송에 실패했습니다. 잠시 뒤 다시 보내거나 아래 메일 주소로 직접 보내 주세요.';
+        tk('tkFail').textContent = t('tk_fail');
         return;
       }
 
       ticket.querySelectorAll('input,select,textarea').forEach(function(el){ el.readOnly = true; el.disabled = el.tagName === 'SELECT'; });
       tk('tkDText').textContent = result === 'sent'
-        ? '답장은 ' + d.email + ' 로 드리겠습니다. 떼어 낸 쪽은 기념으로 남겨 두세요.'
-        : '메일 앱이 열리면 보내기를 눌러 주세요. 열리지 않으면 아래 주소로 직접 보내 주시면 됩니다.';
+        ? t('tk_doneSent', {email:d.email})
+        : t('tk_doneMail');
 
       ticket.classList.add('tk-stamped');
       if (still.matches){
@@ -1858,9 +2019,9 @@ render();
       tk('tkMain').style.visibility = '';
       ticket.reset();
       ticket.querySelectorAll('input,select,textarea').forEach(function(el){ el.readOnly = false; el.disabled = false; });
-      tk('tkFromCode').textContent = 'YOU'; tk('tkFromName').textContent = '방문자';
-      tk('tkSName').textContent = '방문자'; tk('tkSGate').textContent = CONTACT.gates[0];
-      tk('tkSend').disabled = false; tk('tkSend').textContent = '탑승권 보내기';
+      tk('tkFromCode').textContent = 'YOU'; tk('tkFromName').textContent = t('tk_visitor');
+      tk('tkSName').textContent = t('tk_visitor'); tk('tkSGate').textContent = t('gates')[0];
+      tk('tkSend').disabled = false; tk('tkSend').textContent = t('tk_send');
       tk('tkMsg').style.height = '';
       sky.innerHTML = '';
       fill();
@@ -1900,7 +2061,7 @@ render();
     document.documentElement.classList.add('tk-on');
     pageEl.hidden = true;
     detailEl.hidden = false;
-    document.title = '연락 — ' + baseTitle.split(' — ')[0];
+    document.title = t('tk_title') + ' — ' + t('site');
     window.scrollTo(0, 0);
     bindTicket(tkRun);
     tk('tkIntro').focus({preventScroll:true});
@@ -1911,7 +2072,7 @@ render();
     closeViewer();
     detailEl.hidden = true;
     pageEl.hidden = false;
-    document.title = baseTitle;
+    document.title = t('docTitle');
     hideHint();
     detailEl.classList.remove('paged');
     document.documentElement.classList.remove('tk-on');
@@ -2000,8 +2161,8 @@ render();
 
   function paintFull(){
     vwFull.textContent = document.fullscreenElement
-      ? '\uc804\uccb4 \ud654\uba74 \ud574\uc81c'
-      : '\ube0c\ub77c\uc6b0\uc800 \uc804\uccb4 \ud654\uba74';
+      ? t('exitFull')
+      : t('fullscreen');
   }
 
   if (!viewer.requestFullscreen) vwFull.hidden = true;
@@ -2042,6 +2203,17 @@ render();
     else if (e.key === 'End'){ e.preventDefault(); vwI = views.length - 1; paintViewer(); }
   });
 
+  /* 언어를 바꾸면 보고 있던 화면을 그 언어로 다시 연다 (세부 페이지는 보던 단계 그대로) */
+  onLang.push(function(){
+    if (detailEl.hidden){ document.title = t('docTitle'); return; }
+    if (mode === 'contact'){ openContact(); return; }
+    if (!cur) return;
+    var it = ITEMS.find(function(x){ return x.id === cur.id; });
+    if (!it) return;
+    keepAt = shown < 0 ? 0 : shown;
+    openDetail(it);
+  });
+
   window.addEventListener('hashchange', route);
   route();
 })();
@@ -2059,13 +2231,12 @@ fetch('data.json', {cache:'no-store'})
     return r.json();
   })
   .then(function(j){
-    ITEMS  = j.items  || [];
-    DETAIL = j.detail || {};
+    RAW = { items: j.items || [], detail: j.detail || {} };
+    localize();
     return true;
   }, function(err){
     console.error(err);
-    document.getElementById('out').innerHTML = '<p class="empty"><b>기록을 불러오지 못했습니다.</b>'
-      + '로컬에서는 Live Server 로 열어야 합니다.</p>';
+    document.getElementById('out').innerHTML = '<p class="empty"><b>' + t('loadFailB') + '</b>' + t('loadFailT') + '</p>';
     return false;
   })
   .then(function(ok){ if (ok) boot(); });
