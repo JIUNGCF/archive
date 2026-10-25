@@ -37,7 +37,7 @@ archive/
 
 ## 글 올리기
 
-1. 아카이브 맨 아래 **관리** 를 누르거나 `https://archive-gamma-snowy.vercel.app/admin.html` 접속
+1. 아카이브 맨 아래 **관리자** 를 누르거나 `https://archive-gamma-snowy.vercel.app/admin.html` 접속
 2. 비밀번호(`ADMIN_KEY`) 입력 → 들어가기 (브라우저 탭을 닫을 때까지 기억, 위쪽 **나가기** 로 지움)
 3. 제목·사진·글을 쓰고 **올리기**
 4. 1~2분 뒤 사이트에 반영
