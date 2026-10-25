@@ -114,7 +114,6 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .controls{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 14px}
 .controls .set{display:flex;gap:0 5px;align-items:baseline}
 .controls .sep{color:var(--dim)}
-.controls .lab{color:var(--dim);margin-right:4px}   /* 상태 묶음 앞의 '상태' 글자 (분류 묶음과 구분) */
 .ctl{text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px;color:var(--dim)}
 .ctl:hover{color:var(--red);text-decoration-color:var(--red)}
 .ctl[aria-pressed="true"]{color:var(--fg);text-decoration-color:var(--fg)}
@@ -794,13 +793,6 @@ html:has(body.is-about),body.is-about{background:#050d09}
           <button class="ctl" data-cat="dev" aria-pressed="false" data-i18n="cat_dev">개발</button><span class="sep">/</span>
           <button class="ctl" data-cat="read" aria-pressed="false" data-i18n="cat_read">독서</button>
         </div>
-        <div class="set" role="group" aria-label="상태" data-i18n-aria="stGroup">
-          <span class="lab" aria-hidden="true" data-i18n="stGroup">상태</span>
-          <button class="ctl" data-st="all" aria-pressed="true" data-i18n="all">전체</button><span class="sep">/</span>
-          <button class="ctl" data-st="done" aria-pressed="false" data-i18n="st_done">완료</button><span class="sep">/</span>
-          <button class="ctl" data-st="doing" aria-pressed="false" data-i18n="st_doing">진행</button><span class="sep">/</span>
-          <button class="ctl" data-st="plan" aria-pressed="false" data-i18n="st_plan">예정</button>
-        </div>
         <span class="tally" id="tally"></span>
       </div>
     </section>
@@ -899,9 +891,8 @@ const L = {
     nav_about:'소개', nav_now:'지금 하는 일', nav_contact:'연락', nav_notes:'노트',
     search:'검색', status:'2026년 기록 업데이트 중', recent:'최근 기록',
     categories:'카테고리', catGroup:'분류', all:'전체',
-    stGroup:'상태', st_done:'완료', st_doing:'진행', st_plan:'예정',
     cat_research:'연구', cat_activity:'활동', cat_dev:'개발', cat_read:'독서',
-    count:'{n}개', emptyB:'해당하는 기록이 없습니다.', emptyT:'검색어를 지우거나 분류 · 상태를 ‘전체’로 바꿔 보세요.',
+    count:'{n}개', emptyB:'해당하는 기록이 없습니다.', emptyT:'검색어를 지우거나 분류를 ‘전체’로 바꿔 보세요.',
     loadFailB:'기록을 불러오지 못했습니다.', loadFailT:'로컬에서는 Live Server 로 열어야 합니다.',
     lastUpdated:'마지막 갱신 2026.09.12', toTop:'맨 위로', admin:'관리자',
     backCat:'← 카테고리', edit:'수정', openSite:'사이트 열기 ↗', openFig:'도판 전체 화면으로 보기', zoom:'전체 화면 (F)',
@@ -918,7 +909,7 @@ const L = {
     ab_role:'건축 · 에너지 · 기록', ab_photo:'사진', ab_alt:'한지웅',
     ab_now:'지금', ab_nowV:'건국대학교 석사과정<br>건물과 에너지 연구', ab_school:'배운 곳', ab_schoolV:'건국대학교 건축학부',
     ab_2024V:'아이디어 경진대회 최우수상', ab_hint:'누르면 뒤집힙니다',
-    ab_para:'건물의 환경과 에너지를 연구합니다. /n 연구하고, 만들고, 읽은 것을 이곳에 시간 순서로 남깁니다.',
+    ab_para:'건물의 환경과 에너지를 연구합니다.<br>연구하고, 만들고, 읽은 것을 이곳에 시간 순서로 남깁니다.',
     ab_contact:'연락하기',
     tk_title:'연락', tk_home:'홈으로', tk_crumb:'연락', tk_intro:'탑승권을 작성해 보내면 한지웅에게 전달됩니다.',
     tk_pass:'BOARDING PASS · 탑승권', tk_from:'FROM · 출발', tk_to:'TO · 도착', tk_visitor:'방문자', tk_me:'한지웅',
@@ -940,7 +931,6 @@ const L = {
     nav_about:'About', nav_now:'Now', nav_contact:'Contact', nav_notes:'Notes',
     search:'Search', status:'Updating records for 2026', recent:'Recent',
     categories:'Categories', catGroup:'Category', all:'All',
-    stGroup:'Status', st_done:'Done', st_doing:'Ongoing', st_plan:'Planned',
     cat_research:'Research', cat_activity:'Activity', cat_dev:'Development', cat_read:'Reading',
     count:'{n} items', emptyB:'No matching records.', emptyT:'Clear the search or switch the category to ‘All’.',
     loadFailB:'Could not load the records.', loadFailT:'When running locally, open the site with Live Server.',
@@ -959,7 +949,7 @@ const L = {
     ab_role:'Architecture · Energy · Records', ab_photo:'Photo', ab_alt:'Han Jiung',
     ab_now:'Now', ab_nowV:'Master\'s student, Konkuk University<br>Building energy research', ab_school:'Studied', ab_schoolV:'School of Architecture, Konkuk University',
     ab_2024V:'Grand Prize, Idea Competition', ab_hint:'Click to flip',
-    ab_para:'I studied architecture and now research buildings and energy. What I research, make and read is kept here in order of time.',
+    ab_para:'I research the environment and energy of buildings.<br>What I research, make and read is kept here in order of time.',
     ab_contact:'Get in touch',
     tk_title:'Contact', tk_home:'Home', tk_crumb:'Contact', tk_intro:'Fill in the boarding pass and it goes straight to Han Jiung.',
     tk_pass:'BOARDING PASS', tk_from:'FROM', tk_to:'TO', tk_visitor:'Visitor', tk_me:'Han Jiung',
@@ -1149,17 +1139,7 @@ function boot(){
 /* ========================= render ========================= */
 const out = document.getElementById('out');
 const tally = document.getElementById('tally');
-const state = {cat:'all', st:'all', q:''};
-
-/* 상태 : admin 에서 고른 값(status)이 있으면 그것, 없으면 날짜로 정한다.
-   시작 날짜가 오늘보다 뒤면 예정, 오늘이 시작 ~ 끝(기간이 없으면 시작 날짜) 사이면 진행, 그 밖은 완료 */
-function statusOf(it){
-  if (it.status === 'done' || it.status === 'doing' || it.status === 'plan') return it.status;
-  const d = new Date(), pad = n => String(n).padStart(2, '0');
-  const today = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  if (it.date > today) return 'plan';
-  return (it.dateEnd || it.date) >= today ? 'doing' : 'done';
-}
+const state = {cat:'all', q:''};
 
 function card(it, i){
   const p = parts(it.date), e = it.dateEnd && parts(it.dateEnd);
@@ -1174,9 +1154,8 @@ function filtered(){
   const q = state.q.trim().toLowerCase();
   let list = ITEMS.filter(function(it){
     const inCat = state.cat === 'all' || it.cat === state.cat;
-    const inSt = state.st === 'all' || statusOf(it) === state.st;
     const hay = (it.title + ' ' + it.sub + ' ' + it.meta + ' ' + it.tags + ' ' + CAT[it.cat]).toLowerCase();
-    return inCat && inSt && (!q || hay.indexOf(q) !== -1);
+    return inCat && (!q || hay.indexOf(q) !== -1);
   });
   list.sort((a,b) => b.date.localeCompare(a.date));
   return list;
@@ -1214,13 +1193,6 @@ document.querySelectorAll('[data-cat]').forEach(function(b){
   b.addEventListener('click', function(){
     state.cat = b.dataset.cat;
     document.querySelectorAll('[data-cat]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-    render();
-  });
-});
-document.querySelectorAll('[data-st]').forEach(function(b){
-  b.addEventListener('click', function(){
-    state.st = b.dataset.st;
-    document.querySelectorAll('[data-st]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     render();
   });
 });
