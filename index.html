@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>한지웅의 아카이브 — 연구 · 활동 · 개발 · 독서</title>
+<title>한지웅의 아카이브</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23000'/%3E%3Cpath fill='%23fff' d='M9 7h4.2v7.1h5.6V7H23v18h-4.2v-7.2h-5.6V25H9z'/%3E%3C/svg%3E">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -72,6 +72,9 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 }
 .brand h1{font-size:13px}
 .brand p{margin:1px 0 0;color:var(--dim);letter-spacing:.055em}
+/* 비밀 글 : 바탕과 같은 색이라 안 보이다가, 이름 위에 마우스를 올리거나 드래그로 고르면 드러난다 */
+.brand .brand-secret{color:var(--bg);letter-spacing:-0.01em;transition:color .6s}
+.brand:hover .brand-secret{color:var(--dim)}
 .navrow ul{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,190px));
@@ -560,6 +563,110 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
   .pullout:hover .pull-bars i:nth-child(5){transform:translate(4px,-4px)}
 }
 
+/* ---------- about : 명함 카드 ----------
+   색인 쪽 클래스(.card .top .foot …)와 겹치지 않게 모든 이름에 ab- 를 붙인다.
+   #about 에 있는 동안만 body 에 is-about 이 붙어 배경이 짙은 녹색이 된다 */
+html:has(body.is-about),body.is-about{background:#050d09}
+.ab-wrap{
+  /* 건국대 헤리티지 그린 근사값 — 공식 UI 매뉴얼의 값으로 이 한 줄만 바꾸면 된다 */
+  --ku:#0b5a3a;
+  --ku-deep:#073c27;
+  --stage:#050d09;
+  --cream:#f2efe6;
+  --gold:#d9c68d;
+  --dim:#8fa197;
+  color:var(--cream);padding-bottom:8vh;outline:none
+}
+.ab-wrap a:hover{color:var(--gold);text-decoration-color:var(--gold)}
+.ab-wrap :focus-visible{outline:1px solid var(--gold);outline-offset:6px}
+.ab-top{display:flex;align-items:baseline;gap:18px}
+.ab-top .ab-crumb{color:var(--dim)}
+.ab-top .ab-tag{margin-left:auto;color:var(--dim)}
+
+/* 카드 뒤에 녹색 빛이 은은하게 번진다. 카드의 부모가 아닌 형제 층(.ab-glow)이라 3D 에 영향이 없고,
+   화면 밖으로 넘친 부분은 이 층 안에서만 잘라 가로 스크롤을 만들지 않는다 (-28px 은 .detail 양옆 여백) */
+.ab-stage{position:relative;min-height:calc(100vh - 150px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:5vh 0}
+.ab-glow{position:absolute;top:0;bottom:0;left:-28px;right:-28px;overflow:hidden;pointer-events:none}
+.ab-glow::before{content:"";position:absolute;left:50%;top:42%;width:min(980px,120vw);height:min(620px,80vw);transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,rgba(11,90,58,.45),rgba(11,90,58,0));pointer-events:none}
+
+/* 카드 : perspective 는 가장 바깥(.ab-scene)에만, preserve-3d 는 등장 · 기울기 · 카드 세 겹에.
+   이 세 겹에는 overflow · opacity · filter · mix-blend-mode 를 주지 않는다 (3D 가 평면으로 눌려 뒤집기가 깨짐) */
+.ab-scene{position:relative;width:min(620px,88vw);perspective:1600px}
+.ab-enter{-webkit-transform-style:preserve-3d;transform-style:preserve-3d}
+.ab-tilt{-webkit-transform-style:preserve-3d;transform-style:preserve-3d;will-change:transform}
+.ab-card{position:relative;width:100%;aspect-ratio:1.586;-webkit-transform-style:preserve-3d;transform-style:preserve-3d;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+/* 기울어져 화면 안쪽으로 들어간 면이 감싸는 층들(z=0) 뒤에 숨어 클릭을 빼앗기지 않게, 마우스는 두 면만 받는다.
+   면에서 누른 클릭은 그대로 .ab-card 로 올라가 뒤집기가 된다 */
+.ab-enter,.ab-tilt,.ab-card{pointer-events:none}
+.ab-card.ab-flip{transform:rotateY(180deg)}
+/* 컨테이너 단위는 3D 를 받는 .ab-card 가 아니라 각 면에 둔다 (뒤집기가 깨지지 않게) */
+.ab-face{position:absolute;inset:0;border-radius:3.7% / 5.87%;overflow:hidden;container-type:inline-size;pointer-events:auto;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.85)}
+/* 아래에서 떠오르기. 흐려졌다 나타나는 것(opacity)은 부모가 아닌 각 면에 준다 */
+@media (prefers-reduced-motion:no-preference){
+  .ab-enter{animation:ab-enter 1.1s cubic-bezier(.2,.8,.2,1) .1s both}
+  .ab-face{animation:ab-fade 1.1s cubic-bezier(.2,.8,.2,1) .1s both}
+}
+@keyframes ab-enter{from{transform:translateY(34px) rotateX(18deg) rotateZ(-2deg)}to{transform:none}}
+@keyframes ab-fade{from{opacity:0}to{opacity:1}}
+
+.ab-grain{position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* cqw 는 자기 자신이 아니라 바깥 컨테이너를 기준으로 재므로, 면의 여백 · 칸 나눔은 면 안쪽 층(.ab-in)에 둔다 */
+.ab-in{position:absolute;inset:0}
+
+/* 앞면 : 헤리티지 그린 */
+.ab-front{transform:rotateY(0deg);background:linear-gradient(160deg,var(--ku) 0%,var(--ku-deep) 100%);color:var(--cream)}
+.ab-front .ab-in{padding:6.6cqw 7cqw;display:flex;flex-direction:column;justify-content:space-between}
+.ab-front .ab-grain{opacity:.16;mix-blend-mode:overlay}
+.ab-f-top,.ab-f-bot{position:relative;display:flex;justify-content:space-between}
+.ab-f-top{align-items:center}
+.ab-f-bot{align-items:flex-end}
+.ab-wm{font-size:1.7cqw;letter-spacing:.2em;font-weight:500;opacity:.9}
+.ab-dot{width:5.6cqw;height:5.6cqw;border-radius:50%;background:var(--gold)}
+.ab-nm{font-size:9.6cqw;font-weight:600;letter-spacing:-0.05em;line-height:1;
+  text-shadow:0 -.1cqw 0 rgba(0,0,0,.28),0 .12cqw 0 rgba(255,255,255,.10)}
+.ab-en{font-size:1.85cqw;letter-spacing:.08em;color:rgba(242,239,230,.66);margin-top:1.6cqw}
+.ab-role{display:flex;align-items:center;gap:1.4cqw;font-size:1.85cqw;color:rgba(242,239,230,.8)}
+.ab-role i{display:block;width:4.4cqw;height:.18cqw;background:var(--gold)}
+
+/* 뒷면 : 크림 바탕 + 사진 */
+.ab-back{transform:rotateY(180deg);background:var(--cream);color:var(--ku-deep)}
+.ab-back .ab-in{padding:5.4cqw;display:grid;grid-template-columns:38cqw minmax(0,1fr);gap:0 5.2cqw}
+.ab-back .ab-grain{opacity:.08;mix-blend-mode:multiply}
+.ab-ph{position:relative;border-radius:1.6cqw;overflow:hidden;background:#e4e0d4}
+.ab-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+.ab-ph-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1cqw;
+  color:rgba(7,60,39,.55);text-align:center;
+  background:repeating-linear-gradient(45deg,rgba(11,90,58,.06) 0 1.2cqw,rgba(11,90,58,.12) 1.2cqw 2.4cqw)}
+.ab-ph-empty b{font-weight:500;font-size:2.4cqw}
+.ab-ph-empty small{font-size:1.5cqw}
+
+.ab-bi{position:relative;min-width:0;display:flex;flex-direction:column;justify-content:space-between}
+.ab-b-top{display:flex;justify-content:space-between;font-size:1.5cqw;letter-spacing:.18em;color:rgba(7,60,39,.55)}
+.ab-b-info{margin:0;display:grid;grid-template-columns:auto 1fr;gap:1.4cqw 2.8cqw;font-size:1.95cqw;line-height:1.4}
+.ab-b-info dt{color:rgba(7,60,39,.55)}
+.ab-b-info dd{margin:0}
+.ab-b-rec .ab-lb{font-size:1.4cqw;letter-spacing:.16em;color:rgba(7,60,39,.55);margin-bottom:1.5cqw}
+.ab-b-rec .ab-r{display:grid;grid-template-columns:4.6cqw 1fr 3cqw;align-items:center;gap:1.6cqw;font-size:1.8cqw;margin-bottom:1.2cqw}
+.ab-b-rec .ab-r b{font-weight:400;text-align:right;font-variant-numeric:tabular-nums}
+.ab-b-rec .ab-r.ab-lead span,.ab-b-rec .ab-r.ab-lead b{font-weight:600}
+.ab-b-rec .ab-bar{position:relative;height:.34cqw;background:rgba(11,90,58,.14)}
+.ab-b-rec .ab-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--ku);transition:width .9s cubic-bezier(.2,.8,.2,1) .45s}
+.ab-card.ab-flip .ab-b-rec .ab-bar i{width:var(--w)}
+.ab-b-bot{display:flex;flex-direction:column;gap:.5cqw;padding-top:1.6cqw;border-top:1px solid rgba(7,60,39,.14);font-size:1.7cqw;color:rgba(7,60,39,.7)}
+.ab-wrap .ab-b-bot a{color:var(--ku-deep);text-decoration:none}
+.ab-wrap .ab-b-bot a:hover{color:var(--ku)}
+
+/* 카드 밖 */
+.ab-hint{position:relative;color:var(--dim);display:flex;flex-wrap:wrap;justify-content:center;gap:0 14px;align-items:baseline;margin:0}
+.ab-para{position:relative;max-width:44ch;text-align:center;color:var(--dim);font-size:13.5px;line-height:1.8;margin:0}
+.ab-foot{position:relative;display:flex;gap:0 20px}
+
 /* ================= shelf 오버레이 (직교투영 3D) ================= */
 [hidden]{display:none!important}
 .shelf{position:fixed;top:0;right:0;bottom:0;left:0;z-index:60;background:#000;display:flex;flex-direction:column;overflow:hidden}
@@ -636,10 +743,11 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
     <div class="brand">
       <h1 data-i18n="site">한지웅의 아카이브</h1>
       <p>HAN JIUNG ARCHIVE</p>
+      <p class="brand-secret" data-i18n="secret">위대한 것은 기록에서 시작된다</p>
     </div>
     <nav class="navrow" aria-label="메뉴" data-i18n-aria="menu">
       <ul>
-        <li><a href="#index" data-i18n="nav_about">소개</a></li>
+        <li><a href="#about" data-i18n="nav_about">소개</a></li>
         <li><a href="#index" data-i18n="nav_now">지금 하는 일</a></li>
         <li><a href="#contact" data-i18n="nav_contact">연락</a></li>
         <li><a href="#index" data-i18n="nav_notes">노트</a></li>
@@ -771,7 +879,7 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
    ========================================================= */
 const L = {
   ko: {
-    site:'한지웅의 아카이브', docTitle:'한지웅의 아카이브 — 연구 · 활동 · 개발 · 독서', menu:'메뉴',
+    site:'한지웅의 아카이브', docTitle:'한지웅의 아카이브', secret:'위대한 것은 기록에서 시작된다', menu:'메뉴',
     nav_about:'소개', nav_now:'지금 하는 일', nav_contact:'연락', nav_notes:'노트',
     search:'검색', status:'2026년 기록 업데이트 중', recent:'최근 기록',
     categories:'카테고리', catGroup:'분류', all:'전체',
@@ -789,6 +897,12 @@ const L = {
     shelf:'시간 순서로 꺼내보기',
     shPinned:'<span class="on">고정됨</span> · 다시 클릭하면 해제 · ← → 이동 · Esc 로 닫기',
     shFree:'마우스를 좌우로 움직여 넘기기 · 클릭하면 고정 · Esc 로 닫기',
+    ab_title:'소개', ab_home:'색인으로', ab_crumb:'소개', ab_card:'한지웅의 명함. 누르면 뒤집힙니다.',
+    ab_role:'건축 · 에너지 · 기록', ab_photo:'사진', ab_alt:'한지웅',
+    ab_now:'지금', ab_nowV:'건국대학교 석사과정<br>건물과 에너지 연구', ab_school:'배운 곳', ab_schoolV:'건국대학교 건축학부',
+    ab_2024V:'아이디어 경진대회 최우수상', ab_hint:'누르면 뒤집힙니다',
+    ab_para:'건축을 공부했고, 지금은 건물과 에너지를 연구합니다. 연구하고, 만들고, 읽은 것을 이곳에 시간 순서로 남깁니다.',
+    ab_contact:'연락하기',
     tk_title:'연락', tk_home:'홈으로', tk_crumb:'연락', tk_intro:'탑승권을 작성해 보내면 한지웅에게 전달됩니다.',
     tk_pass:'BOARDING PASS · 탑승권', tk_from:'FROM · 출발', tk_to:'TO · 도착', tk_visitor:'방문자', tk_me:'한지웅',
     tk_name:'승객 이름 · PASSENGER', tk_mail:'답장 받을 메일 · E-MAIL', tk_subj:'제목 · SUBJECT', tk_gate:'게이트 · GATE',
@@ -805,7 +919,7 @@ const L = {
     gates:['업무', '연구 협업', '개발 문의', '개인', '기타']
   },
   en: {
-    site:'Han Jiung Archive', docTitle:'Han Jiung Archive — Research · Activity · Development · Reading', menu:'Menu',
+    site:'Han Jiung Archive', docTitle:'Han Jiung Archive', secret:'Great things begin with a record', menu:'Menu',
     nav_about:'About', nav_now:'Now', nav_contact:'Contact', nav_notes:'Notes',
     search:'Search', status:'Updating records for 2026', recent:'Recent',
     categories:'Categories', catGroup:'Category', all:'All',
@@ -823,6 +937,12 @@ const L = {
     shelf:'Pull them out in order',
     shPinned:'<span class="on">Pinned</span> · click again to release · ← → to move · Esc to close',
     shFree:'Move the mouse left and right to browse · click to pin · Esc to close',
+    ab_title:'About', ab_home:'Index', ab_crumb:'About', ab_card:'Han Jiung\'s business card. Click to flip.',
+    ab_role:'Architecture · Energy · Records', ab_photo:'Photo', ab_alt:'Han Jiung',
+    ab_now:'Now', ab_nowV:'Master\'s student, Konkuk University<br>Building energy research', ab_school:'Studied', ab_schoolV:'School of Architecture, Konkuk University',
+    ab_2024V:'Grand Prize, Idea Competition', ab_hint:'Click to flip',
+    ab_para:'I studied architecture and now research buildings and energy. What I research, make and read is kept here in order of time.',
+    ab_contact:'Get in touch',
     tk_title:'Contact', tk_home:'Home', tk_crumb:'Contact', tk_intro:'Fill in the boarding pass and it goes straight to Han Jiung.',
     tk_pass:'BOARDING PASS', tk_from:'FROM', tk_to:'TO', tk_visitor:'Visitor', tk_me:'Han Jiung',
     tk_name:'PASSENGER', tk_mail:'REPLY E-MAIL', tk_subj:'SUBJECT', tk_gate:'GATE',
@@ -1650,6 +1770,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     hintEl  = document.getElementById('dtHint');
     document.getElementById('dtOpenFig').addEventListener('click', openViewer);
     document.documentElement.classList.remove('tk-on');
+    document.body.classList.remove('is-about');
     mode = 'article';
     applyStatic();   // 껍데기는 처음 언어로 저장돼 있다
   }
@@ -2059,6 +2180,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     if (raf){ cancelAnimationFrame(raf); raf = 0; lastT = 0; }
     mode = 'contact';
     tkRun++;
+    document.body.classList.remove('is-about');
     detailEl.classList.remove('paged');
     detailEl.innerHTML = ticketHTML();
     document.documentElement.classList.add('tk-on');
@@ -2079,12 +2201,143 @@ onLang.push(function(){ renderUpdates(); render(); });
     hideHint();
     detailEl.classList.remove('paged');
     document.documentElement.classList.remove('tk-on');
+    document.body.classList.remove('is-about');
+  }
+
+  /* ---- 소개 : 명함 카드 ----
+     #about 에 들어올 때마다 새로 그려서 등장 애니메이션이 다시 나온다.
+     누르면(클릭 · 탭 · Enter · Space) 뒤집히고, 마우스에서만 카드가 커서를 따라 기운다 */
+  var abTx = 0, abTy = 0, abCx = 0, abCy = 0, abRaf = 0;
+  function aboutHTML(){
+    /* 기록 막대 : 이미 불러온 ITEMS 를 분류별로 센다 */
+    var n = {research:0, dev:0, read:0};
+    ITEMS.forEach(function(x){ if (n[x.cat] !== undefined) n[x.cat]++; });
+    var rows = ['research', 'dev', 'read'];
+    var max = Math.max(1, n.research, n.dev, n.read);
+    var rec = rows.map(function(c){
+      return '<div class="ab-r' + (n[c] === max ? ' ab-lead' : '') + '"><span>' + esc(CAT[c]) + '</span>'
+           + '<span class="ab-bar"><i style="--w:' + Math.round(n[c] / max * 100) + '%"></i></span><b>' + n[c] + '</b></div>';
+    }).join('');
+    return '<article class="ab-wrap" id="abWrap" tabindex="-1">'
+      + '<header class="ab-top"><a href="#index">' + t('ab_home') + '</a><span class="ab-crumb">' + t('ab_crumb') + '</span><span class="ab-tag">About</span></header>'
+      + '<div class="ab-stage">'
+      +   '<div class="ab-glow" aria-hidden="true"></div>'
+      +   '<div class="ab-scene" id="abScene">'
+      +     '<div class="ab-enter">'
+      +       '<div class="ab-tilt" id="abTilt">'
+      +         '<div class="ab-card" id="abCard" role="button" tabindex="0" aria-pressed="false" aria-label="' + esc(t('ab_card')) + '">'
+      +           '<div class="ab-face ab-front">'
+      +             '<span class="ab-grain" aria-hidden="true"></span>'
+      +             '<div class="ab-in">'
+      +             '<div class="ab-f-top"><span class="ab-wm">HAN JIUNG ARCHIVE</span><span class="ab-dot" aria-hidden="true"></span></div>'
+      +             '<div class="ab-f-bot">'
+      +               '<div><div class="ab-nm">한지웅</div><div class="ab-en">Han Jiung</div></div>'
+      +               '<div class="ab-role"><i aria-hidden="true"></i>' + t('ab_role') + '</div>'
+      +             '</div>'
+      +             '</div>'
+      +           '</div>'
+      +           '<div class="ab-face ab-back">'
+      +             '<span class="ab-grain" aria-hidden="true"></span>'
+      +             '<div class="ab-in">'
+      +             '<div class="ab-ph">'
+      +               '<img id="abPhoto" alt="' + esc(t('ab_alt')) + '" hidden>'
+      +               '<div class="ab-ph-empty" id="abPhEmpty"><b>' + t('ab_photo') + '</b><small>img/profile.jpg</small></div>'
+      +             '</div>'
+      +             '<div class="ab-bi">'
+      +               '<div class="ab-b-top"><span>HAN JIUNG ARCHIVE</span><span>A-000</span></div>'
+      +               '<dl class="ab-b-info">'
+      +                 '<dt>' + t('ab_now') + '</dt><dd>' + t('ab_nowV') + '</dd>'
+      +                 '<dt>' + t('ab_school') + '</dt><dd>' + t('ab_schoolV') + '</dd>'
+      +                 '<dt>2024</dt><dd>' + t('ab_2024V') + '</dd>'
+      +               '</dl>'
+      +               '<div class="ab-b-rec"><div class="ab-lb">RECORDS</div>' + rec + '</div>'
+      +               '<div class="ab-b-bot"><a href="#contact">' + esc(CONTACT.to) + '</a><span>github.com/JIUNGCF</span></div>'
+      +             '</div>'
+      +             '</div>'
+      +           '</div>'
+      +         '</div>'
+      +       '</div>'
+      +     '</div>'
+      +   '</div>'
+      +   '<p class="ab-hint"><span>' + t('ab_hint') + '</span></p>'
+      +   '<p class="ab-para">' + t('ab_para') + '</p>'
+      +   '<div class="ab-foot"><a href="#contact">' + t('ab_contact') + '</a><a href="https://github.com/JIUNGCF">GitHub</a></div>'
+      + '</div>'
+      + '</article>';
+  }
+
+  function bindAbout(){
+    var scene = document.getElementById('abScene');
+    var tilt  = document.getElementById('abTilt');
+    var card  = document.getElementById('abCard');
+
+    function flip(){ card.setAttribute('aria-pressed', String(card.classList.toggle('ab-flip'))); }
+    card.addEventListener('click', flip);
+    card.addEventListener('keydown', function(e){
+      if (e.target !== card) return;   // 카드 안 링크에서 누른 Enter 는 링크로
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flip(); }
+    });
+    card.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(e){ e.stopPropagation(); }); });
+
+    /* 사진 : 파일이 없으면 사선 무늬 자리표시자가 그대로 남는다 */
+    var img = document.getElementById('abPhoto');
+    img.onload  = function(){ img.hidden = false; document.getElementById('abPhEmpty').hidden = true; };
+    img.onerror = function(){ img.hidden = true; document.getElementById('abPhEmpty').hidden = false; };
+    img.src = 'img/profile.jpg';
+
+    /* 기울기 : 마우스에서만, 관성 있게 따라온다. 터치 기기 · 움직임 줄이기에서는 끈다 */
+    abTx = abTy = abCx = abCy = 0;
+    if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    function step(){
+      abRaf = 0;
+      if (!tilt.isConnected) return;
+      abCx += (abTx - abCx) * 0.12;
+      abCy += (abTy - abCy) * 0.12;
+      tilt.style.transform = 'rotateX(' + abCy.toFixed(3) + 'deg) rotateY(' + abCx.toFixed(3) + 'deg)';
+      if (Math.abs(abTx - abCx) > 0.01 || Math.abs(abTy - abCy) > 0.01) abRaf = requestAnimationFrame(step);
+    }
+    function kick(){ if (!abRaf) abRaf = requestAnimationFrame(step); }
+    scene.addEventListener('pointermove', function(e){
+      if (e.pointerType !== 'mouse') return;
+      var r = scene.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      abTx = (x - 0.5) * 14; abTy = (0.5 - y) * 10;
+      kick();
+    });
+    scene.addEventListener('pointerleave', function(){ abTx = 0; abTy = 0; kick(); });
+  }
+
+  function openAbout(){
+    closeViewer();
+    hideHint();
+    cur = null;
+    plates = []; views = [];
+    steps = []; path = []; figEls = [];
+    if (raf){ cancelAnimationFrame(raf); raf = 0; lastT = 0; }
+    if (abRaf){ cancelAnimationFrame(abRaf); abRaf = 0; }
+    mode = 'about';
+    tkRun++;   // 탑승권 인쇄 타이머가 남아 있으면 멈춘다
+    detailEl.classList.remove('paged');
+    detailEl.innerHTML = aboutHTML();
+    document.documentElement.classList.remove('tk-on');
+    document.body.classList.add('is-about');
+    pageEl.hidden = true;
+    detailEl.hidden = false;
+    document.title = t('ab_title') + ' — ' + t('site');
+    window.scrollTo(0, 0);
+    bindAbout();
+    document.getElementById('abWrap').focus({preventScroll:true});
   }
 
   function route(){
     var id = location.hash.slice(1);
     if (id === 'contact'){
       if (!(mode === 'contact' && !detailEl.hidden)) openContact();
+      return;
+    }
+    if (id === 'about'){
+      if (!(mode === 'about' && !detailEl.hidden)) openAbout();
       return;
     }
     var it = null;
@@ -2210,6 +2463,7 @@ onLang.push(function(){ renderUpdates(); render(); });
   onLang.push(function(){
     if (detailEl.hidden){ document.title = t('docTitle'); return; }
     if (mode === 'contact'){ openContact(); return; }
+    if (mode === 'about'){ openAbout(); return; }
     if (!cur) return;
     var it = ITEMS.find(function(x){ return x.id === cur.id; });
     if (!it) return;
