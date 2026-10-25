@@ -28,15 +28,30 @@ async function ghJson(path, token, init){
   return r.json();
 }
 
+/* admin 은 pages: [{title, text, photos:[{file, data}]}] 를 보낸다.
+   예전 형식(figures: [{file, data, title, text}], 사진 1장 = 1페이지)도 받아 준다. */
+function pagesOf(post){
+  if (Array.isArray(post.pages)) return post.pages;
+  return (post.figures || []).map(f => ({ title: f.title, text: f.text, photos: [{ file: f.file, data: f.data }] }));
+}
+
+function imgPath(file){ return 'img/' + String(file).replace(/[^a-zA-Z0-9._-]/g, '_'); }
+
+/* 사진은 figures 에 한 줄로 펼치고, 절은 자기 사진 번호를 가진다.
+   사진이 1장이면 fig (기존 형식), 여러 장이면 figs 배열 — index.html 이 둘 다 읽는다 */
 function toDetail(post){
   const paras = t => String(t || '').split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
-  return {
-    lede: post.lede || post.sub || '',
-    meta: [],
-    figures: post.figures.map(f => ({ src: 'img/' + f.file, cap: f.title || '' })),
-    sections: post.figures.map((f, i) => ({ h: f.title || ('사진 ' + (i + 1)), fig: i, p: paras(f.text) })),
-    links: []
-  };
+  const figures = [], sections = [];
+  pagesOf(post).forEach((pg, i) => {
+    const h = pg.title || ('페이지 ' + (i + 1));
+    const nums = (pg.photos || []).map(ph => figures.push({ src: imgPath(ph.file), cap: pg.title || '' }) - 1);
+    const s = { h };
+    if (nums.length === 1) s.fig = nums[0];
+    else if (nums.length > 1) s.figs = nums;
+    s.p = paras(pg.text);
+    sections.push(s);
+  });
+  return { lede: post.lede || post.sub || '', meta: [], figures, sections, links: [] };
 }
 
 function toItem(post){
@@ -89,14 +104,15 @@ module.exports = async (req, res) => {
 
     /* ---- blob 만들기: 사진들 + data.json ---- */
     const tree = [];
-    for (const f of post.figures || []){
+    const photos = [].concat(...pagesOf(post).map(pg => pg.photos || []));
+    for (const f of photos){
       const m = /^data:([^;]+);base64,(.+)$/.exec(f.data || '');
       if (!m) continue;
       const blob = await ghJson(R + '/git/blobs', T, {
         method: 'POST',
         body: JSON.stringify({ content: m[2], encoding: 'base64' })
       });
-      tree.push({ path: 'img/' + f.file.replace(/[^a-zA-Z0-9._-]/g, '_'), mode: '100644', type: 'blob', sha: blob.sha });
+      tree.push({ path: imgPath(f.file), mode: '100644', type: 'blob', sha: blob.sha });
     }
     const dataBlob = await ghJson(R + '/git/blobs', T, {
       method: 'POST',

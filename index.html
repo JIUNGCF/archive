@@ -239,6 +239,28 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .dt-cap #dtCap{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dt-count{flex:0 0 auto}
 
+/* 한 단계(절)에 사진이 여러 장일 때 : 단계는 위아래로, 그 안의 사진은 좌우로 넘긴다.
+   사진끼리의 교차는 단계 넘기기(JS 프레임 루프)와 따로 CSS 로 짧게 */
+.t-multi img{position:absolute;top:0;left:0;opacity:0}
+.t-multi img.on{opacity:1}
+@media (prefers-reduced-motion:no-preference){
+  .t-multi img{transition:opacity .45s var(--ease)}
+}
+.dt-pn{position:absolute;top:50%;z-index:3;transform:translateY(-50%);background:#000;color:#fff;padding:6px 10px;font-size:12px;line-height:1;opacity:0}
+.dt-pn-l{left:8px}
+.dt-pn-r{right:8px}
+.dt-figwrap:hover .dt-pn,.dt-pn:focus-visible{opacity:1}
+.dt-pn:hover{background:var(--red)}
+.dt-pn:disabled{opacity:0 !important;pointer-events:none}
+@media (hover:none){ .dt-pn{opacity:.85} }
+@media (prefers-reduced-motion:no-preference){
+  .dt-pn{transition:opacity .2s ease}
+}
+.dt-phn{flex:0 0 auto;margin-left:auto;display:flex;align-items:baseline;gap:0 8px;color:var(--fg)}
+.dt-phn button{color:var(--fg);padding:0 2px}
+.dt-phn button:hover{color:var(--red)}
+.dt-phn button:disabled{color:#3a3a3a;cursor:default}
+
 /* 본문 열 : 글 전체를 한 줄기(.dt-flow)로 이어 두고, JS 가 매 프레임 transform 으로
    현재 절을 도판 옆에 데려온다. 절 밝기도 JS 가 위치에 따라 연속으로 정한다.
    아래 여백(27px)은 캡션 줄 높이 — 본문 열의 세로 중심을 도판 무대의 중심과 맞춘다 */
@@ -647,8 +669,12 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
           <span class="dt-figs" id="dtFigs"></span>
           <span class="dt-zoom" aria-hidden="true">전체 화면 (F)</span>
         </button>
+        <button class="dt-pn dt-pn-l" type="button" data-flip="-1" aria-label="이전 사진" hidden>←</button>
+        <button class="dt-pn dt-pn-r" type="button" data-flip="1" aria-label="다음 사진" hidden>→</button>
       </div>
-      <p class="dt-cap"><span id="dtCap"></span><span class="dt-count" id="dtCount"></span></p>
+      <p class="dt-cap"><span id="dtCap"></span>
+        <span class="dt-phn" id="dtPhn" hidden><button type="button" data-flip="-1" aria-label="이전 사진">←</button><span id="dtPhNo"></span><button type="button" data-flip="1" aria-label="다음 사진">→</button></span>
+        <span class="dt-count" id="dtCount"></span></p>
     </div>
     <article class="dt-main" id="dtMain"></article>
   </div>
@@ -1086,6 +1112,8 @@ render();
    DETAIL 에 없는 항목은 ITEMS 데이터로 최소 페이지를 생성(fallback).
    머리말은 lede(admin 형식) 또는 lead(기존 형식). 절에 fig 가 있고
    figures[fig].src 가 있으면 타이포 도판 대신 그 사진을 쓴다.
+   절에 figs(번호 배열)가 있으면 그 단계 안에서 사진 여러 장을 좌우로 넘긴다
+   (← → 키 · 가로 스와이프 · 트랙패드 가로 밀기 · 도판 양옆 버튼).
    ========================================================= */
 (function(){
   var pageEl   = document.querySelector('.page');
@@ -1101,6 +1129,9 @@ render();
   var hintEl   = document.getElementById('dtHint');
   var baseTitle = document.title;
   var plates = [], activeFig = 0, cur = null, capBase = '';
+  /* views : 전체 화면 뷰어가 한 장씩 넘기는 목록. 여러 장짜리 단계는 사진마다 하나씩 펼친다
+     views[n] = {html, label, k(단계), j(그 단계 안의 사진)} */
+  var views = [];
   /* 단계 상태
      steps[k] = {el, stops[]}  : 단계(머리말 · 절)와 그 단계에서 글 줄기를 놓을 세로 위치들
      path[i]  = {k, y}         : 모든 정지점을 순서대로 펼친 길. pos · target 은 이 길 위의 실수 위치
@@ -1122,6 +1153,52 @@ render();
     return '<div class="cv t-photo"><img src="' + esc(f.src) + '" alt="' + esc(alt) + '" decoding="async"></div>';
   }
 
+  /* 여러 장 : 같은 자리에 겹쳐 두고 .on 인 한 장만 보인다 */
+  function multiPlate(list, alt){
+    return '<div class="cv t-photo t-multi">' + list.map(function(f, j){
+      return '<img' + (j ? '' : ' class="on"') + ' src="' + esc(f.src) + '" alt="' + esc(alt + ' (' + (j + 1) + '/' + list.length + ')') + '" decoding="async">';
+    }).join('') + '</div>';
+  }
+
+  /* 절의 사진들 : figs(배열) 또는 fig(번호 하나) */
+  function photosOf(s, figures){
+    var nums = Array.isArray(s.figs) ? s.figs : typeof s.fig === 'number' ? [s.fig] : [];
+    return nums.map(function(n){ return figures[n]; }).filter(function(f){ return f && f.src; });
+  }
+
+  /* ---- 한 단계 안에서 사진 넘기기 ---- */
+  function multiAt(k){ var p = plates[k]; return !!(p && p.photos && p.photos.length > 1); }
+
+  function setSub(k, j){
+    var p = plates[k];
+    if (!multiAt(k)) return;
+    j = Math.max(0, Math.min(p.photos.length - 1, j));
+    if (j === p.sub) return;
+    p.sub = j;
+    var imgs = figEls[k] ? figEls[k].querySelectorAll('.t-multi img') : [];
+    for (var n = 0; n < imgs.length; n++) imgs[n].classList.toggle('on', n === j);
+    if (k === shown) paintPh(k);
+  }
+  function flip(d){
+    if (shown < 0 || !multiAt(shown)) return;
+    hideHint();
+    setSub(shown, plates[shown].sub + d);
+  }
+
+  /* 캡션 · 사진 번호 · 좌우 버튼을 지금 단계에 맞춘다 */
+  function paintPh(k){
+    var p = plates[k], many = multiAt(k);
+    var c = p && (many ? p.photos[p.sub].cap : p.cap);
+    capEl.textContent = capBase + (c ? ' · ' + c : '');
+    var phn = document.getElementById('dtPhn');
+    phn.hidden = !many;
+    if (many) document.getElementById('dtPhNo').textContent = '사진 ' + (p.sub + 1) + ' / ' + p.photos.length;
+    detailEl.querySelectorAll('[data-flip]').forEach(function(b){
+      if (b.classList.contains('dt-pn')) b.hidden = !many;
+      b.disabled = !many || (+b.dataset.flip < 0 ? p.sub === 0 : p.sub === p.photos.length - 1);
+    });
+  }
+
   function detailOf(it){
     if (DETAIL[it.id]) return DETAIL[it.id];
     return {
@@ -1141,8 +1218,7 @@ render();
       if (j === k) st.el.setAttribute('aria-current', 'true');
       else st.el.removeAttribute('aria-current');
     });
-    var c = plates[k] && plates[k].cap;
-    capEl.textContent = capBase + (c ? ' · ' + c : '');
+    paintPh(k);
     countEl.textContent = nn(k + 1) + ' / ' + nn(steps.length);
   }
 
@@ -1273,10 +1349,22 @@ render();
   }
   function snap(){ if (!locked) setTarget(from); }
 
+  /* 가로 밀기 : 한 제스처에 사진 한 장 (세로와 같은 방식으로 잠근다) */
+  var hx = 0, hLast = 0, hLocked = false;
+  function swipeX(dx){
+    var now = performance.now();
+    if (now - hLast > GAP){ hx = 0; hLocked = false; }
+    hLast = now;
+    if (hLocked) return;
+    hx += dx;
+    if (Math.abs(hx) >= 40){ hLocked = true; flip(hx > 0 ? 1 : -1); }
+  }
+
   detailEl.addEventListener('wheel', function(e){
     if (!articleOn()) return;
     e.preventDefault();
-    var dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * mainEl.clientHeight : e.deltaY;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)){ swipeX(e.deltaX); return; }
+    var dy =e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * mainEl.clientHeight : e.deltaY;
     nudge(dy / UNIT);
     snapTimer = setTimeout(snap, GAP);
   }, {passive:false});
@@ -1284,28 +1372,45 @@ render();
   /* 흐린 절을 누르면 그 절로 (링크는 그대로 동작) */
   detailEl.addEventListener('click', function(e){
     if (!articleOn() || e.target.closest('a')) return;
+    var fb = e.target.closest('[data-flip]');
+    if (fb){ flip(+fb.dataset.flip); return; }
     var el = e.target.closest('.dt-step');
     for (var k = 0; el && k < steps.length; k++){
       if (steps[k].el === el && k !== shown){ moveTo(firstStop(k)); return; }
     }
   });
 
-  var touchY = null;
+  /* 처음 8px 움직인 방향으로 축을 정한다. 가로면 (사진이 여러 장인 단계에서) 사진 넘기기 */
+  var touchY = null, touchX0 = 0, touchY0 = 0, axis = '';
   detailEl.addEventListener('touchstart', function(e){
-    touchY = articleOn() ? e.touches[0].clientY : null;
+    var t = e.touches[0];
+    touchY = articleOn() ? t.clientY : null;
+    touchX0 = t.clientX; touchY0 = t.clientY; axis = '';
     from = Math.round(target); locked = false;   // 손가락을 댈 때마다 새 제스처
   }, {passive:true});
   detailEl.addEventListener('touchmove', function(e){
     if (touchY === null) return;
     e.preventDefault();
+    var t = e.touches[0];
+    if (!axis){
+      var ax = Math.abs(t.clientX - touchX0), ay = Math.abs(t.clientY - touchY0);
+      if (ax < 8 && ay < 8) return;
+      axis = ax > ay && multiAt(shown) ? 'x' : 'y';
+    }
+    if (axis === 'x') return;
     lastIn = performance.now();   // 손가락을 뗄 때까지는 잠시 멈춰도 같은 제스처
-    var y = e.touches[0].clientY;
+    var y = t.clientY;
     nudge((touchY - y) / Math.max(200, mainEl.clientHeight * 0.45));
     touchY = y;
   }, {passive:false});
-  detailEl.addEventListener('touchend', function(){
+  detailEl.addEventListener('touchend', function(e){
     if (touchY === null) return;
     touchY = null;
+    if (axis === 'x'){
+      var dx = e.changedTouches[0].clientX - touchX0;
+      if (Math.abs(dx) > 40) flip(dx < 0 ? 1 : -1);
+      return;
+    }
     snap();
   });
 
@@ -1337,10 +1442,18 @@ render();
     plates = [{html:cover(it), label:'\ud45c\uc9c0'}];
     var figures = d.figures || [];
     d.sections.forEach(function(s, i){
-      var f = typeof s.fig === 'number' ? figures[s.fig] : null;
-      plates.push(f && f.src
+      var ph = photosOf(s, figures), f = ph[0];
+      if (ph.length > 1) plates.push({html:multiPlate(ph, s.h), label:s.h, photo:true, photos:ph, sub:0});
+      else plates.push(f
         ? {html:photoPlate(f, f.cap || s.h), label:s.h, cap:f.cap, photo:true}
         : {html:figPlate(it, i + 1, s.h), label:s.h});
+    });
+    views = [];
+    plates.forEach(function(p, k){
+      if (!p.photos) { views.push({html:p.html, label:p.label, k:k, j:0}); return; }
+      p.photos.forEach(function(f, j){
+        views.push({html:photoPlate(f, f.cap || p.label), label:p.label + ' · ' + (j + 1) + ' / ' + p.photos.length, k:k, j:j});
+      });
     });
     /* 사진은 무대에 원래 비율로, 표지 · 타이포 도판은 260px 판(.plate)째로 확대해 건다 */
     figsEl.innerHTML = plates.map(function(f){
@@ -1716,7 +1829,7 @@ render();
     closeViewer();
     hideHint();
     cur = null;
-    plates = [];
+    plates = []; views = [];
     steps = []; path = []; figEls = [];
     if (raf){ cancelAnimationFrame(raf); raf = 0; lastT = 0; }
     mode = 'contact';
@@ -1777,30 +1890,33 @@ render();
   }
 
   function paintViewer(){
-    var f = plates[vwI];
+    var f = views[vwI];
     if (!f || !cur) return;
     vwPlate.innerHTML = f.html;
     document.getElementById('vwId').textContent = cur.id + ' \u00b7 ' + cur.date.replace(/-/g, '.');
     document.getElementById('vwLead').textContent = cur.title;
     vwInfo.innerHTML = '<div class="t">' + esc(f.label) + '</div>'
                      + '<div class="m">' + esc(CAT[cur.cat]) + ' \u00b7 ' + esc(cur.sub) + '</div>';
-    vwCount.textContent = (vwI + 1) + ' / ' + plates.length;
+    vwCount.textContent = (vwI + 1) + ' / ' + views.length;
     vwPrev.disabled = vwI === 0;
-    vwNext.disabled = vwI === plates.length - 1;
+    vwNext.disabled = vwI === views.length - 1;
     fitPlate();
   }
 
   function stepViewer(d){
-    var n = Math.max(0, Math.min(plates.length - 1, vwI + d));
+    var n = Math.max(0, Math.min(views.length - 1, vwI + d));
     if (n === vwI) return;
     vwI = n;
     paintViewer();
   }
 
   function openViewer(){
-    if (!cur || !plates.length || !viewer.hidden) return;
+    if (!cur || !views.length || !viewer.hidden) return;
     lastFocus = document.activeElement;
-    vwI = Math.max(0, Math.min(plates.length - 1, activeFig));
+    /* 지금 단계에서 보고 있던 사진부터 */
+    var p = plates[activeFig], j = p && p.photos ? p.sub : 0;
+    vwI = 0;
+    for (var n = 0; n < views.length; n++) if (views[n].k === activeFig && views[n].j === j){ vwI = n; break; }
     viewer.hidden = false;
     document.body.style.overflow = 'hidden';
     paintViewer();
@@ -1812,8 +1928,12 @@ render();
     if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
     viewer.hidden = true;
     document.body.style.overflow = '';
-    /* 뷰어에서 넘긴 도판에 맞춰 본문 단계도 옮긴다 */
-    if (mode === 'article' && steps.length && vwI !== shown) moveTo(firstStop(vwI));
+    /* 뷰어에서 넘긴 도판에 맞춰 본문 단계와 그 단계의 사진도 옮긴다 */
+    var v = views[vwI];
+    if (mode === 'article' && steps.length && v){
+      setSub(v.k, v.j);
+      if (v.k !== shown) moveTo(firstStop(v.k));
+    }
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
@@ -1845,6 +1965,8 @@ render();
       if (e.key === 'f' || e.key === 'F'){ e.preventDefault(); openViewer(); }
       else if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){ e.preventDefault(); go(1); }
       else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)){ e.preventDefault(); go(-1); }
+      else if (e.key === 'ArrowRight' && multiAt(shown)){ e.preventDefault(); flip(1); }
+      else if (e.key === 'ArrowLeft' && multiAt(shown)){ e.preventDefault(); flip(-1); }
       else if (e.key === 'Home'){ e.preventDefault(); moveTo(0); }
       else if (e.key === 'End'){ e.preventDefault(); moveTo(path.length - 1); }
       return;
@@ -1856,7 +1978,7 @@ render();
     else if (e.key === 'ArrowRight' || e.key === 'ArrowDown'){ e.preventDefault(); stepViewer(1); }
     else if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp'){ e.preventDefault(); stepViewer(-1); }
     else if (e.key === 'Home'){ e.preventDefault(); vwI = 0; paintViewer(); }
-    else if (e.key === 'End'){ e.preventDefault(); vwI = plates.length - 1; paintViewer(); }
+    else if (e.key === 'End'){ e.preventDefault(); vwI = views.length - 1; paintViewer(); }
   });
 
   window.addEventListener('hashchange', route);

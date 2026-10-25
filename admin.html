@@ -67,12 +67,16 @@ select option{background:#111;color:#fff}
 .drop{display:block;border:1px dashed #3a3a3a;padding:18px 12px;text-align:center;color:var(--dim);cursor:pointer}
 .drop.over{border-color:var(--red);color:var(--fg)}
 .drop input{display:none}
+.tray .opt{display:flex;align-items:center;gap:7px;margin-top:8px;color:var(--dim);cursor:pointer}
+.tray .opt input{accent-color:var(--red)}
 .list{margin-top:8px}
 .th{position:relative;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:0 10px;align-items:center;
   padding:8px 0 8px 8px;border-top:1px solid var(--rule);cursor:pointer}
 .th::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;background:transparent}
 .th.on::before{background:var(--red)}
+.th .pic{position:relative;width:64px;height:44px}
 .th img{width:64px;height:44px;object-fit:cover;display:block;background:#0c0c0c}
+.th .pic i{position:absolute;right:0;bottom:0;background:#000;color:#fff;font-style:normal;font-size:9px;line-height:14px;padding:0 4px;font-variant-numeric:tabular-nums}
 .th .tt{min-width:0}
 .th .tt b{display:block;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .th .tt span{color:#4f4f4f;font-size:10px}
@@ -87,7 +91,23 @@ select option{background:#111;color:#fff}
 .edit{min-height:50vh}
 .edit .empty{color:#4f4f4f;padding:40px 0;max-width:40ch;line-height:1.8}
 .edit .big{background:#0c0c0c;box-shadow:inset 0 0 0 1px var(--rule)}
+.edit .big.over{box-shadow:inset 0 0 0 1px var(--red)}
 .edit .big img{display:block;width:100%;max-height:56vh;object-fit:contain}
+/* 한 페이지 안의 사진들 : 누르면 위에 크게, 순서 바꾸기 · 떼어 내기 · 빼기 */
+.phs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ph{width:76px}
+.ph .im{display:block;width:76px;height:52px;padding:0;background:#0c0c0c;box-shadow:inset 0 0 0 1px var(--rule)}
+.ph .im img{display:block;width:100%;height:100%;object-fit:cover;opacity:.55}
+.ph.on .im{box-shadow:0 0 0 1px var(--red)}
+.ph.on .im img,.ph .im:hover img{opacity:1}
+.ph .po{display:flex;justify-content:space-between;margin-top:3px;opacity:0}
+.ph:hover .po,.ph.on .po{opacity:1}
+.ph .po button{color:#4f4f4f;font-size:10px;padding:0 2px}
+.ph .po button:hover{color:var(--red)}
+.ph .po button:disabled{color:#262626;cursor:default}
+.phs .add{display:flex;align-items:center;justify-content:center;width:76px;height:52px;border:1px dashed #3a3a3a;color:var(--dim);font-size:11px;cursor:pointer}
+.phs .add:hover{border-color:var(--red);color:var(--fg)}
+.phs .add input{display:none}
 .edit .fn{color:#4a4a4a;font-size:10px;margin-top:7px}
 .edit .t{width:100%;font-size:19px;font-weight:700;line-height:1.3;margin-top:18px}
 .edit .t::placeholder{color:#333}
@@ -172,9 +192,10 @@ select option{background:#111;color:#fff}
 
   <div class="work">
     <aside class="tray">
-      <p class="lab">사진 <span class="n" id="count">0장</span></p>
+      <p class="lab">페이지 <span class="n" id="count">0페이지</span></p>
       <label class="drop" id="drop">사진을 끌어다 놓거나 눌러서 고르세요<br>여러 장을 한 번에 넣을 수 있습니다
         <input type="file" id="file" accept="image/*" multiple></label>
+      <label class="opt"><input type="checkbox" id="group"> 한 번에 넣은 사진을 한 페이지로 묶기</label>
       <div class="list" id="list"></div>
     </aside>
 
@@ -187,8 +208,8 @@ var CAT = {research:'연구', dev:'개발', read:'독서'};
 var COVERS = ['gridnum','stack','mono','alpha','plate','spine','redbar'];
 var COVER_NAME = {gridnum:'번호', stack:'반복', mono:'터미널', alpha:'알파벳', plate:'책', spine:'책등', redbar:'빨강'};
 
-var P = { cover:'gridnum', figs:[] };   // figs: {url, ext, name, title, text}
-var sel = -1;
+var P = { cover:'gridnum', pages:[] };   // pages: {title, text, photos:[{url, ext, name, size}]}
+var sel = -1, ph = 0;                    // sel: 고른 페이지, ph: 그 페이지에서 크게 보는 사진
 
 var $ = function(id){ return document.getElementById(id); };
 var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
@@ -221,54 +242,81 @@ function drawStrip(){
   }).join('');
 }
 
-/* ---------------- 사진 목록 ---------------- */
-function fileName(i){ return (v('fId') || 'item') + '-' + (i + 1) + '.' + (P.figs[i].ext || 'jpg'); }
+/* ---------------- 페이지 목록 ----------------
+   사진 파일 번호는 페이지를 가로질러 이어진다 (r-015-1, r-015-2, ...) */
+function photoNo(i, j){ var n = j; for (var k = 0; k < i; k++) n += P.pages[k].photos.length; return n + 1; }
+function fileName(i, j){ return (v('fId') || 'item') + '-' + photoNo(i, j) + '.' + (P.pages[i].photos[j].ext || 'jpg'); }
+function photoCount(){ return P.pages.reduce(function(a, p){ return a + p.photos.length; }, 0); }
 
 function drawList(){
-  $('count').textContent = P.figs.length + '장';
-  $('list').innerHTML = P.figs.map(function(f, i){
-    var done = f.title || f.text;
+  var n = photoCount();
+  $('count').textContent = P.pages.length + '페이지' + (n !== P.pages.length ? ' · 사진 ' + n + '장' : '');
+  $('list').innerHTML = P.pages.map(function(p, i){
+    var done = p.title || p.text, many = p.photos.length > 1;
     return '<div class="th' + (i === sel ? ' on' : '') + '" data-sel="' + i + '">'
-         + '<img src="' + f.url + '" alt="">'
-         + '<span class="tt"><b>' + esc(f.title || ('사진 ' + (i + 1))) + '</b>'
-         +   '<span class="' + (done ? 'ok' : '') + '">' + (done ? '글 있음' : '아직 비어 있음') + '</span></span>'
+         + '<span class="pic"><img src="' + p.photos[0].url + '" alt="">' + (many ? '<i>' + p.photos.length + '</i>' : '') + '</span>'
+         + '<span class="tt"><b>' + esc(p.title || ('페이지 ' + (i + 1))) + '</b>'
+         +   '<span class="' + (done ? 'ok' : '') + '">' + (many ? '사진 ' + p.photos.length + '장 · ' : '') + (done ? '글 있음' : '아직 비어 있음') + '</span></span>'
          + '<span class="ops">'
-         +   '<button data-up="' + i + '" type="button" aria-label="위로">↑</button>'
-         +   '<button data-dn="' + i + '" type="button" aria-label="아래로">↓</button>'
-         +   '<button data-rm="' + i + '" type="button" aria-label="삭제">×</button></span>'
+         +   '<button data-up="' + i + '" type="button" aria-label="위로" title="위로">↑</button>'
+         +   '<button data-dn="' + i + '" type="button" aria-label="아래로" title="아래로">↓</button>'
+         +   (i > 0 ? '<button data-mg="' + i + '" type="button" aria-label="위 페이지와 합치기" title="위 페이지와 합치기">⤒</button>' : '')
+         +   '<button data-rm="' + i + '" type="button" aria-label="페이지 삭제" title="페이지 삭제">×</button></span>'
          + '</div>';
   }).join('');
 }
 
 /* ---------------- 오른쪽 글쓰기 ---------------- */
-function drawEdit(){
+function fnText(){
+  var n = P.pages[sel].photos.length;
+  return 'img/' + fileName(sel, ph) + (n > 1
+    ? ' · 이 페이지 사진 ' + (ph + 1) + ' / ' + n + ' — 사이트에서 좌우로 넘겨 봅니다'
+    : ' · 사진을 더 넣으면 이 페이지 안에서 좌우로 넘겨 볼 수 있습니다');
+}
+function drawFn(){ var el = document.querySelector('#edit .fn'); if (el && sel >= 0) el.textContent = fnText(); }
+
+function drawEdit(focus){
   var box = $('edit');
-  if (sel < 0 || !P.figs[sel]){
-    box.innerHTML = '<p class="empty">' + (P.figs.length
-      ? '왼쪽에서 사진을 누르면 여기에 그 사진이 크게 뜨고, 아래에 글을 쓸 수 있습니다.'
-      : '먼저 왼쪽에 사진을 넣으세요. 넣는 순서가 글의 순서가 됩니다.') + '</p>';
+  if (sel < 0 || !P.pages[sel]){
+    box.innerHTML = '<p class="empty">' + (P.pages.length
+      ? '왼쪽에서 페이지를 누르면 여기에 사진이 크게 뜨고, 아래에 글을 쓸 수 있습니다.'
+      : '먼저 왼쪽에 사진을 넣으세요. 사진 한 장이 한 페이지가 되고, 넣는 순서가 글의 순서가 됩니다. 한 페이지에 여러 장을 넣으면 사이트에서 좌우로 넘겨 봅니다.') + '</p>';
     return;
   }
-  var f = P.figs[sel];
+  var p = P.pages[sel], last = p.photos.length - 1;
+  ph = Math.max(0, Math.min(ph, last));
   box.innerHTML =
-      '<div class="big"><img src="' + f.url + '" alt=""></div>'
-    + '<p class="fn">img/' + esc(fileName(sel)) + '</p>'
-    + '<input class="t" id="eT" value="' + esc(f.title) + '" placeholder="이 사진의 제목">'
-    + '<textarea class="d" id="eD" placeholder="이 사진에 대한 글">' + esc(f.text) + '</textarea>'
+      '<div class="big" id="big"><img src="' + p.photos[ph].url + '" alt=""></div>'
+    + '<div class="phs">' + p.photos.map(function(x, j){
+        return '<div class="ph' + (j === ph ? ' on' : '') + '">'
+          + '<button class="im" type="button" data-ph="' + j + '" aria-label="사진 ' + (j + 1) + ' 크게 보기"><img src="' + x.url + '" alt=""></button>'
+          + '<span class="po">'
+          +   '<button type="button" data-pl="' + j + '" title="앞으로" aria-label="앞으로"' + (j === 0 ? ' disabled' : '') + '>←</button>'
+          +   '<button type="button" data-pr="' + j + '" title="뒤로" aria-label="뒤로"' + (j === last ? ' disabled' : '') + '>→</button>'
+          +   (last > 0 ? '<button type="button" data-sp="' + j + '" title="새 페이지로 떼어 내기">떼기</button>' : '')
+          +   '<button type="button" data-px="' + j + '" title="이 사진 빼기" aria-label="이 사진 빼기">×</button>'
+          + '</span></div>';
+      }).join('')
+    +   '<label class="add" title="이 페이지에 사진 더 넣기 (사진 위로 끌어다 놓아도 됩니다)">+ 사진<input type="file" id="addFile" accept="image/*" multiple></label>'
+    + '</div>'
+    + '<p class="fn">' + esc(fnText()) + '</p>'
+    + '<input class="t" id="eT" value="' + esc(p.title) + '" placeholder="이 페이지의 제목">'
+    + '<textarea class="d" id="eD" placeholder="이 페이지에 대한 글">' + esc(p.text) + '</textarea>'
     + '<div class="nav">'
-    +   '<button id="prev" type="button"' + (sel === 0 ? ' disabled' : '') + '>이전 사진</button>'
-    +   '<button id="next" type="button"' + (sel === P.figs.length - 1 ? ' disabled' : '') + '>다음 사진</button>'
-    +   '<span class="pos">' + (sel + 1) + ' / ' + P.figs.length + '</span>'
+    +   '<button id="prev" type="button"' + (sel === 0 ? ' disabled' : '') + '>이전 페이지</button>'
+    +   '<button id="next" type="button"' + (sel === P.pages.length - 1 ? ' disabled' : '') + '>다음 페이지</button>'
+    +   '<span class="pos">' + (sel + 1) + ' / ' + P.pages.length + '</span>'
     + '</div>';
   grow($('eD'));
-  $('eT').focus();
+  if (focus) $('eT').focus();
 }
 function grow(el){ el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
 
 function select(i){
   sel = i;
+  ph = 0;
   drawList();
-  drawEdit();
+  drawEdit(true);
 }
 
 /* 서버 전송 한도(약 4MB) 안에 들도록 긴 변을 2000px 로 줄이고 JPEG 로 바꾼다.
@@ -295,61 +343,107 @@ function shrink(file){
   });
 }
 
-function addFiles(list){
+/* into 가 페이지 번호면 그 페이지에 사진을 더 넣는다.
+   아니면 새 페이지로 — '한 페이지로 묶기'가 켜져 있으면 한 번에 넣은 사진 전부를 한 페이지에, 아니면 한 장씩 */
+function addFiles(list, into){
   var files = [].filter.call(list, function(f){ return /^image\//.test(f.type); });
   if (!files.length) return;
-  var first = P.figs.length;
+  var group = $('group').checked;
   note('사진을 정리하는 중...');
   Promise.all(files.map(shrink)).then(function(res){
-    res.forEach(function(r, i){
-      P.figs.push({ url:r.url, ext:r.ext, name:files[i].name, size:r.size, title:'', text:'' });
-    });
-    drawList();
-    if (sel < 0) select(first);
-    draft();
+    var photos = res.map(function(r, i){ return { url:r.url, ext:r.ext, name:files[i].name, size:r.size }; });
+    var pg = into >= 0 ? P.pages[into] : null;
+    if (pg){
+      if (into === sel) ph = pg.photos.length;
+      pg.photos = pg.photos.concat(photos);
+    } else {
+      var first = P.pages.length;
+      if (group) P.pages.push({ title:'', text:'', photos:photos });
+      else photos.forEach(function(x){ P.pages.push({ title:'', text:'', photos:[x] }); });
+      if (sel < 0){ sel = first; ph = 0; }
+    }
+    drawList(); drawEdit(); draft();
     note(totalMB() > 4 ? '사진 합계가 ' + totalMB().toFixed(1) + 'MB 입니다. 4MB 를 넘으면 올리기가 실패합니다.' : '', totalMB() > 4);
   });
 }
 function totalMB(){
-  return P.figs.reduce(function(a, f){ return a + (f.size || 0); }, 0) / 1e6;
+  return P.pages.reduce(function(a, p){
+    return a + p.photos.reduce(function(b, f){ return b + (f.size || 0); }, 0);
+  }, 0) / 1e6;
 }
 
 /* ---------------- 이벤트 ---------------- */
 document.addEventListener('input', function(e){
   var t = e.target;
-  if (t.id === 'eT'){ P.figs[sel].title = t.value; drawList(); }
-  else if (t.id === 'eD'){ P.figs[sel].text = t.value; grow(t); drawList(); }
+  if (t.id === 'eT'){ P.pages[sel].title = t.value; drawList(); }
+  else if (t.id === 'eD'){ P.pages[sel].text = t.value; grow(t); drawList(); }
   else if (t.id === 'fLede'){ grow(t); }
-  else if (['fTitle','fSub','fMeta','fTags','fId','fDate'].indexOf(t.id) !== -1){ drawStrip(); if (sel >= 0) drawEdit(); }
+  else if (['fTitle','fSub','fMeta','fTags','fId','fDate'].indexOf(t.id) !== -1){ drawStrip(); if (t.id === 'fId') drawFn(); }
   draft();
 });
 $('fCat').addEventListener('change', function(){ drawStrip(); draft(); });
 
 document.addEventListener('click', function(e){
-  var t = e.target.closest('[data-c],[data-up],[data-dn],[data-rm],[data-sel],#prev,#next');
+  var t = e.target.closest('[data-c],[data-up],[data-dn],[data-mg],[data-rm],[data-sel],[data-ph],[data-pl],[data-pr],[data-sp],[data-px],#prev,#next');
   if (!t) return;
-  if (t.dataset.c){ P.cover = t.dataset.c; drawStrip(); draft(); return; }
+  var d = t.dataset, pg = P.pages[sel], i;
+  if (d.c){ P.cover = d.c; drawStrip(); draft(); return; }
   if (t.id === 'prev'){ select(sel - 1); return; }
   if (t.id === 'next'){ select(sel + 1); return; }
-  var i;
-  if (t.dataset.up !== undefined){ i = +t.dataset.up; if (i > 0){ swap(i, i-1); sel = (sel === i ? i-1 : sel === i-1 ? i : sel); } e.stopPropagation(); }
-  else if (t.dataset.dn !== undefined){ i = +t.dataset.dn; if (i < P.figs.length-1){ swap(i, i+1); sel = (sel === i ? i+1 : sel === i+1 ? i : sel); } e.stopPropagation(); }
-  else if (t.dataset.rm !== undefined){
-    i = +t.dataset.rm; P.figs.splice(i, 1);
-    if (sel === i) sel = Math.min(i, P.figs.length - 1);
-    else if (sel > i) sel--;
-    e.stopPropagation();
+  /* 페이지 안의 사진 */
+  if (d.ph !== undefined){ ph = +d.ph; drawEdit(); return; }
+  if (d.pl !== undefined){ i = +d.pl; move(pg.photos, i, i - 1); ph = i - 1; }
+  else if (d.pr !== undefined){ i = +d.pr; move(pg.photos, i, i + 1); ph = i + 1; }
+  else if (d.sp !== undefined){
+    i = +d.sp;
+    P.pages.splice(sel + 1, 0, { title:'', text:'', photos:pg.photos.splice(i, 1) });
+    if (ph > i) ph--;
   }
-  else if (t.dataset.sel !== undefined){ select(+t.dataset.sel); return; }
+  else if (d.px !== undefined){
+    i = +d.px; pg.photos.splice(i, 1);
+    if (!pg.photos.length) removePage(sel);
+    else if (ph > i) ph--;
+  }
+  /* 페이지 */
+  else if (d.up !== undefined){ i = +d.up; if (i > 0){ swap(i, i-1); sel = (sel === i ? i-1 : sel === i-1 ? i : sel); } e.stopPropagation(); }
+  else if (d.dn !== undefined){ i = +d.dn; if (i < P.pages.length-1){ swap(i, i+1); sel = (sel === i ? i+1 : sel === i+1 ? i : sel); } e.stopPropagation(); }
+  else if (d.mg !== undefined){ mergeUp(+d.mg); e.stopPropagation(); }
+  else if (d.rm !== undefined){ removePage(+d.rm); e.stopPropagation(); }
+  else if (d.sel !== undefined){ select(+d.sel); return; }
   drawList(); drawEdit(); draft();
 });
-function swap(a, b){ var x = P.figs[a]; P.figs[a] = P.figs[b]; P.figs[b] = x; }
+function swap(a, b){ var x = P.pages[a]; P.pages[a] = P.pages[b]; P.pages[b] = x; }
+function move(arr, a, b){ arr.splice(b, 0, arr.splice(a, 1)[0]); }
+function removePage(i){
+  P.pages.splice(i, 1);
+  if (sel === i){ sel = Math.min(i, P.pages.length - 1); ph = 0; }
+  else if (sel > i) sel--;
+}
+/* i 번째 페이지의 사진과 글을 바로 위 페이지 뒤에 붙인다 */
+function mergeUp(i){
+  var a = P.pages[i - 1], b = P.pages[i], n = a.photos.length;
+  a.photos = a.photos.concat(b.photos);
+  a.title = a.title || b.title;
+  a.text = [a.text, b.text].filter(Boolean).join('\n\n');
+  P.pages.splice(i, 1);
+  if (sel === i){ sel = i - 1; ph += n; }
+  else if (sel > i) sel--;
+}
 
-$('file').addEventListener('change', function(e){ addFiles(e.target.files); e.target.value = ''; });
+$('file').addEventListener('change', function(e){ addFiles(e.target.files, -1); e.target.value = ''; });
+document.addEventListener('change', function(e){
+  if (e.target.id === 'addFile'){ addFiles(e.target.files, sel); e.target.value = ''; }
+});
 var drop = $('drop');
 ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('over'); }); });
 ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
-drop.addEventListener('drop', function(e){ addFiles(e.dataTransfer.files); });
+drop.addEventListener('drop', function(e){ addFiles(e.dataTransfer.files, -1); });
+/* 오른쪽에 끌어다 놓으면 지금 페이지에 사진을 더 넣는다 */
+var edit = $('edit');
+function bigOver(on){ var b = $('big'); if (b) b.classList.toggle('over', on); }
+['dragenter','dragover'].forEach(function(ev){ edit.addEventListener(ev, function(e){ e.preventDefault(); bigOver(true); }); });
+['dragleave','drop'].forEach(function(ev){ edit.addEventListener(ev, function(e){ e.preventDefault(); bigOver(false); }); });
+edit.addEventListener('drop', function(e){ addFiles(e.dataTransfer.files, sel); });
 
 /* ---------------- 저장 ---------------- */
 function note(msg, on){ $('state').textContent = msg || '—'; $('state').classList.toggle('on', !!on); }
@@ -357,8 +451,10 @@ function payload(){
   return {
     id:v('fId'), cat:$('fCat').value, date:v('fDate'), title:v('fTitle'), sub:v('fSub'),
     meta:v('fMeta'), tags:v('fTags'), cover:P.cover, lede:v('fLede'),
-    figures: P.figs.map(function(f, i){
-      return { file:fileName(i), data:f.url, title:f.title, text:f.text };
+    pages: P.pages.map(function(p, i){
+      return { title:p.title, text:p.text, photos:p.photos.map(function(f, j){
+        return { file:fileName(i, j), data:f.url };
+      }) };
     })
   };
 }
@@ -366,7 +462,7 @@ function payload(){
 $('save').addEventListener('click', async function(){
   if (!v('fTitle')){ note('제목을 먼저 적어주세요.', true); return; }
   if (!v('fId')){ note('주소(식별자)를 적어주세요.', true); return; }
-  if (!P.figs.length){ note('사진이 한 장도 없습니다.', true); return; }
+  if (!P.pages.length){ note('사진이 한 장도 없습니다.', true); return; }
   if (totalMB() > 4){ note('사진 합계가 4MB 를 넘습니다. 몇 장을 빼거나 나눠 올려주세요.', true); return; }
 
   var key = null;
@@ -402,30 +498,39 @@ $('save').addEventListener('click', async function(){
   }
 });
 
-/* ---------------- 미리보기: 세부 페이지와 같은 좌우 배치 ---------------- */
+/* ---------------- 미리보기: 세부 페이지와 같은 좌우 배치 ----------------
+   사진이 여러 장인 페이지는 사진 아래 ← → 로 넘긴다 */
 $('preview').addEventListener('click', function(){
   var w = window.open('', '_blank');
-  var secs = P.figs.map(function(f, i){
-    return '<section data-i="' + i + '"><h2>' + esc(f.title || ('사진 ' + (i + 1))) + '</h2>'
-         + '<p>' + esc(f.text).replace(/\n\s*\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p></section>';
+  var secs = P.pages.map(function(p, i){
+    return '<section data-i="' + i + '"><h2>' + esc(p.title || ('페이지 ' + (i + 1))) + '</h2>'
+         + '<p>' + esc(p.text).replace(/\n\s*\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p></section>';
   }).join('');
-  var imgs = P.figs.map(function(f){ return f.url; });
+  var imgs = P.pages.map(function(p){ return p.photos.map(function(f){ return f.url; }); });
   w.document.write('<meta charset="utf-8"><title>미리보기</title>'
     + '<style>body{background:#000;color:#fff;font-family:Pretendard,system-ui,sans-serif;margin:0;padding:34px 28px}'
     + '.g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,64ch);gap:0 48px;align-items:start}'
-    + '.l{position:sticky;top:24px}.l img{width:100%;max-height:calc(100vh - 60px);object-fit:contain;background:#0c0c0c}'
+    + '.l{position:sticky;top:24px}.l img{width:100%;max-height:calc(100vh - 90px);object-fit:contain;background:#0c0c0c}'
+    + '.pg{display:flex;gap:14px;align-items:baseline;color:#8a8a8a;font-size:12px;margin:8px 0 0}'
+    + '.pg button{font:inherit;color:#fff;background:none;border:0;cursor:pointer;padding:0}.pg button:disabled{color:#3a3a3a;cursor:default}'
     + 'h1{font-size:28px;letter-spacing:-.025em;line-height:1.15;margin:0}.lede{color:#8a8a8a;margin:8px 0 0}'
     + 'section{margin-top:40px;scroll-margin-top:60px}h2{font-size:12px;color:#8a8a8a;letter-spacing:.04em;margin:0 0 8px}'
     + 'section.on h2{color:#e0301e}p{font-size:14px;line-height:1.8;margin:0 0 12px}'
     + '@media(max-width:900px){.g{grid-template-columns:1fr}.l{position:static}}</style>'
-    + '<div class="g"><div class="l"><img id="im" src="' + (imgs[0] || '') + '"></div>'
+    + '<div class="g"><div class="l"><img id="im" src="' + ((imgs[0] || [])[0] || '') + '">'
+    + '<p class="pg" id="pg" hidden><button id="pv" type="button">←</button><span id="no"></span><button id="nx" type="button">→</button></p></div>'
     + '<div><h1>' + esc(v('fTitle')) + '</h1><p class="lede">' + esc(v('fSub')) + '</p>'
     + (v('fLede') ? '<p>' + esc(v('fLede')) + '</p>' : '') + secs + '</div></div>'
-    + '<script>var I=' + JSON.stringify(imgs) + ';var S=document.querySelectorAll("section");'
+    + '<script>var I=' + JSON.stringify(imgs) + ',k=0,j=0,S=document.querySelectorAll("section");'
+    + 'function $(x){return document.getElementById(x)}'
+    + 'function show(){var a=I[k]||[];$("im").src=a[j]||"";$("pg").hidden=a.length<2;'
+    + '$("no").textContent=(j+1)+" / "+a.length;$("pv").disabled=j===0;$("nx").disabled=j>=a.length-1}'
+    + '$("pv").onclick=function(){if(j>0){j--;show()}};'
+    + '$("nx").onclick=function(){if(j<I[k].length-1){j++;show()}};'
     + 'var O=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;'
     + 'S.forEach(function(x){x.classList.remove("on")});e.target.classList.add("on");'
-    + 'document.getElementById("im").src=I[+e.target.dataset.i]})},{rootMargin:"-45% 0px -45% 0px"});'
-    + 'S.forEach(function(s){O.observe(s)});'
+    + 'k=+e.target.dataset.i;j=0;show()})},{rootMargin:"-45% 0px -45% 0px"});'
+    + 'S.forEach(function(s){O.observe(s)});show();'
     + '<\/script>');
   w.document.close();
 });
@@ -436,7 +541,7 @@ function draft(){
     localStorage.setItem('archive-post', JSON.stringify({
       f:['fTitle','fSub','fLede','fCat','fDate','fId','fMeta','fTags'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
       cover:P.cover,
-      figs:P.figs.map(function(f){ return { title:f.title, text:f.text, name:f.name }; })
+      pages:P.pages.map(function(p){ return { title:p.title, text:p.text, names:p.photos.map(function(f){ return f.name; }) }; })
     }));
   } catch (e) {}
 }
@@ -445,7 +550,7 @@ try {
   if (s){
     Object.keys(s.f).forEach(function(k){ if ($(k)) $(k).value = s.f[k]; });
     P.cover = s.cover || P.cover;
-    if (s.figs && s.figs.length) note('지난 초안의 글은 남아 있지만 사진은 다시 넣어야 합니다.', true);
+    if ((s.pages || s.figs || []).length) note('지난 초안의 글은 남아 있지만 사진은 다시 넣어야 합니다.', true);
   }
 } catch (e) {}
 
