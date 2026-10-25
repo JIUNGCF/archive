@@ -7,7 +7,7 @@
       "title": "건축환경 및 에너지 연구실(BEE Lab) 홈페이지 제작",
       "sub": "홈페이지 제작",
       "meta": "",
-      "cover": "gridnum",
+      "cover": "web",
       "tags": "",
       "status": "done",
       "url": "https://beelab.kr"
@@ -705,39 +705,43 @@
           "cap": "Main Page"
         },
         {
-          "src": "img/v-001-3.jpg?v=6175b67",
+          "src": "img/v-001-3.jpg?v=7df37f5",
+          "cap": "Main Page"
+        },
+        {
+          "src": "img/v-001-4.jpg?v=6175b67",
           "cap": "Research Page"
         },
         {
-          "src": "img/v-001-4.jpg?v=119df52",
+          "src": "img/v-001-5.jpg?v=119df52",
           "cap": "Research Page"
         },
         {
-          "src": "img/v-001-5.jpg?v=f36d185",
+          "src": "img/v-001-6.jpg?v=f36d185",
           "cap": "Research Page"
         },
         {
-          "src": "img/v-001-6.png?v=07ed157",
+          "src": "img/v-001-7.png?v=07ed157",
           "cap": "Research Page"
         },
         {
-          "src": "img/v-001-7.png?v=a3b92ca",
+          "src": "img/v-001-8.png?v=a3b92ca",
           "cap": "Research Page"
         },
         {
-          "src": "img/v-001-8.png?v=188fc27",
+          "src": "img/v-001-9.png?v=188fc27",
           "cap": "Personal Page"
         },
         {
-          "src": "img/v-001-9.png?v=4959665",
+          "src": "img/v-001-10.png?v=4959665",
           "cap": "Personal Page"
         },
         {
-          "src": "img/v-001-10.png?v=1e079b9",
+          "src": "img/v-001-11.png?v=1e079b9",
           "cap": "Personal Page"
         },
         {
-          "src": "img/v-001-11.png?v=91273b7",
+          "src": "img/v-001-12.png?v=91273b7",
           "cap": "TOOLS"
         }
       ],
@@ -746,7 +750,8 @@
           "h": "Main Page",
           "figs": [
             0,
-            1
+            1,
+            2
           ],
           "p": [
             "가장 처음에 든 생각은 트렌디함이었다. 공학 연구실의 홈페이지를 들어가본 사람들은 알겠지만, 기존 홈페이지들은 딱딱하고 UI가 좋지 않다. 이에 가장 첫번째로 한 생각은 홈페이지를 트렌디하게 만들자였다. Apple, MIT Media Lab에서 많은 레퍼런스를 얻었다.",
@@ -756,11 +761,11 @@
         {
           "h": "Research Page",
           "figs": [
-            2,
             3,
             4,
             5,
-            6
+            6,
+            7
           ],
           "p": [
             "홈페이지 개편의 가장 중요한 사항이었다. 결국 우리 연구실에는 연구의 큰 틀이 존재하고, 이를 묶고 싶었다. 카테고리화를 위한 여러가지 회의를 진행했고, 최종적으로 Scale을 기준 단위로 설정했다. 순서대로 데이터 분석 및 AI, 빌딩 에너지 시스템, 그리고 UBEM 순서로 분류를 진행했다.",
@@ -772,9 +777,9 @@
         {
           "h": "Personal Page",
           "figs": [
-            7,
             8,
-            9
+            9,
+            10
           ],
           "p": [
             "개인 페이지는 홈페이지 편의성을 위해 모든 것을 연결해 두었다. 개인 연구로 연결 및 Publicasion을 통해 논문 접근이 가능하도록 하였다."
@@ -782,7 +787,7 @@
         },
         {
           "h": "TOOLS",
-          "fig": 10,
+          "fig": 11,
           "p": [
             "현재는 교수님이 제작 중이신 툴과 함께 홈페이지를 업데이트 진행 중이다",
             "바이브 코딩을 통해 홈페이지를 제작하며 여러가지 가능성을 느꼈다.",
