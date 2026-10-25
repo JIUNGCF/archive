@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>한지웅의 아카이브 — 연구 · 활동 · 개발 · 독서</title>
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
   --bg:#000;
@@ -24,11 +24,15 @@ html,body{margin:0;padding:0}
 body{
   background:var(--bg);
   color:var(--fg);
-  font-family:"Pretendard","Helvetica Neue",Helvetica,"Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
+  font-family:"Pretendard Variable","Pretendard","Helvetica Neue",Helvetica,"Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
   font-size:12px;
   line-height:1.45;
   -webkit-font-smoothing:antialiased;
   letter-spacing:-0.01em;
+  /* 한국어를 글자 단위가 아니라 띄어쓰기 단위로 줄바꿈 ("2024 / 년" 처럼 끊기지 않게).
+     띄어쓰기 없는 긴 영문 · 주소만 필요할 때 중간에서 자른다 */
+  word-break:keep-all;
+  overflow-wrap:break-word;
 }
 a{color:inherit;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
 a:hover{color:var(--red);text-decoration-color:var(--red)}
@@ -280,12 +284,13 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .dt-step{opacity:.5;cursor:pointer}
 .dt-step.on{cursor:auto}
 .dt-step + .dt-step{margin-top:52px}
-/* 글자는 조금 작게, 자간은 좁게. 구분선은 흐린 절(투명도 0.5)에서도 보이도록 밝게 */
-.dt-main h2{font-size:28px;line-height:1.18;letter-spacing:-0.035em;outline:none}
-.dt-lead{font-size:16px;line-height:1.6;color:#f2f2f2;margin:14px 0 0;letter-spacing:-0.022em}
-.dt-sec h3{font-size:14px;letter-spacing:-0.015em;border-top:1px solid #707070;padding-top:16px}
-.dt-sec h3 .no{color:#9a9a9a;margin-right:10px;font-size:12px;letter-spacing:.06em;font-variant-numeric:tabular-nums;font-weight:400}
-.dt-sec p{margin:11px 0 0;font-size:14px;color:#ececec;line-height:1.72;letter-spacing:-0.012em}
+/* 글자는 조금 작게, 자간은 좁게. 구분선은 흐린 절(투명도 0.5)에서도 보이도록 밝게.
+   본문은 Pretendard Light(300), 제목만 굵게. text-wrap:pretty — 마지막 줄에 한 단어만 남지 않게 */
+.dt-main h2{font-size:28px;font-weight:600;line-height:1.18;letter-spacing:-0.035em;outline:none;text-wrap:balance}
+.dt-lead{font-size:16px;font-weight:300;line-height:1.62;color:#f4f4f4;margin:14px 0 0;letter-spacing:-0.022em;text-wrap:pretty}
+.dt-sec h3{font-size:14px;font-weight:500;letter-spacing:-0.015em;border-top:1px solid #707070;padding-top:16px}
+.dt-sec h3 .no{color:#9a9a9a;margin-right:10px;font-size:12px;letter-spacing:.06em;font-variant-numeric:tabular-nums;font-weight:300}
+.dt-sec p{margin:11px 0 0;font-size:14px;font-weight:300;color:#f0f0f0;line-height:1.74;letter-spacing:-0.012em;text-wrap:pretty}
 .dt-end{margin-top:40px;font-size:13px}
 
 /* 넘기는 동안의 움직임은 전부 JS 의 프레임 루프가 맡는다 (CSS transition 없음).

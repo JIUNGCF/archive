@@ -4,15 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>글쓰기 — 한지웅의 아카이브</title>
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{--bg:#000;--fg:#fff;--dim:#8a8a8a;--rule:#242424;--paper:#ebe9e3;--ink:#121212;--red:#e0301e}
 *{box-sizing:border-box}
 html{background:var(--bg)}
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--fg);
-  font-family:"Pretendard","Helvetica Neue",Helvetica,"Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
-  font-size:12px;line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em}
+  font-family:"Pretendard Variable","Pretendard","Helvetica Neue",Helvetica,"Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
+  font-size:12px;line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;
+  word-break:keep-all;overflow-wrap:break-word}   /* 한국어는 띄어쓰기 단위로 줄바꿈 */
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;letter-spacing:inherit}
 input,textarea,select{font:inherit;color:inherit;background:none;border:0;padding:0;resize:none}
 input:focus,textarea:focus,select:focus{outline:0}
