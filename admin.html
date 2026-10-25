@@ -242,7 +242,6 @@ details.en .meta{border:0;margin-top:10px;padding:4px 0 0}
 .t-redbar .body{margin-top:auto;font-size:9px;line-height:1.45;color:#5f5f5f}
 .t-pic{padding:0;background:#0c0c0c}
 .t-pic img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
-.t-pic .tag{position:absolute;left:9px;top:9px;background:#000;color:#fff;font-size:9px;line-height:1;padding:3px 5px}
 .t-pic .none{margin:auto;color:#6d6d6d;font-size:10px;line-height:1.5;text-align:center}
 </style>
 </head>
@@ -290,6 +289,8 @@ details.en .meta{border:0;margin-top:10px;padding:4px 0 0}
     <span class="cell"><label for="fDate">날짜</label><input id="fDate" type="date">
       <span class="to" id="toMark" hidden>~</span><input id="fDateEnd" type="date" hidden>
       <label class="per"><input type="checkbox" id="fPeriod"> 기간</label></span>
+    <span class="cell"><label for="fStatus">상태</label>
+      <select id="fStatus"><option value="">자동 (날짜로)</option><option value="done">완료</option><option value="doing">진행</option><option value="plan">예정</option></select></span>
     <span class="cell"><label for="fId">주소</label><input class="id" id="fId" placeholder="r-015"></span>
     <span class="cell"><label for="fMeta">표기</label><input class="mk" id="fMeta" placeholder="Note 15"></span>
     <span class="cell"><label for="fTags">태그</label><input class="tags" id="fTags" placeholder="공백으로 구분"></span>
@@ -365,8 +366,7 @@ function coverHTML(kind){
   var num = (v('fId').match(/\d+/) || ['0'])[0];
   switch (kind){
     case 'photo': var cp = coverPhoto();
-      return '<div class="cv t-pic">' + (cp ? '<img src="' + cp.thumb + '" alt="">' : '<span class="none">사진을 넣으면<br>고를 수 있습니다</span>')
-           + '<span class="tag">' + k + ' ' + num + '</span></div>';
+      return '<div class="cv t-pic">' + (cp ? '<img src="' + cp.thumb + '" alt="">' : '<span class="none">사진을 넣으면<br>고를 수 있습니다</span>') + '</div>';
     case 'gridnum': return '<div class="cv t-gridnum"><div class="row"><span class="kick">' + k + '<br>' + s + '</span><span class="no">' + num + '</span></div><div class="mid"><span class="a">' + t + '</span><span class="b">' + m + '</span></div><div class="foot">' + mm + ' · ' + yy + '</div></div>';
     case 'stack': return '<div class="cv t-stack"><div class="rule"></div><div class="l1">' + t + '</div><div class="l2">' + s + '</div><div class="l3">' + k + ' ' + m + '</div><div class="l3">' + k + ' ' + m + '</div></div>';
     case 'mono': return '<div class="cv t-mono dark"><div class="head">~/' + m + '</div><div class="lines"><span class="hi">' + t + '</span><span class="lo">' + s + '</span><span class="lo">' + esc(v('fTags')) + '</span><span class="lo">— ' + mm + '/' + yy + '</span></div><span class="caret"></span></div>';
@@ -626,6 +626,7 @@ document.addEventListener('input', function(e){
   draft();
 });
 $('fCat').addEventListener('change', function(){ drawStrip(); draft(); });
+$('fStatus').addEventListener('change', draft);
 /* 날짜 칸 아무 데나 눌러도 달력이 열리게 */
 ['fDate','fDateEnd'].forEach(function(k){ $(k).addEventListener('click', function(){ try { this.showPicker(); } catch (e) {} }); });
 $('fPeriod').addEventListener('change', function(){
@@ -763,7 +764,7 @@ function note(msg, on){ $('state').textContent = msg || '—'; $('state').classL
 function payload(byRef){
   var cp = P.cover === 'photo' ? locate(coverPhoto()) : null;
   return {
-    id:v('fId'), cat:$('fCat').value, date:v('fDate'), dateEnd:v('fDateEnd') > v('fDate') ? v('fDateEnd') : undefined, title:v('fTitle'), sub:v('fSub'),
+    id:v('fId'), cat:$('fCat').value, date:v('fDate'), dateEnd:v('fDateEnd') > v('fDate') ? v('fDateEnd') : undefined, status:$('fStatus').value || undefined, title:v('fTitle'), sub:v('fSub'),
     meta:v('fMeta'), tags:v('fTags'), lede:v('fLede'),
     cover: cp ? 'photo' : (P.cover === 'photo' ? 'gridnum' : P.cover),
     coverFile: cp ? fileName(cp.i, cp.j) : undefined,
@@ -916,7 +917,7 @@ function draft(){
   if (!ready) return;
   try {
     localStorage.setItem('archive-post', JSON.stringify({
-      f:['fTitle','fSub','fLede','fCat','fDate','fDateEnd','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
+      f:['fTitle','fSub','fLede','fCat','fDate','fDateEnd','fStatus','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
       cover:P.cover,
       coverId:P.coverPhoto && P.coverPhoto.id,
       pages:P.pages.map(function(p){ return {
@@ -1018,6 +1019,7 @@ function clearAll(){
   pending = []; sel = -1; ph = 0;
   ['fTitle','fSub','fLede','fDateEnd','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].forEach(function(k){ $(k).value = ''; });
   $('fCat').value = 'research';
+  $('fStatus').value = '';
   $('fDate').value = today();
   showPeriod();
   grow($('fLede')); grow($('fLedeEn'));
@@ -1197,6 +1199,7 @@ async function editPost(id){
     $('fCat').value = CAT[it.cat] ? it.cat : 'research';
     $('fDate').value = it.date || today();
     $('fDateEnd').value = it.dateEnd || '';
+    $('fStatus').value = it.status || '';
     showPeriod();
     $('fId').value = it.id;
     $('fMeta').value = it.meta || '';
