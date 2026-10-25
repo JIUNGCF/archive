@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>한지웅의 아카이브 — 연구 · 개발 · 독서</title>
+<title>한지웅의 아카이브 — 연구 · 활동 · 개발 · 독서</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 :root{
@@ -643,6 +643,7 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
         <div class="set" role="group" aria-label="분류">
           <button class="ctl" data-cat="all" aria-pressed="true">전체</button><span class="sep">/</span>
           <button class="ctl" data-cat="research" aria-pressed="false">연구</button><span class="sep">/</span>
+          <button class="ctl" data-cat="activity" aria-pressed="false">활동</button><span class="sep">/</span>
           <button class="ctl" data-cat="dev" aria-pressed="false">개발</button><span class="sep">/</span>
           <button class="ctl" data-cat="read" aria-pressed="false">독서</button>
         </div>
@@ -727,10 +728,10 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 <script>
 /* =========================================================
    DATA — 항목과 본문은 data.json 에 있습니다 (items / detail).
-   cat   : research | dev | read
+   cat   : research | activity | dev | read
    cover : gridnum | stack | mono | alpha | plate | spine | redbar
    ========================================================= */
-const CAT = {research:'연구', dev:'개발', read:'독서'};
+const CAT = {research:'연구', activity:'활동', dev:'개발', read:'독서'};
 
 /* 연락(탑승권) 설정
    web3formsKey 가 비어 있으면 : 애니메이션 뒤 메일 앱(mailto)을 연다
