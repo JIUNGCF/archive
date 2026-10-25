@@ -84,6 +84,7 @@ function toItem(post, shas){
     title: post.title, sub: post.sub || '', meta: post.meta || '',
     cover: post.cover || 'gridnum', tags: post.tags || ''
   };
+  if (post.dateEnd && post.dateEnd > post.date) item.dateEnd = post.dateEnd;   // 기간 프로젝트의 끝 날짜
   if (item.cover === 'photo'){
     const first = pagesOf(post).map(pg => (pg.photos || [])[0]).find(Boolean);
     const file = post.coverFile || (first && first.file);

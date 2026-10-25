@@ -927,6 +927,8 @@ let DETAIL = {};
 /* ========================= covers ========================= */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const parts = d => ({y4:d.slice(0,4), y:d.slice(2,4), m:d.slice(5,7), d:d.slice(8,10)});
+/* 날짜 글자 : 기간 프로젝트(dateEnd)는 '2024.03.01 – 2024.06.30'. 연도 묶음은 늘 시작 날짜(date)를 따른다 */
+const when = it => it.date.replace(/-/g, '.') + (it.dateEnd ? ' – ' + it.dateEnd.replace(/-/g, '.') : '');
 
 function cover(it){
   const t = esc(it.title), s = esc(it.sub), m = esc(it.meta), k = esc(CAT[it.cat]);
@@ -1005,10 +1007,11 @@ const tally = document.getElementById('tally');
 const state = {cat:'all', q:''};
 
 function card(it, i){
-  const p = parts(it.date);
+  const p = parts(it.date), e = it.dateEnd && parts(it.dateEnd);
+  const end = !e ? '' : '–' + (e.y4 !== p.y4 ? e.y + '.' : '') + e.m + '.' + e.d;
   return '<a class="item" href="#' + it.id + '" style="animation-delay:' + (Math.min(i,24) * 16) + 'ms">'
     + '<span class="frame">' + cover(it) + '</span>'
-    + '<span class="cap"><span class="t">' + esc(it.title) + '</span><span class="n">' + p.m + '.' + p.d + '</span></span>'
+    + '<span class="cap"><span class="t">' + esc(it.title) + '</span><span class="n">' + p.m + '.' + p.d + end + '</span></span>'
     + '</a>';
 }
 
@@ -1191,7 +1194,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     if (!it) return;
     info.innerHTML = '<div class="t">' + esc(it.title) + '</div>'
                    + '<div class="m">' + esc(CAT[it.cat]) + ' · ' + esc(it.sub)
-                   + ' · ' + it.date.replace(/-/g, '.') + ' · ' + esc(it.meta) + '</div>';
+                   + ' · ' + when(it) + ' · ' + esc(it.meta) + '</div>';
     dateEl.textContent = it.date.replace(/-/g, '.') + '   ' + (active + 1) + ' / ' + list.length;
     markTags(it);
   }
@@ -1420,7 +1423,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     return {
       lead: t('fbLead', {sub:it.sub}),
       sections: [{h:t('fbH'), p:[
-        t('fbP1', {cat:CAT[it.cat], id:it.id, date:it.date.replace(/-/g, '.')}),
+        t('fbP1', {cat:CAT[it.cat], id:it.id, date:when(it)}),
         t('fbP2', {meta:it.meta, tags:it.tags})
       ]}]
     };
@@ -1678,7 +1681,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     figsEl.innerHTML = plates.map(function(f){
       return '<span class="fig">' + (f.photo ? f.html : '<span class="plate">' + f.html + '</span>') + '</span>';
     }).join('');
-    capBase = it.id + ' · ' + it.date.replace(/-/g, '.');
+    capBase = it.id + ' · ' + when(it);
     capEl.textContent = capBase;
     metaEl.textContent = [CAT[it.cat], it.sub, it.meta].filter(Boolean).join(' · ');
     var editEl = document.getElementById('dtEdit');
@@ -2115,7 +2118,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     var f = views[vwI];
     if (!f || !cur) return;
     vwPlate.innerHTML = f.html;
-    document.getElementById('vwId').textContent = cur.id + ' \u00b7 ' + cur.date.replace(/-/g, '.');
+    document.getElementById('vwId').textContent = cur.id + ' \u00b7 ' + when(cur);
     document.getElementById('vwLead').textContent = cur.title;
     vwInfo.innerHTML = '<div class="t">' + esc(f.label) + '</div>'
                      + '<div class="m">' + esc(CAT[cur.cat]) + ' \u00b7 ' + esc(cur.sub) + '</div>';

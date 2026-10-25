@@ -92,6 +92,10 @@ select option{background:#111;color:#fff}
 .meta input[type="date"]{color-scheme:dark;cursor:pointer}
 .meta input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.75}
 .meta input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
+/* 기간 : 체크하면 끝 날짜 칸이 나온다 */
+.meta .per{display:flex;align-items:center;gap:5px;color:var(--dim);cursor:pointer}
+.meta .per input{accent-color:var(--red)}
+.meta .to{color:var(--dim)}
 
 /* ---------- 표지 ---------- */
 .covers{margin-top:22px}
@@ -283,7 +287,9 @@ details.en .meta{border:0;margin-top:10px;padding:4px 0 0}
   <div class="meta">
     <span class="cell"><label for="fCat">분류</label>
       <select id="fCat"><option value="research">연구</option><option value="activity">활동</option><option value="dev">개발</option><option value="read">독서</option></select></span>
-    <span class="cell"><label for="fDate">날짜</label><input id="fDate" type="date"></span>
+    <span class="cell"><label for="fDate">날짜</label><input id="fDate" type="date">
+      <span class="to" id="toMark" hidden>~</span><input id="fDateEnd" type="date" hidden>
+      <label class="per"><input type="checkbox" id="fPeriod"> 기간</label></span>
     <span class="cell"><label for="fId">주소</label><input class="id" id="fId" placeholder="r-015"></span>
     <span class="cell"><label for="fMeta">표기</label><input class="mk" id="fMeta" placeholder="Note 15"></span>
     <span class="cell"><label for="fTags">태그</label><input class="tags" id="fTags" placeholder="공백으로 구분"></span>
@@ -337,6 +343,11 @@ var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
 function v(id){ return $(id).value.trim(); }
 function today(){ return new Date().toISOString().slice(0,10); }
 $('fDate').value = today();
+/* 기간 : 끝 날짜가 있으면 체크된 것으로 본다 (초안 · 수정 불러오기도 이것으로) */
+function showPeriod(){
+  var on = !!$('fDateEnd').value;
+  $('fPeriod').checked = on; $('fDateEnd').hidden = !on; $('toMark').hidden = !on;
+}
 
 /* ---------------- 표지 ---------------- */
 function allPhotos(){ return [].concat.apply([], P.pages.map(function(p){ return p.photos; })); }
@@ -616,7 +627,11 @@ document.addEventListener('input', function(e){
 });
 $('fCat').addEventListener('change', function(){ drawStrip(); draft(); });
 /* 날짜 칸 아무 데나 눌러도 달력이 열리게 */
-$('fDate').addEventListener('click', function(){ try { this.showPicker(); } catch (e) {} });
+['fDate','fDateEnd'].forEach(function(k){ $(k).addEventListener('click', function(){ try { this.showPicker(); } catch (e) {} }); });
+$('fPeriod').addEventListener('change', function(){
+  $('fDateEnd').value = this.checked ? (v('fDate') || today()) : '';
+  showPeriod(); draft();
+});
 
 document.addEventListener('click', function(e){
   var t = e.target.closest('[data-c],[data-rep],[data-up],[data-dn],[data-mg],[data-rm],[data-sel],[data-ph],[data-pl],[data-pr],[data-sp],[data-px],#prev,#next');
@@ -748,7 +763,7 @@ function note(msg, on){ $('state').textContent = msg || '—'; $('state').classL
 function payload(byRef){
   var cp = P.cover === 'photo' ? locate(coverPhoto()) : null;
   return {
-    id:v('fId'), cat:$('fCat').value, date:v('fDate'), title:v('fTitle'), sub:v('fSub'),
+    id:v('fId'), cat:$('fCat').value, date:v('fDate'), dateEnd:v('fDateEnd') > v('fDate') ? v('fDateEnd') : undefined, title:v('fTitle'), sub:v('fSub'),
     meta:v('fMeta'), tags:v('fTags'), lede:v('fLede'),
     cover: cp ? 'photo' : (P.cover === 'photo' ? 'gridnum' : P.cover),
     coverFile: cp ? fileName(cp.i, cp.j) : undefined,
@@ -815,6 +830,7 @@ $('save').addEventListener('click', async function(){
   document.querySelectorAll('.miss').forEach(function(el){ el.classList.remove('miss'); });
   if (!v('fTitle')){ miss('fTitle', '제목을 먼저 적어주세요.'); return; }
   if (!v('fId')){ miss('fId', '주소(식별자)를 적어주세요. 예: r-016'); return; }
+  if (v('fDateEnd') && v('fDateEnd') < v('fDate')){ miss('fDateEnd', '끝 날짜가 시작 날짜보다 앞에 있습니다.'); return; }
   if (!P.pages.length){ note('사진이 한 장도 없습니다.', true); $('drop').scrollIntoView({ block:'center', behavior:'smooth' }); return; }
   var big = tooBig();
   if (big.length){ note(big.map(function(f){ return f.name; }).join(', ') + ' 이(가) 너무 큽니다. 빼거나 JPEG 로 바꿔 넣어주세요.', true); return; }
@@ -900,7 +916,7 @@ function draft(){
   if (!ready) return;
   try {
     localStorage.setItem('archive-post', JSON.stringify({
-      f:['fTitle','fSub','fLede','fCat','fDate','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
+      f:['fTitle','fSub','fLede','fCat','fDate','fDateEnd','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
       cover:P.cover,
       coverId:P.coverPhoto && P.coverPhoto.id,
       pages:P.pages.map(function(p){ return {
@@ -959,6 +975,7 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
   try { s = JSON.parse(localStorage.getItem('archive-post') || 'null'); } catch (e) {}
   if (!s){ ready = true; readyResolve(); return; }
   Object.keys(s.f || {}).forEach(function(k){ if ($(k)) $(k).value = s.f[k]; });
+  showPeriod();
   $('enHead').open = ['fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].some(function(k){ return !!$(k).value; });
   P.cover = s.cover || P.cover;
   P.editing = s.editing || null;
@@ -999,9 +1016,10 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
 function clearAll(){
   P.pages = []; P.cover = 'gridnum'; P.coverPhoto = null; P.editing = null;
   pending = []; sel = -1; ph = 0;
-  ['fTitle','fSub','fLede','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].forEach(function(k){ $(k).value = ''; });
+  ['fTitle','fSub','fLede','fDateEnd','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].forEach(function(k){ $(k).value = ''; });
   $('fCat').value = 'research';
   $('fDate').value = today();
+  showPeriod();
   grow($('fLede')); grow($('fLedeEn'));
   try { localStorage.removeItem('archive-post'); } catch (e) {}
   idbDo('readwrite', function(st){ st.clear(); }).catch(function(){});
@@ -1095,7 +1113,7 @@ function drawPosts(){
   $('postsN').textContent = items.length + '개';
   $('postsList').innerHTML = items.length ? items.map(function(it){
     return '<div class="pr' + (P.editing === it.id ? ' on' : '') + '">'
-      + '<span class="d">' + esc(it.date || '') + '</span><span class="c">' + esc(CAT[it.cat] || it.cat || '') + '</span>'
+      + '<span class="d">' + esc((it.date || '') + (it.dateEnd ? ' ~' : '')) + '</span><span class="c">' + esc(CAT[it.cat] || it.cat || '') + '</span>'
       + '<b>' + esc(it.title) + '</b><span class="i">' + esc(it.id) + '</span>'
       + '<button type="button" data-edit="' + esc(it.id) + '">수정</button>'
       + '<button type="button" data-del="' + esc(it.id) + '">삭제</button>'
@@ -1178,6 +1196,8 @@ async function editPost(id){
     grow($('fLede'));
     $('fCat').value = CAT[it.cat] ? it.cat : 'research';
     $('fDate').value = it.date || today();
+    $('fDateEnd').value = it.dateEnd || '';
+    showPeriod();
     $('fId').value = it.id;
     $('fMeta').value = it.meta || '';
     $('fTags').value = it.tags || '';
