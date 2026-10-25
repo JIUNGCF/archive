@@ -2,7 +2,9 @@
    POST /api/save
    admin.html 의 "올리기"가 호출한다.
    1) x-archive-key 가 ADMIN_KEY 와 같은지 확인
-   2) 사진은 img/ 에, 글은 data.json 에 넣어 GitHub 에 커밋 1회
+   2) { blob } : 사진 한 장을 GitHub 에 올려 두고 sha 만 돌려준다 (아직 커밋 없음)
+      Vercel 은 요청 하나를 4.5MB 로 막으므로 사진은 한 장씩 따로 받는다
+   3) 글 : 사진(sha 또는 data)은 img/ 에, 글은 data.json 에 넣어 GitHub 에 커밋 1회
    필요한 환경변수 (Vercel 프로젝트 설정 → Environment Variables)
      GITHUB_TOKEN   repo 권한이 있는 Personal Access Token
      GITHUB_REPO    예: JIUNGCF/archive
@@ -28,7 +30,7 @@ async function ghJson(path, token, init){
   return r.json();
 }
 
-/* admin 은 pages: [{title, text, photos:[{file, data}]}] 를 보낸다.
+/* admin 은 pages: [{title, text, photos:[{file, sha}]}] 를 보낸다 (data 를 직접 넣어도 된다).
    예전 형식(figures: [{file, data, title, text}], 사진 1장 = 1페이지)도 받아 준다. */
 function pagesOf(post){
   if (Array.isArray(post.pages)) return post.pages;
@@ -54,13 +56,24 @@ function toDetail(post){
   return { lede: post.lede || post.sub || '', meta: [], figures, sections, links: [] };
 }
 
+/* 사진 표지(cover: 'photo')는 coverFile 이 가리키는 사진을 쓴다. 없으면 첫 사진, 사진이 없으면 기본 표지 */
 function toItem(post){
-  return {
+  const item = {
     id: post.id, cat: post.cat, date: post.date,
     title: post.title, sub: post.sub || '', meta: post.meta || '',
     cover: post.cover || 'gridnum', tags: post.tags || ''
   };
+  if (item.cover === 'photo'){
+    const first = pagesOf(post).map(pg => (pg.photos || [])[0]).find(Boolean);
+    const file = post.coverFile || (first && first.file);
+    if (file) item.coverSrc = imgPath(file);
+    else item.cover = 'gridnum';
+  }
+  return item;
 }
+
+const SHA = /^[0-9a-f]{40}$/;
+function b64(data){ const m = /^data:([^;]+);base64,(.+)$/.exec(data || ''); return m && m[2]; }
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST'){ res.status(405).end(); return; }
@@ -73,12 +86,28 @@ module.exports = async (req, res) => {
   if (req.headers['x-archive-key'] !== ADMIN_KEY){ res.status(401).end(); return; }
 
   const post = req.body;
+  const T = GITHUB_TOKEN;
+  const R = '/repos/' + GITHUB_REPO;
+
+  /* ---- 사진 한 장 ---- */
+  if (post && post.blob){
+    const content = b64(post.blob);
+    if (!content){ res.status(400).json({ error: '사진 형식이 아닙니다' }); return; }
+    try {
+      const blob = await ghJson(R + '/git/blobs', T, {
+        method: 'POST',
+        body: JSON.stringify({ content, encoding: 'base64' })
+      });
+      res.status(200).json({ sha: blob.sha });
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+    return;
+  }
+
   if (!post || !post.id || !post.title || !/^[a-z0-9-]+$/i.test(post.id)){
     res.status(400).json({ error: 'id 와 title 이 필요하고, id 는 영문·숫자·하이픈만 가능합니다' }); return;
   }
-
-  const T = GITHUB_TOKEN;
-  const R = '/repos/' + GITHUB_REPO;
 
   try {
     /* ---- 현재 브랜치 끝 커밋과 트리 ---- */
@@ -106,13 +135,16 @@ module.exports = async (req, res) => {
     const tree = [];
     const photos = [].concat(...pagesOf(post).map(pg => pg.photos || []));
     for (const f of photos){
-      const m = /^data:([^;]+);base64,(.+)$/.exec(f.data || '');
-      if (!m) continue;
-      const blob = await ghJson(R + '/git/blobs', T, {
-        method: 'POST',
-        body: JSON.stringify({ content: m[2], encoding: 'base64' })
-      });
-      tree.push({ path: imgPath(f.file), mode: '100644', type: 'blob', sha: blob.sha });
+      let sha = SHA.test(f.sha || '') ? f.sha : null;
+      if (!sha){
+        const content = b64(f.data);
+        if (!content) continue;
+        sha = (await ghJson(R + '/git/blobs', T, {
+          method: 'POST',
+          body: JSON.stringify({ content, encoding: 'base64' })
+        })).sha;
+      }
+      tree.push({ path: imgPath(f.file), mode: '100644', type: 'blob', sha });
     }
     const dataBlob = await ghJson(R + '/git/blobs', T, {
       method: 'POST',
