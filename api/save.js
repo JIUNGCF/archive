@@ -85,7 +85,8 @@ function toItem(post, shas){
     cover: post.cover || 'gridnum', tags: post.tags || ''
   };
   if (post.dateEnd && post.dateEnd > post.date) item.dateEnd = post.dateEnd;   // 기간 프로젝트의 끝 날짜
-  if (['done', 'doing', 'plan'].includes(post.status)) item.status = post.status;   // 비우면 사이트가 날짜로 정한다
+  if (['done', 'doing', 'plan'].includes(post.status)) item.status = post.status;
+  if (/^https?:\/\/\S+$/.test(post.url || '')) item.url = post.url;   // 개발 글의 사이트 주소 (웹 화면 표지 · 사이트 열기)   // 비우면 사이트가 날짜로 정한다
   if (item.cover === 'photo'){
     const first = pagesOf(post).map(pg => (pg.photos || [])[0]).find(Boolean);
     const file = post.coverFile || (first && first.file);
