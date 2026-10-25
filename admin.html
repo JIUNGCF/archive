@@ -36,6 +36,7 @@ select option{background:#111;color:#fff}
 .miss::placeholder{color:var(--red) !important}
 .bar .ghost{color:var(--dim);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
 .bar .ghost:hover{color:var(--red)}
+.bar .ghost.armed{color:var(--red);text-decoration-color:var(--red)}
 
 .page{max-width:1500px;margin:0 auto;padding:30px 28px 14vh}
 
@@ -200,6 +201,7 @@ select option{background:#111;color:#fff}
 <div class="bar">
   <span class="mark">글쓰기</span>
   <button class="ghost" id="preview" type="button">미리보기</button>
+  <button class="ghost" id="fresh" type="button">새 글</button>
   <span class="state" id="state">—</span>
   <input class="pw" id="pw" type="password" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호">
   <button class="btn" id="save" type="button">올리기</button>
@@ -669,7 +671,8 @@ $('save').addEventListener('click', async function(){
     await uploadPhotos(key);
     note('글을 올리는 중...');
     await api(key, payload(true));
-    note('올렸습니다. 1~2분 뒤 사이트에 반영됩니다.', true);
+    clearAll();
+    note('올렸습니다. 1~2분 뒤 사이트에 반영됩니다. 화면을 비웠으니 새 글을 쓰면 됩니다.', true);
   } catch (err) {
     if (err.key){
       setKey(null);
@@ -824,6 +827,36 @@ function revive(){
     done();
   }).catch(function(){ pages.forEach(keepText); done(); });
 })();
+
+/* ---------------- 새 글 ----------------
+   초안(글 · 사진)을 모두 비운다. 올리기에 성공하면 자동으로, 아니면 '새 글'을 두 번 눌러서 */
+function clearAll(){
+  P.pages = []; P.cover = 'gridnum'; P.coverPhoto = null;
+  pending = []; sel = -1; ph = 0;
+  ['fTitle','fSub','fLede','fId','fMeta','fTags'].forEach(function(k){ $(k).value = ''; });
+  $('fCat').value = 'research';
+  $('fDate').value = today();
+  grow($('fLede'));
+  try { localStorage.removeItem('archive-post'); } catch (e) {}
+  idbDo('readwrite', function(st){ st.clear(); }).catch(function(){});
+  redraw();
+}
+var freshTimer = 0;
+$('fresh').addEventListener('click', function(){
+  var b = this;
+  if (!b.classList.contains('armed')){
+    b.classList.add('armed');
+    b.textContent = '한 번 더 누르면 지웁니다';
+    freshTimer = setTimeout(function(){ b.classList.remove('armed'); b.textContent = '새 글'; }, 3000);
+    return;
+  }
+  clearTimeout(freshTimer);
+  b.classList.remove('armed');
+  b.textContent = '새 글';
+  clearAll();
+  note('새 글을 시작합니다.');
+  $('fTitle').focus();
+});
 
 drawStrip(); drawList(); drawEdit();
 </script>
