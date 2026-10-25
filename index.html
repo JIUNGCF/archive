@@ -280,11 +280,12 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .dt-step{opacity:.5;cursor:pointer}
 .dt-step.on{cursor:auto}
 .dt-step + .dt-step{margin-top:52px}
-.dt-main h2{font-size:30px;line-height:1.2;letter-spacing:-0.025em;outline:none}
-.dt-lead{font-size:17px;line-height:1.6;color:#f2f2f2;margin:16px 0 0;letter-spacing:-0.015em}
-.dt-sec h3{font-size:15px;border-top:1px solid var(--rule);padding-top:14px}
-.dt-sec h3 .no{color:#a8a8a8;margin-right:10px;font-variant-numeric:tabular-nums;font-weight:400}
-.dt-sec p{margin:12px 0 0;font-size:15px;color:#ececec;line-height:1.75}
+/* 글자는 조금 작게, 자간은 좁게. 구분선은 흐린 절(투명도 0.5)에서도 보이도록 밝게 */
+.dt-main h2{font-size:28px;line-height:1.18;letter-spacing:-0.035em;outline:none}
+.dt-lead{font-size:16px;line-height:1.6;color:#f2f2f2;margin:14px 0 0;letter-spacing:-0.022em}
+.dt-sec h3{font-size:14px;letter-spacing:-0.015em;border-top:1px solid #707070;padding-top:16px}
+.dt-sec h3 .no{color:#9a9a9a;margin-right:10px;font-size:12px;letter-spacing:.06em;font-variant-numeric:tabular-nums;font-weight:400}
+.dt-sec p{margin:11px 0 0;font-size:14px;color:#ececec;line-height:1.72;letter-spacing:-0.012em}
 .dt-end{margin-top:40px;font-size:13px}
 
 /* 넘기는 동안의 움직임은 전부 JS 의 프레임 루프가 맡는다 (CSS transition 없음).
@@ -332,9 +333,9 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
   .dt-left{padding-left:0}
   .dt-cap{padding:0 var(--gut)}
   .dt-main{height:100%;margin:0 var(--gut)}
-  .dt-main h2{font-size:24px}
-  .dt-lead{font-size:15px}
-  .dt-sec h3,.dt-sec p{font-size:14px}
+  .dt-main h2{font-size:23px}
+  .dt-lead{font-size:14px}
+  .dt-sec h3,.dt-sec p{font-size:13px}
 }
 
 /* ---------- contact : 탑승권 ----------
