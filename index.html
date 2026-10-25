@@ -264,10 +264,13 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .t-photo img{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
 /* 표지 · 타이포 도판 : 원래 260px 판(137%)을 무대 높이에 맞춰 통째로 확대 (--ps 는 JS) */
 .dt-figs .plate{position:absolute;left:50%;top:50%;width:260px;height:356.2px;overflow:hidden;background:var(--paper);color:var(--ink);transform:translate(-50%,-50%) scale(var(--ps,1));transform-origin:50% 50%}
-/* 캡션 : 무대 아래 한 줄 */
+/* 캡션 : 도판 바로 아래 한 줄. 무대 안에서 도판이 차지하지 않은 위아래 · 양옆 여백만큼 JS(placeCap)가 당겨 붙인다 */
 .dt-cap{flex:0 0 auto;margin:10px 0 0;display:flex;justify-content:space-between;gap:0 12px;color:var(--dim);font-variant-numeric:tabular-nums}
 .dt-cap #dtCap{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dt-count{flex:0 0 auto}
+@media (prefers-reduced-motion:no-preference){
+  .dt-cap{transition:transform .45s var(--ease),margin .45s var(--ease)}
+}
 
 /* 한 단계(절)에 사진이 여러 장일 때 : 단계는 위아래로, 그 안의 사진은 좌우로 넘긴다.
    사진끼리의 교차는 단계 넘기기(JS 프레임 루프)와 따로 CSS 로 짧게 */
@@ -509,8 +512,12 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 .vw-close:hover{color:var(--red);text-decoration-color:var(--red)}
 .vw-stage{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:16px 22px;min-height:0;cursor:zoom-out}
 /* 프레임은 뷰포트 기준 비율 박스, 판은 기준 크기(260px)를 scale 로 비례 확대 */
-.vw-frame{display:block;position:relative;width:min(calc(100vw - 44px),calc((100vh - 168px)/1.37));height:0;padding-top:137%;overflow:hidden;background:var(--paper);color:var(--ink);cursor:default}
+.vw-frame{display:block;position:relative;width:min(calc(100vw - 44px),calc((100vh - 168px)/1.37));aspect-ratio:260 / 356.2;overflow:hidden;background:var(--paper);color:var(--ink);cursor:default}
 .vw-plate{position:absolute;top:0;left:0;width:260px;height:356.2px;transform-origin:0 0;background:var(--paper);color:var(--ink)}
+/* 사진은 종이 틀 없이 원래 비율로 화면에 꽉 차게 (틀 크기는 JS fitPlate 가 사진 비율로 정한다) */
+.vw-frame.vw-photo{aspect-ratio:auto;background:none}
+.vw-photo .vw-plate{position:static;width:100%;height:100%;background:none}
+.vw-photo .vw-plate img{display:block;width:100%;height:100%;object-fit:contain}
 .vw-foot{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:0 22px 20px}
 .vw-info{min-height:32px;max-width:46ch}
 .vw-info .t{font-size:15px;line-height:1.25}
@@ -1539,6 +1546,26 @@ onLang.push(function(){ renderUpdates(); render(); });
     setSub(shown, plates[shown].sub + d);
   }
 
+  /* 캡션 줄 · '전체 화면' 표시를 지금 보이는 도판의 실제 테두리에 붙인다.
+     도판은 무대 안에서 비율을 지킨 채 가운데 놓이므로, 남는 위아래 · 양옆 여백만큼 당긴다 */
+  function placeCap(){
+    var row = detailEl.querySelector('.dt-cap'), zoom = detailEl.querySelector('.dt-zoom');
+    if (!row || mode !== 'article' || shown < 0) return;
+    var W = figsEl.clientWidth, H = figsEl.clientHeight, w = W, h = H;
+    var fig = figEls[shown], img = null;
+    if (fig && fig.querySelector('.plate')){ var sc = Math.min(W / 260, H / 356.2); w = 260 * sc; h = 356.2 * sc; }
+    else if (fig) img = fig.querySelector('.t-multi img.on') || fig.querySelector('img');
+    if (img && img.naturalWidth){
+      var r = img.naturalWidth / img.naturalHeight;
+      if (W / H > r){ h = H; w = H * r; } else { w = W; h = W / r; }
+    }
+    var x = Math.max(0, (W - w) / 2), y = Math.max(0, (H - h) / 2);
+    var pad = parseFloat(getComputedStyle(row).paddingLeft) || 0;   // 좁은 화면에서는 캡션에 원래 양옆 여백이 있다
+    row.style.transform = y ? 'translateY(' + (-y).toFixed(1) + 'px)' : '';
+    row.style.marginLeft = row.style.marginRight = Math.max(0, x - pad).toFixed(1) + 'px';
+    if (zoom){ zoom.style.right = (x + 8).toFixed(1) + 'px'; zoom.style.bottom = (y + 8).toFixed(1) + 'px'; }
+  }
+
   /* 캡션 · 사진 번호 · 좌우 버튼을 지금 단계에 맞춘다 */
   function paintPh(k){
     var p = plates[k], many = multiAt(k);
@@ -1551,6 +1578,7 @@ onLang.push(function(){ renderUpdates(); render(); });
       if (b.classList.contains('dt-pn')) b.hidden = !many;
       b.disabled = !many || (+b.dataset.flip < 0 ? p.sub === 0 : p.sub === p.photos.length - 1);
     });
+    placeCap();
   }
 
   function detailOf(it){
@@ -1671,6 +1699,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     if (raf){ cancelAnimationFrame(raf); raf = 0; lastT = 0; }
     pos = target = firstStop(keep);
     render();
+    placeCap();
   }
 
   function showHint(){
@@ -1803,14 +1832,14 @@ onLang.push(function(){ renderUpdates(); render(); });
       var ph = photosOf(s, figures), f = ph[0];
       if (ph.length > 1) plates.push({html:multiPlate(ph, s.h), label:s.h, photo:true, photos:ph, sub:0});
       else plates.push(f
-        ? {html:photoPlate(f, f.cap || s.h), label:s.h, cap:f.cap, photo:true}
+        ? {html:photoPlate(f, f.cap || s.h), label:s.h, cap:f.cap, photo:true, src:f.src}
         : {html:figPlate(it, i + 1, s.h), label:s.h});
     });
     views = [];
     plates.forEach(function(p, k){
-      if (!p.photos) { views.push({html:p.html, label:p.label, k:k, j:0}); return; }
+      if (!p.photos) { views.push({html:p.html, label:p.label, k:k, j:0, src:p.src}); return; }
       p.photos.forEach(function(f, j){
-        views.push({html:photoPlate(f, f.cap || p.label), label:p.label + ' · ' + (j + 1) + ' / ' + p.photos.length, k:k, j:j});
+        views.push({html:photoPlate(f, f.cap || p.label), label:p.label + ' · ' + (j + 1) + ' / ' + p.photos.length, k:k, j:j, src:f.src});
       });
     });
     /* 사진은 무대에 원래 비율로, 표지 · 타이포 도판은 260px 판(.plate)째로 확대해 건다 */
@@ -1861,6 +1890,8 @@ onLang.push(function(){ renderUpdates(); render(); });
     steps = [];
     mainEl.querySelectorAll('.dt-step').forEach(function(el){ steps.push({el:el, stops:[0]}); });
     figEls = [].slice.call(figsEl.children);
+    /* 사진 크기는 다 불러와야 알 수 있다 → 불러오면 캡션 자리를 다시 잰다 */
+    figsEl.querySelectorAll('img').forEach(function(im){ if (!im.complete) im.addEventListener('load', placeCap); });
     shown = -1;
     /* 입장 애니메이션을 매번 처음부터 */
     [mainEl, figsEl].forEach(function(el){
@@ -2382,13 +2413,29 @@ onLang.push(function(){ renderUpdates(); render(); });
 
   function fitPlate(){
     if (viewer.hidden) return;
+    var img = vwFrame.classList.contains('vw-photo') && vwPlate.querySelector('img');
+    if (img){
+      /* 사진 : 무대 안에 원래 비율 그대로 최대 크기. 크기를 모르면(불러오는 중) 다 불러온 뒤 다시 잰다 */
+      if (!img.complete) img.onload = fitPlate;
+      var cs = getComputedStyle(vwStage);
+      var W = vwStage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      var H = vwStage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      var r = img.naturalWidth ? img.naturalWidth / img.naturalHeight : 1;
+      var w = Math.min(W, H * r);
+      vwFrame.style.width = w + 'px';
+      vwFrame.style.height = (w / r) + 'px';
+      vwPlate.style.transform = '';
+      return;
+    }
+    vwFrame.style.width = vwFrame.style.height = '';
     vwPlate.style.transform = 'scale(' + (vwFrame.clientWidth / PLATE_W) + ')';
   }
 
   function paintViewer(){
     var f = views[vwI];
     if (!f || !cur) return;
-    vwPlate.innerHTML = f.html;
+    vwFrame.classList.toggle('vw-photo', !!f.src);
+    vwPlate.innerHTML = f.src ? '<img src="' + esc(f.src) + '" alt="' + esc(f.label) + '" decoding="async">' : f.html;
     document.getElementById('vwId').textContent = cur.id + ' \u00b7 ' + when(cur);
     document.getElementById('vwLead').textContent = cur.title;
     vwInfo.innerHTML = '<div class="t">' + esc(f.label) + '</div>'
