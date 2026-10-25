@@ -419,7 +419,8 @@ function addFiles(list, into){
   var group = $('group').checked;
   note('사진을 정리하는 중...');
   Promise.all(files.map(shrink)).then(function(res){
-    var photos = res.map(function(r, i){ return { url:r.url, thumb:r.thumb, ext:r.ext, name:files[i].name }; });
+    var photos = res.map(function(r, i){ return { id:newId(), url:r.url, thumb:r.thumb, ext:r.ext, name:files[i].name }; });
+    photos.forEach(keepPhoto);
     var pg = into >= 0 ? P.pages[into] : null;
     if (pg){
       if (into === sel) ph = pg.photos.length;
@@ -430,9 +431,12 @@ function addFiles(list, into){
       else photos.forEach(function(x){ P.pages.push({ title:'', text:'', photos:[x] }); });
       if (sel < 0){ sel = first; ph = 0; }
     }
+    var back = revive();
     redraw();
     var big = tooBig();
-    note(big.length ? big.map(function(f){ return f.name; }).join(', ') + ' 은(는) 너무 커서 올릴 수 없습니다. JPEG 로 바꿔 다시 넣어주세요.' : '', big.length > 0);
+    if (big.length) note(big.map(function(f){ return f.name; }).join(', ') + ' 은(는) 너무 커서 올릴 수 없습니다. JPEG 로 바꿔 다시 넣어주세요.', true);
+    else if (back) note('지난번에 쓴 페이지 글 ' + back + '개를 되살렸습니다.', true);
+    else note('');
   });
 }
 function redraw(){ drawStrip(); drawList(); drawEdit(); draft(); }
@@ -456,7 +460,7 @@ document.addEventListener('click', function(e){
   if (!t) return;
   var d = t.dataset, pg = P.pages[sel], i;
   if (d.c){ P.cover = d.c; drawStrip(); draft(); return; }
-  if (d.rep !== undefined){ P.coverPhoto = allPhotos()[+d.rep]; drawStrip(); return; }
+  if (d.rep !== undefined){ P.coverPhoto = allPhotos()[+d.rep]; drawStrip(); draft(); return; }
   if (t.id === 'prev'){ select(sel - 1); return; }
   if (t.id === 'next'){ select(sel + 1); return; }
   /* 페이지 안의 사진 */
@@ -616,6 +620,7 @@ async function uploadPhotos(key){
     while (next < todo.length){
       var f = todo[next++];
       f.sha = (await api(key, { blob:f.url })).sha;
+      keepPhoto(f);   // 새로고침한 뒤 다시 올려도 이 사진은 건너뛰게
       note('사진 올리는 중... ' + (++done) + ' / ' + all.length);
     }
   }
@@ -720,24 +725,105 @@ $('preview').addEventListener('click', function(){
   w.document.close();
 });
 
-/* ---------------- 초안 (사진 제외) ---------------- */
+/* ---------------- 초안 ----------------
+   글 · 순서는 localStorage, 사진은 용량이 커서 IndexedDB 에 둔다.
+   새로고침하거나 창을 닫았다 열어도 사진 · 글 · 순서 · 표지가 그대로 돌아온다.
+   사진을 찾지 못한 페이지의 글은 pending 에 남겨 두고, 같은 이름의 사진을 다시 넣으면 그 페이지에 되살린다 */
+var ready = false;   // 초안을 다 불러오기 전에는 저장하지 않는다 (빈 상태로 덮어쓰지 않게)
+var pending = [];    // {title, text, names}
+
 function draft(){
+  if (!ready) return;
   try {
     localStorage.setItem('archive-post', JSON.stringify({
       f:['fTitle','fSub','fLede','fCat','fDate','fId','fMeta','fTags'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
       cover:P.cover,
-      pages:P.pages.map(function(p){ return { title:p.title, text:p.text, names:p.photos.map(function(f){ return f.name; }) }; })
+      coverId:P.coverPhoto && P.coverPhoto.id,
+      pages:P.pages.map(function(p){ return {
+        title:p.title, text:p.text,
+        ids:p.photos.map(function(f){ return f.id; }),
+        names:p.photos.map(function(f){ return f.name; })
+      }; }),
+      pending:pending
     }));
   } catch (e) {}
 }
-try {
-  var s = JSON.parse(localStorage.getItem('archive-post') || 'null');
-  if (s){
-    Object.keys(s.f).forEach(function(k){ if ($(k)) $(k).value = s.f[k]; });
-    P.cover = s.cover || P.cover;
-    if ((s.pages || s.figs || []).length) note('지난 초안의 글은 남아 있지만 사진은 다시 넣어야 합니다.', true);
+
+var DB = null;
+function idb(){
+  if (!DB) DB = new Promise(function(ok, no){
+    var r = indexedDB.open('archive-admin', 1);
+    r.onupgradeneeded = function(){ r.result.createObjectStore('photos'); };
+    r.onsuccess = function(){ ok(r.result); };
+    r.onerror = function(){ no(r.error); };
+  });
+  return DB;
+}
+/* fn(store) 가 돌려준 요청들은 트랜잭션이 끝난 뒤 .result 로 읽는다 */
+function idbDo(mode, fn){
+  return idb().then(function(db){ return new Promise(function(ok, no){
+    var tx = db.transaction('photos', mode), out = fn(tx.objectStore('photos'));
+    tx.oncomplete = function(){ ok(out); };
+    tx.onerror = tx.onabort = function(){ no(tx.error); };
+  }); });
+}
+function newId(){ return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function keepPhoto(f){
+  return idbDo('readwrite', function(st){
+    st.put({ url:f.url, thumb:f.thumb, ext:f.ext, name:f.name, sha:f.sha || null }, f.id);
+  }).catch(function(){});
+}
+
+/* 새로 넣은 사진이 들어간 빈 페이지에, 같은 이름의 사진을 가졌던 페이지의 글을 되살린다 */
+function revive(){
+  var n = 0;
+  P.pages.forEach(function(p){
+    if (p.title || p.text) return;
+    var names = p.photos.map(function(f){ return f.name; });
+    var k = pending.findIndex(function(q){ return (q.names || []).some(function(x){ return names.indexOf(x) >= 0; }); });
+    if (k < 0) return;
+    p.title = pending[k].title || ''; p.text = pending[k].text || '';
+    pending.splice(k, 1); n++;
+  });
+  return n;
+}
+
+(function restore(){
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem('archive-post') || 'null'); } catch (e) {}
+  if (!s){ ready = true; return; }
+  Object.keys(s.f || {}).forEach(function(k){ if ($(k)) $(k).value = s.f[k]; });
+  P.cover = s.cover || P.cover;
+  pending = (s.pending || []).slice();
+  var pages = s.pages || [];
+  function keepText(p){ if (p.title || p.text) pending.push({ title:p.title || '', text:p.text || '', names:p.names || [] }); }
+  function done(){
+    ready = true;
+    if (P.pages.length){ sel = 0; ph = 0; }
+    redraw();
+    var got = P.pages.length ? '지난 초안을 불러왔습니다.' : '';
+    var left = pending.length ? ' 사진을 찾지 못한 페이지 글 ' + pending.length + '개가 남아 있습니다. 같은 사진을 다시 넣으면 제자리에 돌아옵니다.' : '';
+    note((got + left).trim(), !!left);
   }
-} catch (e) {}
+  if (!pages.length){ done(); return; }
+  note('지난 초안을 불러오는 중...');
+  idbDo('readonly', function(st){ return { k:st.getAllKeys(), v:st.getAll() }; }).then(function(out){
+    var byId = {};
+    out.k.result.forEach(function(id, i){ byId[id] = Object.assign({ id:id }, out.v.result[i]); });
+    var used = {};
+    pages.forEach(function(p){
+      var photos = (p.ids || []).map(function(id){ return byId[id]; }).filter(Boolean);
+      photos.forEach(function(f){ used[f.id] = true; });
+      if (photos.length) P.pages.push({ title:p.title || '', text:p.text || '', photos:photos });
+      else keepText(p);
+    });
+    P.coverPhoto = byId[s.coverId] || null;
+    /* 어느 페이지에서도 쓰지 않는 사진은 정리 */
+    var gone = Object.keys(byId).filter(function(id){ return !used[id]; });
+    if (gone.length) idbDo('readwrite', function(st){ gone.forEach(function(id){ st.delete(id); }); }).catch(function(){});
+    done();
+  }).catch(function(){ pages.forEach(keepText); done(); });
+})();
 
 drawStrip(); drawList(); drawEdit();
 </script>
