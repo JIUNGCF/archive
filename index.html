@@ -132,6 +132,7 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .item:hover .cap .t{color:var(--fg)}
 .cap .n{flex:0 0 auto}
 
+.foot .admin{margin-left:auto}
 .empty{color:var(--dim);padding:4px 0 40px;max-width:38em}
 .empty b{display:block;color:var(--fg);font-weight:400}
 
@@ -212,15 +213,18 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
   --gut:28px;                           /* 화면 양옆 여백 */
 }
 /* 도판 무대가 왼쪽 벽에 붙도록 왼쪽 여백은 없애고, 머리줄 · 캡션에만 여백을 준다 */
-.detail.paged{position:fixed;top:0;right:0;bottom:0;left:0;max-width:none;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none;touch-action:none;padding:var(--pad) var(--gut) 0 0}
+/* 오른쪽 여백(--gutR)을 넓게 둬서 글 열이 화면 끝에 붙지 않고 조금 가운데로 들어오게 */
+.detail.paged{position:fixed;top:0;right:0;bottom:0;left:0;max-width:none;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none;touch-action:none;padding:var(--pad) var(--gutR,var(--gut)) 0 0;--gutR:clamp(28px,7vw,150px)}
 .dt-top{display:flex;align-items:baseline;justify-content:space-between;gap:0 16px;padding-bottom:30px}
 .paged .dt-top{flex:0 0 auto;padding:0 0 0 var(--gut)}
 .dt-meta{color:var(--dim)}
+.dt-right{display:flex;align-items:baseline;gap:0 18px;min-width:0}
+.dt-edit{color:var(--red)}
 .dt-body{
   flex:1 1 auto;min-height:0;
   display:grid;
   /* 왼쪽 = 도판 무대(남는 폭 전부), 오른쪽 = 글 열 */
-  grid-template-columns:minmax(0,1fr) clamp(320px,34vw,600px);
+  grid-template-columns:minmax(0,1fr) clamp(320px,32vw,580px);
   grid-template-rows:minmax(0,1fr);
   gap:0 clamp(32px,4vw,80px);
   padding:2.5vh 0 3vh;
@@ -273,14 +277,14 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .dt-main::before{top:0;background:linear-gradient(var(--bg),rgba(0,0,0,0))}
 .dt-main::after{bottom:0;background:linear-gradient(rgba(0,0,0,0),var(--bg))}
 .dt-flow{position:absolute;top:0;left:0;right:0;will-change:transform}
-.dt-step{opacity:.3;cursor:pointer}
+.dt-step{opacity:.5;cursor:pointer}
 .dt-step.on{cursor:auto}
 .dt-step + .dt-step{margin-top:52px}
 .dt-main h2{font-size:30px;line-height:1.2;letter-spacing:-0.025em;outline:none}
-.dt-lead{font-size:17px;line-height:1.6;color:#cfcfcf;margin:16px 0 0;letter-spacing:-0.015em}
+.dt-lead{font-size:17px;line-height:1.6;color:#f2f2f2;margin:16px 0 0;letter-spacing:-0.015em}
 .dt-sec h3{font-size:15px;border-top:1px solid var(--rule);padding-top:14px}
-.dt-sec h3 .no{color:var(--dim);margin-right:10px;font-variant-numeric:tabular-nums;font-weight:400}
-.dt-sec p{margin:12px 0 0;font-size:15px;color:#c9c9c9;line-height:1.75}
+.dt-sec h3 .no{color:#a8a8a8;margin-right:10px;font-variant-numeric:tabular-nums;font-weight:400}
+.dt-sec p{margin:12px 0 0;font-size:15px;color:#ececec;line-height:1.75}
 .dt-end{margin-top:40px;font-size:13px}
 
 /* 넘기는 동안의 움직임은 전부 JS 의 프레임 루프가 맡는다 (CSS transition 없음).
@@ -657,6 +661,7 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
     <span>© 2026</span>
     <span>마지막 갱신 2026.09.12</span>
     <span><a href="#index">맨 위로</a></span>
+    <span class="admin"><a id="adminLink" href="admin.html">관리</a></span>
   </footer>
 </div>
 
@@ -664,7 +669,7 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 <div class="detail" id="detail" hidden>
   <header class="dt-top">
     <a href="#index">← 카테고리</a>
-    <span class="dt-meta" id="dtMeta"></span>
+    <span class="dt-right"><span class="dt-meta" id="dtMeta"></span><a class="dt-edit" id="dtEdit" hidden>수정</a></span>
   </header>
   <div class="dt-body">
     <div class="dt-left">
@@ -732,6 +737,13 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
    cover : gridnum | stack | mono | alpha | plate | spine | redbar
    ========================================================= */
 const CAT = {research:'연구', activity:'활동', dev:'개발', read:'독서'};
+
+/* 관리자(글쓰기) 화면. 올리기는 서버가 있는 Vercel 에서만 되므로 다른 주소(GitHub Pages)에서는 Vercel 로 보낸다 */
+const ADMIN_URL = /vercel\.app$|^localhost$|^127\./.test(location.hostname)
+  ? 'admin.html' : 'https://archive-gamma-snowy.vercel.app/admin.html';
+document.getElementById('adminLink').href = ADMIN_URL;
+/* admin 에서 들어온 같은 탭이면 비밀번호가 기억돼 있다 → 세부 페이지에 '수정' 링크 */
+function adminIn(){ try { return !!sessionStorage.getItem('archive-key'); } catch (e) { return false; } }
 
 /* 연락(탑승권) 설정
    web3formsKey 가 비어 있으면 : 애니메이션 뒤 메일 앱(mailto)을 연다
@@ -1263,7 +1275,7 @@ render();
 
   /* pos 한 값으로 화면 전체를 그린다. 모든 값이 pos 의 연속 함수라 끊김이 없다
      · 글 줄기 위치 : 인접한 두 정지점 사이를 보간
-     · 절 밝기     : 현재 위치에서 멀어질수록 0.3 까지 흐려짐
+     · 절 밝기     : 현재 위치에서 멀어질수록 0.5 까지 흐려짐 (그 아래로는 글이 안 읽힌다)
      · 도판        : 다음 장을 위에 얹어 페이드인하고, 이전 장은 조금 늦게 따라 사라진다.
                      사진마다 비율이 달라 다음 장이 이전 장을 다 덮지 못하므로
                      이전 장도 끝까지 서서히 빠져야 마지막에 툭 꺼지지 않는다 */
@@ -1275,7 +1287,7 @@ render();
     var y = a.y + (b.y - a.y) * f, kp = a.k + (b.k - a.k) * f;
     flowEl.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0)';
     steps.forEach(function(st, j){
-      var o = (0.3 + 0.7 * Math.max(0, 1 - Math.abs(kp - j))).toFixed(3);
+      var o = (0.5 + 0.5 * Math.max(0, 1 - Math.abs(kp - j))).toFixed(3);
       if (st.o !== o){ st.el.style.opacity = o; st.o = o; }
     });
     var base = Math.floor(kp), t = kp - base, e = smooth(t);
@@ -1473,6 +1485,9 @@ render();
     capBase = it.id + ' · ' + it.date.replace(/-/g, '.');
     capEl.textContent = capBase;
     metaEl.textContent = [CAT[it.cat], it.sub, it.meta].filter(Boolean).join(' · ');
+    var editEl = document.getElementById('dtEdit');
+    editEl.hidden = !adminIn();
+    editEl.href = ADMIN_URL + '?edit=' + encodeURIComponent(it.id);
 
     /* 글 전체를 한 줄기(.dt-flow)로. 단계마다 하나의 블록(.dt-step) */
     var lede = d.lede != null ? d.lede : d.lead;

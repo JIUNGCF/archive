@@ -18,6 +18,7 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;paddin
 input:focus,textarea:focus,select:focus{outline:0}
 :focus-visible{outline:1px solid var(--red);outline-offset:3px}
 select option{background:#111;color:#fff}
+[hidden]{display:none!important}
 
 /* ---------- 상단 바 ---------- */
 .bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--rule);
@@ -28,9 +29,38 @@ select option{background:#111;color:#fff}
 .bar .btn{padding:7px 16px;background:var(--fg);color:var(--bg)}
 .bar .btn:hover{background:var(--red);color:#fff}
 .bar .btn:disabled{background:#2a2a2a;color:#8a8a8a;cursor:default}
-.bar .pw{width:110px;padding:4px 0;border-bottom:1px solid #3a3a3a}
-.bar .pw:focus{border-bottom-color:var(--red)}
-.bar .pw::placeholder{color:#4f4f4f}
+
+/* ---------- 들어오기 (비밀번호) ---------- */
+.gate{position:fixed;top:0;right:0;bottom:0;left:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:28px}
+.gate-box{width:min(360px,100%)}
+.gate-t{font-size:clamp(26px,3.4vw,40px);font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin:0 0 22px}
+.gate-row{display:flex;gap:12px;align-items:center}
+.gate-row input{flex:1;min-width:0;font-size:14px;padding:6px 0;border-bottom:1px solid #3a3a3a}
+.gate-row input:focus{border-bottom-color:var(--red)}
+.gate-row input::placeholder{color:#4f4f4f}
+.gate .btn{padding:7px 16px;background:var(--fg);color:var(--bg)}
+.gate .btn:hover{background:var(--red);color:#fff}
+.gate .btn:disabled{background:#2a2a2a;color:#8a8a8a}
+.gate-msg{min-height:1.5em;margin:10px 0 0;color:var(--red);line-height:1.6}
+.gate-msg a{color:var(--fg)}
+.gate-back{display:inline-block;margin-top:26px;color:var(--dim)}
+
+/* ---------- 올린 글 목록 ---------- */
+.posts{margin-bottom:34px;padding-bottom:18px;border-bottom:1px solid var(--rule)}
+.posts .lab{display:flex;gap:10px;color:var(--dim);margin:0 0 8px}
+.posts .lab .n{color:#4f4f4f}
+.pr{display:grid;grid-template-columns:86px 40px minmax(0,1fr) auto auto auto;gap:0 14px;align-items:baseline;padding:9px 0;border-top:1px solid var(--rule)}
+.pr.on b{color:var(--red)}
+.pr .d,.pr .i{color:var(--dim);font-variant-numeric:tabular-nums}
+.pr .c{color:var(--dim)}
+.pr b{font-weight:400;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr button{color:var(--dim);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
+.pr button:hover,.pr button.armed{color:var(--red)}
+.posts .msg{color:var(--dim);padding:9px 0;border-top:1px solid var(--rule);margin:0}
+@media (max-width:640px){
+  .pr{grid-template-columns:minmax(0,1fr) auto auto}
+  .pr .d,.pr .c,.pr .i{display:none}
+}
 /* 올리기 전에 비어 있는 칸 */
 .miss{box-shadow:inset 0 -1px 0 var(--red)}
 .miss::placeholder{color:var(--red) !important}
@@ -199,15 +229,35 @@ select option{background:#111;color:#fff}
 <body>
 
 <div class="bar">
-  <span class="mark">글쓰기</span>
-  <button class="ghost" id="preview" type="button">미리보기</button>
+  <span class="mark" id="mark">글쓰기</span>
+  <button class="ghost" id="postsBtn" type="button">글 목록</button>
   <button class="ghost" id="fresh" type="button">새 글</button>
+  <button class="ghost" id="preview" type="button">미리보기</button>
   <span class="state" id="state">—</span>
-  <input class="pw" id="pw" type="password" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호">
   <button class="btn" id="save" type="button">올리기</button>
+  <button class="ghost" id="logout" type="button">나가기</button>
+</div>
+
+<!-- 들어올 때 비밀번호 확인 -->
+<div class="gate" id="gate" hidden>
+  <form class="gate-box" id="gateForm">
+    <p class="gate-t">관리자</p>
+    <div class="gate-row">
+      <input id="gatePw" type="password" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호">
+      <button class="btn" type="submit">들어가기</button>
+    </div>
+    <p class="gate-msg" id="gateMsg"></p>
+    <a class="gate-back" href="./">← 아카이브로</a>
+  </form>
 </div>
 
 <div class="page">
+  <!-- 올린 글 목록 : 수정 · 삭제 -->
+  <section class="posts" id="posts" hidden>
+    <p class="lab">올린 글 <span class="n" id="postsN"></span></p>
+    <div id="postsList"></div>
+  </section>
+
   <div class="head">
     <input class="title" id="fTitle" placeholder="제목">
     <input class="sub" id="fSub" placeholder="한 줄 설명">
@@ -250,7 +300,7 @@ var COVER_NAME = {photo:'사진', gridnum:'번호', stack:'반복', mono:'터미
 /* pages : {title, text, photos:[{url, thumb, ext, name, sha}]}
    url 은 올릴 원본(data URL), thumb 는 목록용 작은 사진, sha 는 서버에 미리 올려 둔 사진의 식별값
    coverPhoto : 사진 표지로 쓸 사진(객체 그대로 — 순서가 바뀌어도 따라간다) */
-var P = { cover:'gridnum', pages:[], coverPhoto:null };
+var P = { cover:'gridnum', pages:[], coverPhoto:null, editing:null };   // editing : 고치는 중인 글의 원래 주소
 var sel = -1, ph = 0;                    // sel: 고른 페이지, ph: 그 페이지에서 크게 보는 사진
 
 var $ = function(id){ return document.getElementById(id); };
@@ -513,7 +563,7 @@ async function addFiles(list, into){
   else if (back) note('지난번에 쓴 페이지 글 ' + back + '개를 되살렸습니다.', true);
   else note('');
 }
-function redraw(){ drawStrip(); drawList(); drawEdit(); draft(); }
+function redraw(){ drawStrip(); drawList(); drawEdit(); drawMode(); draft(); }
 
 /* ---------------- 이벤트 ---------------- */
 document.addEventListener('input', function(e){
@@ -661,6 +711,7 @@ function payload(byRef){
     meta:v('fMeta'), tags:v('fTags'), lede:v('fLede'),
     cover: cp ? 'photo' : (P.cover === 'photo' ? 'gridnum' : P.cover),
     coverFile: cp ? fileName(cp.i, cp.j) : undefined,
+    replaces: P.editing || undefined,   // 고치던 글의 원래 주소 (주소를 바꿨으면 서버가 원래 글을 지운다)
     pages: P.pages.map(function(p, i){
       return { title:p.title, text:p.text, photos:p.photos.map(function(f, j){
         return byRef ? { file:fileName(i, j), sha:f.sha } : { file:fileName(i, j), data:f.url };
@@ -701,16 +752,11 @@ async function uploadPhotos(key){
   await Promise.all([worker(), worker(), worker()]);
 }
 
-/* 비밀번호는 상단 바의 칸으로 받는다. prompt() 는 앱 속 브라우저 · 편집기 미리보기 등에서
-   막혀 아무 반응 없이 끝나기 때문. 맞으면 브라우저를 닫을 때까지 기억하고 칸을 숨긴다 */
+/* 비밀번호는 들어올 때 한 번 확인하고(gate) 브라우저 탭을 닫을 때까지 기억한다 */
 function getKey(){ try { return sessionStorage.getItem('archive-key'); } catch (e) { return null; } }
 function setKey(k){
   try { if (k) sessionStorage.setItem('archive-key', k); else sessionStorage.removeItem('archive-key'); } catch (e) {}
-  $('pw').hidden = !!k;
-  if (!k) $('pw').value = '';
 }
-$('pw').hidden = !!getKey();
-$('pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('save').click(); });
 
 /* 비어 있는 칸 : 안내를 띄우고 그 칸으로 데려간다 */
 function miss(id, msg){
@@ -731,11 +777,11 @@ $('save').addEventListener('click', async function(){
   var big = tooBig();
   if (big.length){ note(big.map(function(f){ return f.name; }).join(', ') + ' 이(가) 너무 큽니다. 빼거나 JPEG 로 바꿔 넣어주세요.', true); return; }
 
-  var key = getKey() || $('pw').value.trim();
-  if (!key){ miss('pw', '비밀번호를 적어주세요.'); return; }
-  setKey(key);
+  var key = getKey();
+  if (!key){ showGate(); return; }
 
   saving = true;
+  var wasEditing = P.editing;
   var btn = $('save');
   btn.disabled = true;
   btn.textContent = '올리는 중…';
@@ -744,11 +790,12 @@ $('save').addEventListener('click', async function(){
     note('글을 올리는 중...');
     await api(key, payload(true));
     clearAll();
-    note('올렸습니다. 1~2분 뒤 사이트에 반영됩니다. 화면을 비웠으니 새 글을 쓰면 됩니다.', true);
+    postsData = null;
+    note((wasEditing ? '고친 내용을 올렸습니다.' : '올렸습니다.') + ' 1~2분 뒤 사이트에 반영됩니다. 화면을 비웠으니 새 글을 쓰면 됩니다.', true);
   } catch (err) {
     if (err.key){
       setKey(null);
-      miss('pw', '비밀번호가 틀렸습니다. 다시 적어주세요.');
+      showGate('비밀번호가 바뀌었거나 틀렸습니다. 다시 들어와 주세요. 쓰던 글은 그대로 남아 있습니다.');
     } else if (err instanceof TypeError){
       note('서버에 연결하지 못했습니다. 파일로 내려받습니다.', true);
       var a = document.createElement('a');
@@ -819,7 +866,8 @@ function draft(){
         ids:p.photos.map(function(f){ return f.id; }),
         names:p.photos.map(function(f){ return f.name; })
       }; }),
-      pending:pending
+      pending:pending,
+      editing:P.editing || null
     }));
   } catch (e) {}
 }
@@ -863,12 +911,14 @@ function revive(){
   return n;
 }
 
+var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // 초안을 다 불러오면 풀린다
 (function restore(){
   var s = null;
   try { s = JSON.parse(localStorage.getItem('archive-post') || 'null'); } catch (e) {}
-  if (!s){ ready = true; return; }
+  if (!s){ ready = true; readyResolve(); return; }
   Object.keys(s.f || {}).forEach(function(k){ if ($(k)) $(k).value = s.f[k]; });
   P.cover = s.cover || P.cover;
+  P.editing = s.editing || null;
   pending = (s.pending || []).slice();
   var pages = s.pages || [];
   function keepText(p){ if (p.title || p.text) pending.push({ title:p.title || '', text:p.text || '', names:p.names || [] }); }
@@ -876,7 +926,8 @@ function revive(){
     ready = true;
     if (P.pages.length){ sel = 0; ph = 0; }
     redraw();
-    var got = P.pages.length ? '지난 초안을 불러왔습니다.' : '';
+    readyResolve();
+    var got = P.pages.length ? (P.editing ? P.editing + ' 을(를) 고치던 초안을 불러왔습니다.' : '지난 초안을 불러왔습니다.') : '';
     var left = pending.length ? ' 사진을 찾지 못한 페이지 글 ' + pending.length + '개가 남아 있습니다. 같은 사진을 다시 넣으면 제자리에 돌아옵니다.' : '';
     note((got + left).trim(), !!left);
   }
@@ -903,7 +954,7 @@ function revive(){
 /* ---------------- 새 글 ----------------
    초안(글 · 사진)을 모두 비운다. 올리기에 성공하면 자동으로, 아니면 '새 글'을 두 번 눌러서 */
 function clearAll(){
-  P.pages = []; P.cover = 'gridnum'; P.coverPhoto = null;
+  P.pages = []; P.cover = 'gridnum'; P.coverPhoto = null; P.editing = null;
   pending = []; sel = -1; ph = 0;
   ['fTitle','fSub','fLede','fId','fMeta','fTags'].forEach(function(k){ $(k).value = ''; });
   $('fCat').value = 'research';
@@ -913,24 +964,219 @@ function clearAll(){
   idbDo('readwrite', function(st){ st.clear(); }).catch(function(){});
   redraw();
 }
-var freshTimer = 0;
-$('fresh').addEventListener('click', function(){
-  var b = this;
-  if (!b.classList.contains('armed')){
-    b.classList.add('armed');
-    b.textContent = '한 번 더 누르면 지웁니다';
-    freshTimer = setTimeout(function(){ b.classList.remove('armed'); b.textContent = '새 글'; }, 3000);
+/* 지우기 · 덮어쓰기처럼 되돌릴 수 없는 버튼은 두 번 눌러야 실행된다 (3초 안에) */
+function arm(btn, label, fn){
+  if (btn.classList.contains('armed')){
+    clearTimeout(btn._t);
+    btn.classList.remove('armed');
+    btn.textContent = btn._label;
+    fn();
     return;
   }
-  clearTimeout(freshTimer);
-  b.classList.remove('armed');
-  b.textContent = '새 글';
-  clearAll();
-  note('새 글을 시작합니다.');
-  $('fTitle').focus();
+  btn._label = btn.textContent;
+  btn.classList.add('armed');
+  btn.textContent = label;
+  btn._t = setTimeout(function(){ btn.classList.remove('armed'); btn.textContent = btn._label; }, 3000);
+}
+$('fresh').addEventListener('click', function(){
+  arm(this, '한 번 더 누르면 지웁니다', function(){
+    clearAll();
+    note('새 글을 시작합니다.');
+    $('fTitle').focus();
+  });
+});
+function hasDraft(){ return P.pages.length > 0 || !!v('fTitle'); }
+
+/* ---------------- 들어오기 (비밀번호) ----------------
+   서버에 비밀번호를 확인한 뒤에만 화면을 연다. 서버가 없는 주소(내 컴퓨터 파일, GitHub Pages)면 Vercel 주소를 알려 준다 */
+var ADMIN_HOME = 'https://archive-gamma-snowy.vercel.app/admin.html';
+var NO_SERVER = '이 주소에서는 서버에 연결할 수 없습니다. <a href="' + ADMIN_HOME + '">' + ADMIN_HOME.replace('https://', '') + '</a> 에서 열어 주세요.';
+function showGate(msg){
+  $('gate').hidden = false;
+  $('gateMsg').innerHTML = msg || '';
+  $('gatePw').value = '';
+  setTimeout(function(){ $('gatePw').focus(); }, 0);
+}
+$('gateForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  var key = $('gatePw').value.trim(), btn = this.querySelector('button');
+  if (!key){ $('gateMsg').textContent = '비밀번호를 적어주세요.'; return; }
+  btn.disabled = true;
+  $('gateMsg').textContent = '확인하는 중...';
+  try {
+    await api(key, { check:true });
+    setKey(key);
+    afterLogin();
+  } catch (err) {
+    $('gateMsg').innerHTML = err.key ? '비밀번호가 틀렸습니다.' : err instanceof TypeError ? NO_SERVER : '확인하지 못했습니다: ' + esc(err.message);
+    $('gatePw').select();
+  } finally {
+    btn.disabled = false;
+  }
+});
+$('logout').addEventListener('click', function(){ setKey(null); showGate('나갔습니다. 쓰던 글은 이 브라우저에 그대로 남아 있습니다.'); });
+
+function afterLogin(){
+  $('gate').hidden = true;
+  readyP.then(openFromLink);
+}
+/* 사이트의 '수정' 링크(admin.html?edit=주소)로 들어왔을 때 */
+function openFromLink(){
+  var id = new URLSearchParams(location.search).get('edit');
+  if (!id) return;
+  history.replaceState(null, '', location.pathname);
+  if (P.editing === id && P.pages.length) return;
+  if (hasDraft()){
+    showPosts();
+    note('쓰던 초안이 있습니다. 목록에서 ' + id + ' 의 수정을 두 번 누르면 초안 대신 그 글을 불러옵니다.', true);
+  } else editPost(id);
+}
+
+/* ---------------- 올린 글 목록 · 수정 · 삭제 ---------------- */
+var postsData = null;   // { items, detail, files } — 서버가 GitHub 에서 바로 읽은 것
+async function showPosts(){
+  $('posts').hidden = false;
+  $('postsBtn').textContent = '글 목록 닫기';
+  $('postsList').innerHTML = '<p class="msg">불러오는 중...</p>';
+  try {
+    postsData = await api(getKey(), { list:true });
+    drawPosts();
+  } catch (err) {
+    if (err.key){ setKey(null); showGate('다시 들어와 주세요.'); return; }
+    $('postsList').innerHTML = '<p class="msg">목록을 불러오지 못했습니다: ' + esc(err.message) + '</p>';
+  }
+}
+function hidePosts(){ $('posts').hidden = true; $('postsBtn').textContent = '글 목록'; }
+function drawPosts(){
+  var items = postsData.items.slice().sort(function(a, b){ return String(b.date).localeCompare(String(a.date)); });
+  $('postsN').textContent = items.length + '개';
+  $('postsList').innerHTML = items.length ? items.map(function(it){
+    return '<div class="pr' + (P.editing === it.id ? ' on' : '') + '">'
+      + '<span class="d">' + esc(it.date || '') + '</span><span class="c">' + esc(CAT[it.cat] || it.cat || '') + '</span>'
+      + '<b>' + esc(it.title) + '</b><span class="i">' + esc(it.id) + '</span>'
+      + '<button type="button" data-edit="' + esc(it.id) + '">수정</button>'
+      + '<button type="button" data-del="' + esc(it.id) + '">삭제</button>'
+      + '</div>';
+  }).join('') : '<p class="msg">아직 올린 글이 없습니다.</p>';
+}
+$('postsBtn').addEventListener('click', function(){ if ($('posts').hidden) showPosts(); else hidePosts(); });
+$('postsList').addEventListener('click', function(e){
+  var b = e.target.closest('[data-edit],[data-del]');
+  if (!b) return;
+  if (b.dataset.edit){
+    var id = b.dataset.edit;
+    if (hasDraft() && P.editing !== id) arm(b, '쓰던 초안을 덮어씁니다 · 한 번 더', function(){ editPost(id); });
+    else editPost(id);
+  } else arm(b, '한 번 더 누르면 삭제', function(){ deletePost(b.dataset.del); });
 });
 
-drawStrip(); drawList(); drawEdit();
+async function deletePost(id){
+  note(id + ' 을(를) 지우는 중...');
+  try {
+    await api(getKey(), { remove:id });
+    if (P.editing === id){ P.editing = null; draft(); drawMode(); }
+    note(id + ' 을(를) 지웠습니다. 1~2분 뒤 사이트에서 사라집니다.', true);
+    showPosts();
+  } catch (err) {
+    if (err.key){ setKey(null); showGate('다시 들어와 주세요.'); return; }
+    note('지우지 못했습니다: ' + err.message, true);
+  }
+}
+
+/* 사진 한 장을 서버에서 받아 admin 의 사진으로. 이미 저장소에 있는 사진이라 sha 를 같이 두어 다시 올리지 않는다 */
+async function fetchPhoto(key, src, files){
+  var res = await fetch('/api/save', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'x-archive-key':key },
+    body: JSON.stringify({ img:src })
+  });
+  if (res.status === 401){ var e = new Error('비밀번호가 틀렸습니다.'); e.key = true; throw e; }
+  if (!res.ok) throw new Error(src + ' 을(를) 불러오지 못했습니다 (' + res.status + ')');
+  var blob = await res.blob();
+  var url = await new Promise(function(ok){ var r = new FileReader(); r.onload = function(){ ok(r.result); }; r.readAsDataURL(blob); });
+  var img = await new Promise(function(ok, no){ var i = new Image(); i.onload = function(){ ok(i); }; i.onerror = no; i.src = url; });
+  var name = src.split('/').pop();
+  return { id:newId(), url:url, thumb:draw(img, 320, 'image/jpeg', 0.8), ext:(name.split('.').pop() || 'jpg').toLowerCase(), name:name, sha:(files && files[src]) || null, src:src };
+}
+
+/* 올린 글을 admin 으로 불러온다 : 글 · 순서 · 표지 · 사진 전부. 다 고친 뒤 올리기를 누르면 같은 자리에 덮어쓴다 */
+async function editPost(id){
+  var key = getKey();
+  hidePosts();
+  note(id + ' 을(를) 불러오는 중...');
+  try {
+    var data = postsData && postsData.detail[id] ? postsData : (postsData = await api(key, { list:true }));
+    var it = data.items.find(function(x){ return x.id === id; }), d = data.detail[id] || { sections:[] };
+    if (!it) throw new Error(id + ' 글이 없습니다');
+    /* 사이트의 사진 주소 뒤 ?v=지문 은 떼고 파일 경로만 쓴다 */
+    var figures = (d.figures || []).map(function(f){ return Object.assign({}, f, { src:f.src && f.src.split('?')[0] }); });
+    var coverSrc = (it.coverSrc || '').split('?')[0];
+    var secs = (d.sections || []).map(function(s){
+      return { s:s, nums:(Array.isArray(s.figs) ? s.figs : typeof s.fig === 'number' ? [s.fig] : []).filter(function(n){ return figures[n] && figures[n].src; }) };
+    });
+    var jobs = [];
+    secs.forEach(function(x){ x.nums.forEach(function(n){ if (jobs.indexOf(figures[n].src) < 0) jobs.push(figures[n].src); }); });
+
+    var got = {}, next = 0, done = 0;
+    async function worker(){
+      while (next < jobs.length){
+        var src = jobs[next++];
+        got[src] = await fetchPhoto(key, src, data.files);
+        note('사진 불러오는 중... ' + (++done) + ' / ' + jobs.length);
+      }
+    }
+    await Promise.all([worker(), worker(), worker()]);
+
+    clearAll();
+    $('fTitle').value = it.title || '';
+    $('fSub').value = it.sub || '';
+    var lede = d.lede != null ? d.lede : (d.lead || '');
+    $('fLede').value = lede === it.sub ? '' : lede;   // 들어가는 말이 비어 있으면 서버가 한 줄 설명을 대신 넣는다
+    grow($('fLede'));
+    $('fCat').value = CAT[it.cat] ? it.cat : 'research';
+    $('fDate').value = it.date || today();
+    $('fId').value = it.id;
+    $('fMeta').value = it.meta || '';
+    $('fTags').value = it.tags || '';
+
+    var skipped = 0;
+    secs.forEach(function(x){
+      var photos = x.nums.map(function(n){ return Object.assign({}, got[figures[n].src], { id:newId() }); });
+      if (!photos.length){ skipped++; return; }
+      var cap = figures[x.nums[0]].cap;
+      P.pages.push({ title:cap != null ? cap : (x.s.h || ''), text:(x.s.p || []).join('\n\n'), photos:photos });
+    });
+    allPhotos().forEach(keepPhoto);
+    P.cover = it.cover || 'gridnum';
+    if (P.cover === 'photo') P.coverPhoto = allPhotos().find(function(f){ return f.src === coverSrc; }) || null;
+    P.editing = id;
+    sel = P.pages.length ? 0 : -1; ph = 0;
+    redraw();
+    window.scrollTo(0, 0);
+    note(id + ' 을(를) 고치는 중입니다. 다 고친 뒤 올리기를 누르면 덮어씁니다.'
+      + (skipped ? ' 사진 없는 절 ' + skipped + '개는 불러오지 못했습니다.' : ''), true);
+  } catch (err) {
+    if (err.key){ setKey(null); showGate('다시 들어와 주세요.'); return; }
+    note('불러오지 못했습니다: ' + err.message, true);
+  }
+}
+
+/* 상단 바 : 고치는 중이면 어느 글인지 보여 준다 */
+function drawMode(){ $('mark').textContent = P.editing ? '고치는 중 · ' + P.editing : '글쓰기'; }
+
+drawStrip(); drawList(); drawEdit(); drawMode();
+
+/* 들어올 때 : 기억한 비밀번호가 있으면 서버에 확인, 없으면 비밀번호 화면 */
+(async function boot(){
+  var key = getKey();
+  if (!key){ showGate(); return; }
+  try { await api(key, { check:true }); afterLogin(); }
+  catch (err) {
+    if (err.key){ setKey(null); showGate('다시 들어와 주세요.'); }
+    else if (err instanceof TypeError) showGate(NO_SERVER);
+    else afterLogin();
+  }
+})();
 </script>
 </body>
 </html>
