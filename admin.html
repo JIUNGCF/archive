@@ -27,6 +27,13 @@ select option{background:#111;color:#fff}
 .bar .state.on{color:var(--red)}
 .bar .btn{padding:7px 16px;background:var(--fg);color:var(--bg)}
 .bar .btn:hover{background:var(--red);color:#fff}
+.bar .btn:disabled{background:#2a2a2a;color:#8a8a8a;cursor:default}
+.bar .pw{width:110px;padding:4px 0;border-bottom:1px solid #3a3a3a}
+.bar .pw:focus{border-bottom-color:var(--red)}
+.bar .pw::placeholder{color:#4f4f4f}
+/* 올리기 전에 비어 있는 칸 */
+.miss{box-shadow:inset 0 -1px 0 var(--red)}
+.miss::placeholder{color:var(--red) !important}
 .bar .ghost{color:var(--dim);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
 .bar .ghost:hover{color:var(--red)}
 
@@ -194,6 +201,7 @@ select option{background:#111;color:#fff}
   <span class="mark">글쓰기</span>
   <button class="ghost" id="preview" type="button">미리보기</button>
   <span class="state" id="state">—</span>
+  <input class="pw" id="pw" type="password" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호">
   <button class="btn" id="save" type="button">올리기</button>
 </div>
 
@@ -432,6 +440,7 @@ function redraw(){ drawStrip(); drawList(); drawEdit(); draft(); }
 /* ---------------- 이벤트 ---------------- */
 document.addEventListener('input', function(e){
   var t = e.target;
+  t.classList.remove('miss');
   if (t.id === 'eT'){ P.pages[sel].title = t.value; drawList(); }
   else if (t.id === 'eD'){ P.pages[sel].text = t.value; grow(t); drawList(); }
   else if (t.id === 'fLede'){ grow(t); }
@@ -613,24 +622,44 @@ async function uploadPhotos(key){
   await Promise.all([worker(), worker(), worker()]);
 }
 
+/* 비밀번호는 상단 바의 칸으로 받는다. prompt() 는 앱 속 브라우저 · 편집기 미리보기 등에서
+   막혀 아무 반응 없이 끝나기 때문. 맞으면 브라우저를 닫을 때까지 기억하고 칸을 숨긴다 */
+function getKey(){ try { return sessionStorage.getItem('archive-key'); } catch (e) { return null; } }
+function setKey(k){
+  try { if (k) sessionStorage.setItem('archive-key', k); else sessionStorage.removeItem('archive-key'); } catch (e) {}
+  $('pw').hidden = !!k;
+  if (!k) $('pw').value = '';
+}
+$('pw').hidden = !!getKey();
+$('pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('save').click(); });
+
+/* 비어 있는 칸 : 안내를 띄우고 그 칸으로 데려간다 */
+function miss(id, msg){
+  note(msg, true);
+  var el = $(id);
+  el.classList.add('miss');
+  el.scrollIntoView({ block:'center', behavior:'smooth' });
+  el.focus({ preventScroll:true });
+}
+
 var saving = false;
 $('save').addEventListener('click', async function(){
   if (saving) return;
-  if (!v('fTitle')){ note('제목을 먼저 적어주세요.', true); return; }
-  if (!v('fId')){ note('주소(식별자)를 적어주세요.', true); return; }
-  if (!P.pages.length){ note('사진이 한 장도 없습니다.', true); return; }
+  document.querySelectorAll('.miss').forEach(function(el){ el.classList.remove('miss'); });
+  if (!v('fTitle')){ miss('fTitle', '제목을 먼저 적어주세요.'); return; }
+  if (!v('fId')){ miss('fId', '주소(식별자)를 적어주세요. 예: r-016'); return; }
+  if (!P.pages.length){ note('사진이 한 장도 없습니다.', true); $('drop').scrollIntoView({ block:'center', behavior:'smooth' }); return; }
   var big = tooBig();
   if (big.length){ note(big.map(function(f){ return f.name; }).join(', ') + ' 이(가) 너무 큽니다. 빼거나 JPEG 로 바꿔 넣어주세요.', true); return; }
 
-  var key = null;
-  try { key = sessionStorage.getItem('archive-key'); } catch (e) {}
-  if (!key){
-    key = prompt('비밀번호');
-    if (!key) return;
-    try { sessionStorage.setItem('archive-key', key); } catch (e) {}
-  }
+  var key = getKey() || $('pw').value.trim();
+  if (!key){ miss('pw', '비밀번호를 적어주세요.'); return; }
+  setKey(key);
 
   saving = true;
+  var btn = $('save');
+  btn.disabled = true;
+  btn.textContent = '올리는 중…';
   try {
     await uploadPhotos(key);
     note('글을 올리는 중...');
@@ -638,8 +667,8 @@ $('save').addEventListener('click', async function(){
     note('올렸습니다. 1~2분 뒤 사이트에 반영됩니다.', true);
   } catch (err) {
     if (err.key){
-      try { sessionStorage.removeItem('archive-key'); } catch (e) {}
-      note(err.message, true);
+      setKey(null);
+      miss('pw', '비밀번호가 틀렸습니다. 다시 적어주세요.');
     } else if (err instanceof TypeError){
       note('서버에 연결하지 못했습니다. 파일로 내려받습니다.', true);
       var a = document.createElement('a');
@@ -649,6 +678,8 @@ $('save').addEventListener('click', async function(){
     } else note('올리지 못했습니다: ' + err.message + ' — 다시 누르면 남은 사진부터 이어 올립니다.', true);
   } finally {
     saving = false;
+    btn.disabled = false;
+    btn.textContent = '올리기';
   }
 });
 
