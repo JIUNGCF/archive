@@ -338,7 +338,11 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .dt-pvs{display:grid}
 .dt-pv{grid-area:1 / 1;visibility:hidden;opacity:0}
 .dt-pv.on{visibility:visible;opacity:1}
-@media (prefers-reduced-motion:no-preference){ .dt-pv{transition:opacity .35s var(--ease),visibility .35s} }
+/* 넘길 때 글이 겹치지 않게 : 나가는 글이 먼저 사라지고(.18s), 그다음 들어오는 글이 나타난다 */
+@media (prefers-reduced-motion:no-preference){
+  .dt-pv{transition:opacity .18s ease-out,visibility 0s .18s}
+  .dt-pv.on{transition:opacity .32s var(--ease) .18s,visibility 0s .18s}
+}
 .dt-sec p{margin:11px 0 0;font-size:14px;font-weight:300;color:#f0f0f0;line-height:1.74;letter-spacing:-0.012em;text-wrap:pretty}
 .dt-end{margin-top:40px;font-size:13px}
 
