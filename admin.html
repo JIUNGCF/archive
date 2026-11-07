@@ -193,6 +193,11 @@ select option{background:#111;color:#fff}
 .phs .add{display:flex;align-items:center;justify-content:center;width:76px;height:52px;border:1px dashed #3a3a3a;color:var(--dim);font-size:11px;cursor:pointer}
 .phs .add:hover{border-color:var(--red);color:var(--fg)}
 .phs .add input{display:none}
+/* 글을 적은 사진 : 썸네일 오른쪽 위 작은 점 */
+.ph.has-note .im::after{content:"";position:absolute;right:4px;top:4px;width:6px;height:6px;border-radius:50%;background:var(--red)}
+/* 사진마다 쓰는 글 (한 페이지에 사진이 여러 장일 때만) */
+.edit .pn-lab{display:block;color:var(--dim);margin-top:18px}
+.edit .pn{min-height:4.5em;margin-top:6px}
 
 /* 끌어서 옮기기 : 놓일 자리에 빨간 선, 다른 페이지로 옮길 때는 그 페이지를 칠한다 */
 .ph[draggable="true"]{cursor:grab}
@@ -570,7 +575,7 @@ function drawEdit(focus){
   box.innerHTML =
       '<div class="big" id="big"><img src="' + p.photos[ph].url + '" alt=""></div>'
     + '<div class="phs">' + p.photos.map(function(x, j){
-        return '<div class="ph' + (j === ph ? ' on' : '') + '" data-pi="' + j + '" draggable="true" title="끌어서 순서 바꾸기 · 왼쪽 페이지 위에 놓으면 그 페이지로">'
+        return '<div class="ph' + (j === ph ? ' on' : '') + (x.note ? ' has-note' : '') + '" data-pi=""' + j + '" draggable="true" title="끌어서 순서 바꾸기 · 왼쪽 페이지 위에 놓으면 그 페이지로">'
           + '<button class="im" type="button" data-ph="' + j + '" aria-label="사진 ' + (j + 1) + ' 크게 보기"><img src="' + x.thumb + '" alt="" draggable="false"></button>'
           + '<span class="po">'
           +   '<button type="button" data-pl="' + j + '" title="앞으로" aria-label="앞으로"' + (j === 0 ? ' disabled' : '') + '>←</button>'
@@ -584,18 +589,21 @@ function drawEdit(focus){
     + '<p class="fn">' + esc(fnText()) + '</p>'
     + '<input class="t" id="eT" value="' + esc(p.title) + '" placeholder="이 페이지의 제목">'
     + '<textarea class="d" id="eD" placeholder="이 페이지에 대한 글">' + esc(p.text) + '</textarea>'
+    /* 사진이 여러 장이면 지금 크게 보이는 사진에 대한 글. 사이트에서 그 사진으로 넘기면 바뀐다 */
+    + (last > 0 ? '<label class="pn-lab" for="eN">사진 ' + (ph + 1) + ' / ' + (last + 1) + ' 에 대한 글 <span class="hint">(사진마다 따로 · 비워도 됩니다)</span></label>'
+      + '<textarea class="d pn" id="eN" placeholder="이 사진에 대한 글">' + esc(p.photos[ph].note || '') + '</textarea>' : '')
     + '<details class="en-p" id="enPage"' + (enOpen || p.titleEn || p.textEn ? ' open' : '') + '>'
     +   '<summary>English <span class="hint">이 페이지의 영어 제목 · 글</span></summary>'
     +   '<input class="t" id="eTEn" value="' + esc(p.titleEn || '') + '" placeholder="Page title">'
     +   '<textarea class="d" id="eDEn" placeholder="Text for this page">' + esc(p.textEn || '') + '</textarea>'
+    +   (last > 0 ? '<textarea class="d pn" id="eNEn" placeholder="Text for photo ' + (ph + 1) + '">' + esc(p.photos[ph].noteEn || '') + '</textarea>' : '')
     + '</details>'
     + '<div class="nav">'
     +   '<button id="prev" type="button"' + (sel === 0 ? ' disabled' : '') + '>이전 페이지</button>'
     +   '<button id="next" type="button"' + (sel === P.pages.length - 1 ? ' disabled' : '') + '>다음 페이지</button>'
     +   '<span class="pos">' + (sel + 1) + ' / ' + P.pages.length + '</span>'
     + '</div>';
-  grow($('eD'));
-  grow($('eDEn'));
+  ['eD','eDEn','eN','eNEn'].forEach(function(k){ if ($(k)) grow($(k)); });
   /* 영어 칸을 펼치거나 접으면 다른 페이지로 가도 그대로 */
   $('enPage').addEventListener('toggle', function(){ enOpen = this.open; if (this.open) grow($('eDEn')); });
   if (focus) $('eT').focus();
@@ -750,6 +758,12 @@ document.addEventListener('input', function(e){
   else if (t.id === 'eD'){ P.pages[sel].text = t.value; grow(t); drawList(); }
   else if (t.id === 'eTEn'){ P.pages[sel].titleEn = t.value; }
   else if (t.id === 'eDEn'){ P.pages[sel].textEn = t.value; grow(t); }
+  else if (t.id === 'eN' || t.id === 'eNEn'){
+    var f = P.pages[sel].photos[ph];
+    f[t.id === 'eN' ? 'note' : 'noteEn'] = t.value; grow(t);
+    var th = document.querySelector('.ph[data-pi="' + ph + '"]');
+    if (th) th.classList.toggle('has-note', !!f.note);
+  }
   else if (t.id === 'fLede' || t.id === 'fLedeEn'){ grow(t); }
   else if (['fTitle','fSub','fMeta','fTags','fId','fDate','fUrl'].indexOf(t.id) !== -1){ drawStrip(); if (t.id === 'fId') drawFn(); }
   draft();
@@ -963,7 +977,10 @@ function payload(byRef){
     en: { title:v('fTitleEn'), sub:v('fSubEn'), lede:v('fLedeEn'), meta:v('fMetaEn'), tags:v('fTagsEn') },
     pages: P.pages.map(function(p, i){
       return { title:p.title, text:p.text, en:{ title:p.titleEn || '', text:p.textEn || '' }, photos:p.photos.map(function(f, j){
-        return byRef ? { file:fileName(i, j), sha:f.sha } : { file:fileName(i, j), data:f.url };
+        var o = byRef ? { file:fileName(i, j), sha:f.sha } : { file:fileName(i, j), data:f.url };
+        if (f.note) o.note = f.note;
+        if (f.noteEn) o.noteEn = f.noteEn;
+        return o;
       }) };
     })
   };
@@ -1118,6 +1135,7 @@ function draft(){
         names:p.photos.map(function(f){ return f.name; })
       }; }),
       pending:pending,
+      notes:allPhotos().concat(P.library).reduce(function(o, f){ if (f.note || f.noteEn) o[f.id] = [f.note || '', f.noteEn || '']; return o; }, {}),
       editing:P.editing || null,
       library:P.library.map(function(f){ return f.id; })
     }));
@@ -1190,6 +1208,7 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
   idbDo('readonly', function(st){ return { k:st.getAllKeys(), v:st.getAll() }; }).then(function(out){
     var byId = {};
     out.k.result.forEach(function(id, i){ byId[id] = Object.assign({ id:id }, out.v.result[i]); });
+    Object.keys(s.notes || {}).forEach(function(id){ if (byId[id]){ byId[id].note = s.notes[id][0]; byId[id].noteEn = s.notes[id][1]; } });
     var used = {};
     pages.forEach(function(p){
       var photos = (p.ids || []).map(function(id){ return byId[id]; }).filter(Boolean);
@@ -1412,7 +1431,10 @@ async function editPost(id){
 
     var skipped = 0;
     secs.forEach(function(x, i){
-      var photos = x.nums.map(function(n){ return Object.assign({}, got[figures[n].src], { id:newId() }); });
+      var photos = x.nums.map(function(n){
+        var fe = (de.figures || [])[n] || {};
+        return Object.assign({}, got[figures[n].src], { id:newId(), note:(figures[n].p || []).join('\n\n'), noteEn:(fe.p || []).join('\n\n') });
+      });
       if (!photos.length){ skipped++; return; }
       var cap = figures[x.nums[0]].cap, e = des[i] || {};
       P.pages.push({ title:cap != null ? cap : (x.s.h || ''), text:(x.s.p || []).join('\n\n'),
