@@ -60,11 +60,14 @@ function toDetail(post, shas){
   const figures = [], sections = [], figEn = [];
   pagesOf(post).forEach((pg, i) => {
     const h = pg.title || ('페이지 ' + (i + 1));
-    /* 사진마다 쓴 글(note)은 그 사진의 p 로. 영어(noteEn)는 en.figures 에 같은 번호로 */
+    /* 한 페이지에 사진이 여러 장이면 둘째 사진부터 자기 제목(title → cap) · 글(note → p)을 가진다.
+       비운 제목은 페이지 제목. 영어(titleEn · noteEn)는 en.figures 에 같은 번호로 */
     const nums = (pg.photos || []).map(ph => {
-      const f = { src: imgSrc(ph.file, shas), cap: pg.title || '' };
+      const f = { src: imgSrc(ph.file, shas), cap: ph.title || pg.title || '' };
       if (paras(ph.note).length) f.p = paras(ph.note);
-      figEn.push({ p: paras(ph.noteEn) });
+      const fe = { p: paras(ph.noteEn) };
+      if (ph.titleEn) fe.h = String(ph.titleEn);
+      figEn.push(fe);
       return figures.push(f) - 1;
     });
     const s = { h };
@@ -77,7 +80,7 @@ function toDetail(post, shas){
   /* 영어 : en = {lede, sections:[{h, p}]} — sections 와 같은 순서. 비어 있는 칸은 사이트가 한국어를 쓴다 */
   const pe = pagesOf(post).map(pg => pg.en || {});
   const lede = post.en && post.en.lede ? String(post.en.lede) : '';
-  const hasFigEn = figEn.some(e => e.p.length);
+  const hasFigEn = figEn.some(e => e.p.length || e.h);
   if (lede || hasFigEn || pe.some(e => e.title || e.text)){
     out.en = { lede, sections: pe.map(e => ({ h: e.title ? String(e.title) : '', p: paras(e.text) })) };
     if (hasFigEn) out.en.figures = figEn;

@@ -279,13 +279,24 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 @media (prefers-reduced-motion:no-preference){
   .t-multi img{transition:opacity .45s var(--ease)}
 }
-/* 좌우 버튼 : 사진이 여러 장이면 늘 보인다. 자리는 사진 테두리 안쪽 (JS placeCap) */
-.dt-pn{position:absolute;top:50%;z-index:3;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;
-  background:rgba(0,0,0,.62);color:#fff;font-size:14px;line-height:34px;text-align:center;padding:0;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
-.dt-pn-l{left:10px}
-.dt-pn-r{right:10px}
-.dt-pn:hover{background:var(--red)}
+/* 좌우 넘기기 : 사진 가장자리에 희미한 그라데이션 + 꺾쇠. 사진에 마우스를 올리면 부드럽게 나타난다.
+   위치 · 높이는 사진 테두리에 맞춘다 (JS placeCap). 마우스가 없는 기기에서는 옅게 늘 보인다 */
+.dt-pn{position:absolute;top:0;bottom:0;z-index:3;width:min(84px,18%);padding:0;color:#fff;opacity:0;display:flex;align-items:center}
+.dt-pn-l{left:0;justify-content:flex-start;padding-left:14px;background:linear-gradient(to right,rgba(0,0,0,.42),rgba(0,0,0,0))}
+.dt-pn-r{right:0;justify-content:flex-end;padding-right:14px;background:linear-gradient(to left,rgba(0,0,0,.42),rgba(0,0,0,0))}
+.dt-pn i{display:block;width:12px;height:12px;border-top:1.5px solid currentColor;border-right:1.5px solid currentColor;filter:drop-shadow(0 0 3px rgba(0,0,0,.5))}
+.dt-pn-l i{transform:translateX(8px) rotate(-135deg)}
+.dt-pn-r i{transform:translateX(-8px) rotate(45deg)}
+.dt-figwrap:hover .dt-pn,.dt-pn:focus-visible{opacity:1}
+.dt-figwrap:hover .dt-pn-l i,.dt-pn-l:focus-visible i{transform:rotate(-135deg)}
+.dt-figwrap:hover .dt-pn-r i,.dt-pn-r:focus-visible i{transform:rotate(45deg)}
+.dt-pn:hover{color:var(--red)}
 .dt-pn:disabled{opacity:0 !important;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){
+  .dt-pn{transition:opacity .45s var(--ease)}
+  .dt-pn i{transition:transform .45s var(--ease)}
+}
+@media (hover:none){ .dt-pn{opacity:.7} .dt-pn-l i{transform:rotate(-135deg)} .dt-pn-r i{transform:rotate(45deg)} }
 /* 사진 묶음 표시 : 사진 오른쪽 위 '▣ 1 / 5' */
 .dt-badge{position:absolute;z-index:3;top:10px;right:10px;display:flex;align-items:center;gap:6px;padding:4px 8px 4px 7px;border-radius:12px;
   background:rgba(0,0,0,.62);color:#fff;font-size:11px;line-height:1;font-variant-numeric:tabular-nums;pointer-events:none}
@@ -322,13 +333,12 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .dt-lead{font-size:16px;font-weight:300;line-height:1.62;color:#f4f4f4;margin:14px 0 0;letter-spacing:-0.022em;text-wrap:pretty}
 .dt-sec h3{font-size:14px;font-weight:500;letter-spacing:-0.015em;border-top:1px solid #707070;padding-top:16px}
 .dt-sec h3 .no{color:#9a9a9a;margin-right:10px;font-size:12px;letter-spacing:.06em;font-variant-numeric:tabular-nums;font-weight:300}
-/* 사진마다 쓴 글 : 같은 칸에 겹쳐 두고 지금 사진의 글만 보인다 (칸 높이는 가장 긴 글 = 넘겨도 글줄이 흔들리지 않음) */
-.dt-notes{display:grid;margin-top:18px;padding-top:12px;border-top:1px dashed #3a3a3a}
-.dt-note{grid-area:1 / 1;visibility:hidden;opacity:0}
-.dt-note.on{visibility:visible;opacity:1}
-@media (prefers-reduced-motion:no-preference){ .dt-note{transition:opacity .35s var(--ease),visibility .35s} }
-.dt-note-n{display:block;color:#9a9a9a;font-size:12px;font-variant-numeric:tabular-nums}
-.dt-note-n + p{margin-top:6px}
+/* 사진이 여러 장인 절 : 사진마다 제목 · 글을 같은 칸에 겹쳐 두고 지금 사진의 것만 보인다
+   (칸 높이는 가장 긴 글 = 사진을 넘겨도 글줄이 흔들리지 않음) */
+.dt-pvs{display:grid}
+.dt-pv{grid-area:1 / 1;visibility:hidden;opacity:0}
+.dt-pv.on{visibility:visible;opacity:1}
+@media (prefers-reduced-motion:no-preference){ .dt-pv{transition:opacity .35s var(--ease),visibility .35s} }
 .dt-sec p{margin:11px 0 0;font-size:14px;font-weight:300;color:#f0f0f0;line-height:1.74;letter-spacing:-0.012em;text-wrap:pretty}
 .dt-end{margin-top:40px;font-size:13px}
 
@@ -845,8 +855,8 @@ html:has(body.is-about),body.is-about{background:#050d09}
           <span class="dt-zoom" aria-hidden="true" data-i18n="zoom">전체 화면 (F)</span>
         </button>
         <span class="dt-badge" id="dtBadge" hidden aria-hidden="true"><i></i><span id="dtBadgeN"></span></span>
-        <button class="dt-pn dt-pn-l" type="button" data-flip="-1" aria-label="이전 사진" data-i18n-aria="prevPhoto" hidden>←</button>
-        <button class="dt-pn dt-pn-r" type="button" data-flip="1" aria-label="다음 사진" data-i18n-aria="nextPhoto" hidden>→</button>
+        <button class="dt-pn dt-pn-l" type="button" data-flip="-1" aria-label="이전 사진" data-i18n-aria="prevPhoto" hidden><i></i></button>
+        <button class="dt-pn dt-pn-r" type="button" data-flip="1" aria-label="다음 사진" data-i18n-aria="nextPhoto" hidden><i></i></button>
       </div>
       <p class="dt-cap"><span id="dtCap"></span>
         <span class="dt-phn" id="dtPhn" hidden><button type="button" data-flip="-1" aria-label="이전 사진" data-i18n-aria="prevPhoto">←</button><span id="dtPhNo"></span><button type="button" data-flip="1" aria-label="다음 사진" data-i18n-aria="nextPhoto">→</button></span>
@@ -1033,10 +1043,17 @@ function locDetail(d){
     const x = es[i] || {}, r = Object.assign({}, s);
     if (x.h) r.h = x.h;
     if (x.p && x.p.length) r.p = x.p;
-    if (x.h) (Array.isArray(s.figs) ? s.figs : typeof s.fig === 'number' ? [s.fig] : []).forEach(function(n){ if (o.figures[n]) o.figures[n].cap = x.h; });
+    if (x.h) (Array.isArray(s.figs) ? s.figs : typeof s.fig === 'number' ? [s.fig] : []).forEach(function(n){
+      var f = o.figures[n];
+      if (f && (!f.cap || f.cap === s.h)) f.cap = x.h;   // 사진에 따로 붙인 제목은 그대로
+    });
     return r;
   });
-  (e.figures || []).forEach(function(x, n){ if (x && x.p && x.p.length && o.figures[n]) o.figures[n].p = x.p; });   // 사진마다 쓴 글
+  (e.figures || []).forEach(function(x, n){   // 사진마다 쓴 영어 제목 · 글
+    if (!x || !o.figures[n]) return;
+    if (x.h) o.figures[n].cap = x.h;
+    if (x.p && x.p.length) o.figures[n].p = x.p;
+  });
   return o;
 }
 function localize(){
@@ -1557,8 +1574,8 @@ onLang.push(function(){ renderUpdates(); render(); });
     p.sub = j;
     var imgs = figEls[k] ? figEls[k].querySelectorAll('.t-multi img') : [];
     for (var n = 0; n < imgs.length; n++) imgs[n].classList.toggle('on', n === j);
-    var notes = steps[k] ? steps[k].el.querySelectorAll('.dt-note') : [];
-    for (n = 0; n < notes.length; n++) notes[n].classList.toggle('on', n === j);
+    var pvs = steps[k] ? steps[k].el.querySelectorAll('.dt-pv') : [];
+    for (n = 0; n < pvs.length; n++) pvs[n].classList.toggle('on', n === j);
     if (k === shown) paintPh(k);
   }
   function flip(d){
@@ -1587,9 +1604,11 @@ onLang.push(function(){ renderUpdates(); render(); });
     if (zoom){ zoom.style.right = (x + 8).toFixed(1) + 'px'; zoom.style.bottom = (y + 8).toFixed(1) + 'px'; }
     var badge = document.getElementById('dtBadge');
     if (badge){ badge.style.right = (x + 10).toFixed(1) + 'px'; badge.style.top = (y + 10).toFixed(1) + 'px'; }
-    var pl = detailEl.querySelector('.dt-pn-l'), pr = detailEl.querySelector('.dt-pn-r');
-    if (pl) pl.style.left = (x + 10).toFixed(1) + 'px';
-    if (pr) pr.style.right = (x + 10).toFixed(1) + 'px';
+    [detailEl.querySelector('.dt-pn-l'), detailEl.querySelector('.dt-pn-r')].forEach(function(b, n){
+      if (!b) return;
+      b.style[n ? 'right' : 'left'] = x.toFixed(1) + 'px';
+      b.style.top = b.style.bottom = y.toFixed(1) + 'px';
+    });
   }
 
   /* 캡션 · 사진 번호 · 좌우 버튼을 지금 단계에 맞춘다 */
@@ -1875,7 +1894,7 @@ onLang.push(function(){ renderUpdates(); render(); });
     plates.forEach(function(p, k){
       if (!p.photos) { views.push({html:p.html, label:p.label, k:k, j:0, src:p.src, note:p.note}); return; }
       p.photos.forEach(function(f, j){
-        views.push({html:photoPlate(f, f.cap || p.label), label:p.label + ' · ' + (j + 1) + ' / ' + p.photos.length, k:k, j:j, src:f.src, note:f.p});
+        views.push({html:photoPlate(f, f.cap || p.label), label:(f.cap || p.label) + ' · ' + (j + 1) + ' / ' + p.photos.length, k:k, j:j, src:f.src, note:f.p});
       });
     });
     /* 사진은 무대에 원래 비율로, 표지 · 타이포 도판은 260px 판(.plate)째로 확대해 건다 */
@@ -1914,19 +1933,19 @@ onLang.push(function(){ renderUpdates(); render(); });
     }
     tail += '<p class="dt-end"><a href="#index">' + t('backToIndex') + '</a></p>';
     d.sections.forEach(function(s, i){
-      /* 사진마다 쓴 글 : 사진 순서대로 겹쳐 두고, 지금 보이는 사진의 글만 켠다 (setSub) */
+      /* 사진이 여러 장이면 사진마다 제목 · 글 (사진 1 = 절의 제목 · 글). 겹쳐 두고 지금 사진의 것만 켠다 (setSub) */
       var phs = photosOf(s, d.figures || []);
-      var notes = phs.some(function(f){ return f.p && f.p.length; })
-        ? '<div class="dt-notes">' + phs.map(function(f, j){
-            return '<div class="dt-note' + (j ? '' : ' on') + '">'
-              + (phs.length > 1 ? '<span class="dt-note-n">' + t('photoN', {i:j + 1, n:phs.length}) + '</span>' : '')
-              + (f.p || []).map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('') + '</div>';
-          }).join('') + '</div>'
-        : '';
+      var body = function(h, ps){
+        return '<h3><span class="no">' + nn(i + 1) + '</span>' + esc(h) + '</h3>'
+          + ps.map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('');
+      };
       html += '<section class="dt-step dt-sec">'
-        + '<h3><span class="no">' + nn(i + 1) + '</span>' + esc(s.h) + '</h3>'
-        + (s.p || []).map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('')
-        + notes
+        + (phs.length > 1
+          ? '<div class="dt-pvs">' + phs.map(function(f, j){
+              return '<div class="dt-pv' + (j ? '' : ' on') + '">'
+                + body(j ? f.cap || s.h : s.h, j ? f.p || [] : (s.p || []).concat(f.p || [])) + '</div>';
+            }).join('') + '</div>'
+          : body(s.h, (s.p || []).concat(phs[0] && phs[0].p || [])))
         + (i === d.sections.length - 1 ? tail : '')
         + '</section>';
     });

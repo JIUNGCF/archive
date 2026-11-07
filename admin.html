@@ -197,7 +197,6 @@ select option{background:#111;color:#fff}
 .ph.has-note .im::after{content:"";position:absolute;right:4px;top:4px;width:6px;height:6px;border-radius:50%;background:var(--red)}
 /* 사진마다 쓰는 글 (한 페이지에 사진이 여러 장일 때만) */
 .edit .pn-lab{display:block;color:var(--dim);margin-top:18px}
-.edit .pn{min-height:4.5em;margin-top:6px}
 
 /* 끌어서 옮기기 : 놓일 자리에 빨간 선, 다른 페이지로 옮길 때는 그 페이지를 칠한다 */
 .ph[draggable="true"]{cursor:grab}
@@ -461,7 +460,7 @@ function drawList(){
   var n = photoCount();
   $('count').textContent = P.pages.length + '페이지' + (n !== P.pages.length ? ' · 사진 ' + n + '장' : '');
   $('list').innerHTML = P.pages.map(function(p, i){
-    var done = p.title || p.text, many = p.photos.length > 1;
+    var done = p.photos.some(function(x, j){ return hasText(p, j); }), many = p.photos.length > 1;
     return '<div class="th' + (i === sel ? ' on' : '') + '" data-sel="' + i + '" draggable="true" title="끌어서 순서 바꾸기">'
          + '<span class="pic"><img src="' + p.photos[0].thumb + '" alt="" draggable="false">' + (many ? '<i>' + p.photos.length + '</i>' : '') + '</span>'
          + '<span class="tt"><b>' + esc(p.title || ('페이지 ' + (i + 1))) + '</b>'
@@ -572,10 +571,11 @@ function drawEdit(focus){
   }
   var p = P.pages[sel], last = p.photos.length - 1;
   ph = Math.max(0, Math.min(ph, last));
+  var sl = slot(p, ph);
   box.innerHTML =
       '<div class="big" id="big"><img src="' + p.photos[ph].url + '" alt=""></div>'
     + '<div class="phs">' + p.photos.map(function(x, j){
-        return '<div class="ph' + (j === ph ? ' on' : '') + (x.note ? ' has-note' : '') + '" data-pi=""' + j + '" draggable="true" title="끌어서 순서 바꾸기 · 왼쪽 페이지 위에 놓으면 그 페이지로">'
+        return '<div class="ph' + (j === ph ? ' on' : '') + (last > 0 && hasText(p, j) ? ' has-note' : '') + '" data-pi=""' + j + '" draggable="true" title="끌어서 순서 바꾸기 · 왼쪽 페이지 위에 놓으면 그 페이지로">'
           + '<button class="im" type="button" data-ph="' + j + '" aria-label="사진 ' + (j + 1) + ' 크게 보기"><img src="' + x.thumb + '" alt="" draggable="false"></button>'
           + '<span class="po">'
           +   '<button type="button" data-pl="' + j + '" title="앞으로" aria-label="앞으로"' + (j === 0 ? ' disabled' : '') + '>←</button>'
@@ -587,28 +587,31 @@ function drawEdit(focus){
     +   '<label class="add" title="이 페이지에 사진 더 넣기 (사진 위로 끌어다 놓아도 됩니다)">+ 사진<input type="file" id="addFile" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple></label>'
     + '</div>'
     + '<p class="fn">' + esc(fnText()) + '</p>'
-    + '<input class="t" id="eT" value="' + esc(p.title) + '" placeholder="이 페이지의 제목">'
-    + '<textarea class="d" id="eD" placeholder="이 페이지에 대한 글">' + esc(p.text) + '</textarea>'
-    /* 사진이 여러 장이면 지금 크게 보이는 사진에 대한 글. 사이트에서 그 사진으로 넘기면 바뀐다 */
-    + (last > 0 ? '<label class="pn-lab" for="eN">사진 ' + (ph + 1) + ' / ' + (last + 1) + ' 에 대한 글 <span class="hint">(사진마다 따로 · 비워도 됩니다)</span></label>'
-      + '<textarea class="d pn" id="eN" placeholder="이 사진에 대한 글">' + esc(p.photos[ph].note || '') + '</textarea>' : '')
-    + '<details class="en-p" id="enPage"' + (enOpen || p.titleEn || p.textEn ? ' open' : '') + '>'
-    +   '<summary>English <span class="hint">이 페이지의 영어 제목 · 글</span></summary>'
-    +   '<input class="t" id="eTEn" value="' + esc(p.titleEn || '') + '" placeholder="Page title">'
-    +   '<textarea class="d" id="eDEn" placeholder="Text for this page">' + esc(p.textEn || '') + '</textarea>'
-    +   (last > 0 ? '<textarea class="d pn" id="eNEn" placeholder="Text for photo ' + (ph + 1) + '">' + esc(p.photos[ph].noteEn || '') + '</textarea>' : '')
+    /* 사진이 여러 장이면 제목 · 글은 지금 크게 보이는 사진의 것. 사이트에서 그 사진으로 넘기면 함께 바뀐다 */
+    + (last > 0 ? '<p class="pn-lab">사진 ' + (ph + 1) + ' / ' + (last + 1) + ' 의 제목 · 글 <span class="hint">사진마다 따로 씁니다. 사진 1 의 제목이 페이지 제목</span></p>' : '')
+    + '<input class="t" id="eT" value="' + esc(sl.o[sl.t] || '') + '" placeholder="' + (ph ? '사진 ' + (ph + 1) + ' 의 제목 (비우면 페이지 제목)' : '이 페이지의 제목') + '">'
+    + '<textarea class="d" id="eD" placeholder="' + (ph ? '사진 ' + (ph + 1) + ' 에 대한 글' : '이 페이지에 대한 글') + '">' + esc(sl.o[sl.d] || '') + '</textarea>'
+    + '<details class="en-p" id="enPage"' + (enOpen || sl.o[sl.te] || sl.o[sl.de] ? ' open' : '') + '>'
+    +   '<summary>English <span class="hint">' + (last > 0 ? '사진 ' + (ph + 1) + ' 의 영어 제목 · 글' : '이 페이지의 영어 제목 · 글') + '</span></summary>'
+    +   '<input class="t" id="eTEn" value="' + esc(sl.o[sl.te] || '') + '" placeholder="' + (ph ? 'Photo title' : 'Page title') + '">'
+    +   '<textarea class="d" id="eDEn" placeholder="' + (ph ? 'Text for this photo' : 'Text for this page') + '">' + esc(sl.o[sl.de] || '') + '</textarea>'
     + '</details>'
     + '<div class="nav">'
     +   '<button id="prev" type="button"' + (sel === 0 ? ' disabled' : '') + '>이전 페이지</button>'
     +   '<button id="next" type="button"' + (sel === P.pages.length - 1 ? ' disabled' : '') + '>다음 페이지</button>'
     +   '<span class="pos">' + (sel + 1) + ' / ' + P.pages.length + '</span>'
     + '</div>';
-  ['eD','eDEn','eN','eNEn'].forEach(function(k){ if ($(k)) grow($(k)); });
+  ['eD','eDEn'].forEach(function(k){ grow($(k)); });
   /* 영어 칸을 펼치거나 접으면 다른 페이지로 가도 그대로 */
   $('enPage').addEventListener('toggle', function(){ enOpen = this.open; if (this.open) grow($('eDEn')); });
   if (focus) $('eT').focus();
 }
 var enOpen = false;
+/* 제목 · 글이 들어 있는 곳 : 사진 1 은 페이지(title · text), 그 뒤 사진은 사진 자신(title · note) */
+function slot(p, j){
+  return { o:j ? p.photos[j] : p, t:'title', d:j ? 'note' : 'text', te:'titleEn', de:j ? 'noteEn' : 'textEn' };
+}
+function hasText(p, j){ var x = slot(p, j); return !!(x.o[x.t] || x.o[x.d]); }
 function grow(el){ el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
 
 function select(i){
@@ -754,15 +757,13 @@ function redraw(){ drawStrip(); drawLib(); drawList(); drawEdit(); drawMode(); d
 document.addEventListener('input', function(e){
   var t = e.target;
   t.classList.remove('miss');
-  if (t.id === 'eT'){ P.pages[sel].title = t.value; drawList(); }
-  else if (t.id === 'eD'){ P.pages[sel].text = t.value; grow(t); drawList(); }
-  else if (t.id === 'eTEn'){ P.pages[sel].titleEn = t.value; }
-  else if (t.id === 'eDEn'){ P.pages[sel].textEn = t.value; grow(t); }
-  else if (t.id === 'eN' || t.id === 'eNEn'){
-    var f = P.pages[sel].photos[ph];
-    f[t.id === 'eN' ? 'note' : 'noteEn'] = t.value; grow(t);
+  if (t.id === 'eT' || t.id === 'eD' || t.id === 'eTEn' || t.id === 'eDEn'){
+    var pg = P.pages[sel], sl = slot(pg, ph);
+    sl.o[{eT:sl.t, eD:sl.d, eTEn:sl.te, eDEn:sl.de}[t.id]] = t.value;
+    if (t.tagName === 'TEXTAREA') grow(t);
+    drawList();
     var th = document.querySelector('.ph[data-pi="' + ph + '"]');
-    if (th) th.classList.toggle('has-note', !!f.note);
+    if (th && pg.photos.length > 1) th.classList.toggle('has-note', hasText(pg, ph));
   }
   else if (t.id === 'fLede' || t.id === 'fLedeEn'){ grow(t); }
   else if (['fTitle','fSub','fMeta','fTags','fId','fDate','fUrl'].indexOf(t.id) !== -1){ drawStrip(); if (t.id === 'fId') drawFn(); }
@@ -791,7 +792,10 @@ document.addEventListener('click', function(e){
   else if (d.pr !== undefined){ i = +d.pr; move(pg.photos, i, i + 1); ph = i + 1; }
   else if (d.sp !== undefined){
     i = +d.sp;
-    P.pages.splice(sel + 1, 0, { title:'', text:'', photos:pg.photos.splice(i, 1) });
+    /* 떼어 낸 사진의 제목 · 글은 새 페이지의 제목 · 글이 된다 */
+    var x = pg.photos.splice(i, 1)[0];
+    P.pages.splice(sel + 1, 0, { title:x.title || '', text:x.note || '', titleEn:x.titleEn || '', textEn:x.noteEn || '', photos:[x] });
+    x.title = x.note = x.titleEn = x.noteEn = '';
     if (ph > i) ph--;
   }
   else if (d.px !== undefined){
@@ -823,11 +827,10 @@ function removePage(i){
 /* i 번째 페이지의 사진과 글을 바로 위 페이지 뒤에 붙인다 */
 function mergeUp(i){
   var a = P.pages[i - 1], b = P.pages[i], n = a.photos.length;
+  /* 아래 페이지의 제목 · 글은 그 페이지 첫 사진의 제목 · 글로 옮긴다 (사진마다 글) */
+  var f = b.photos[0];
+  f.title = b.title || ''; f.note = b.text || ''; f.titleEn = b.titleEn || ''; f.noteEn = b.textEn || '';
   a.photos = a.photos.concat(b.photos);
-  a.title = a.title || b.title;
-  a.text = [a.text, b.text].filter(Boolean).join('\n\n');
-  a.titleEn = a.titleEn || b.titleEn;
-  a.textEn = [a.textEn, b.textEn].filter(Boolean).join('\n\n');
   P.pages.splice(i, 1);
   if (sel === i){ sel = i - 1; ph += n; }
   else if (sel > i) sel--;
@@ -978,8 +981,10 @@ function payload(byRef){
     pages: P.pages.map(function(p, i){
       return { title:p.title, text:p.text, en:{ title:p.titleEn || '', text:p.textEn || '' }, photos:p.photos.map(function(f, j){
         var o = byRef ? { file:fileName(i, j), sha:f.sha } : { file:fileName(i, j), data:f.url };
-        if (f.note) o.note = f.note;
-        if (f.noteEn) o.noteEn = f.noteEn;
+        if (j && f.title) o.title = f.title;   // 사진 1 의 제목 · 글은 페이지의 것
+        if (j && f.note) o.note = f.note;
+        if (j && f.titleEn) o.titleEn = f.titleEn;
+        if (j && f.noteEn) o.noteEn = f.noteEn;
         return o;
       }) };
     })
@@ -1135,7 +1140,10 @@ function draft(){
         names:p.photos.map(function(f){ return f.name; })
       }; }),
       pending:pending,
-      notes:allPhotos().concat(P.library).reduce(function(o, f){ if (f.note || f.noteEn) o[f.id] = [f.note || '', f.noteEn || '']; return o; }, {}),
+      notes:allPhotos().concat(P.library).reduce(function(o, f){
+        if (f.note || f.noteEn || f.title || f.titleEn) o[f.id] = [f.note || '', f.noteEn || '', f.title || '', f.titleEn || ''];
+        return o;
+      }, {}),
       editing:P.editing || null,
       library:P.library.map(function(f){ return f.id; })
     }));
@@ -1208,7 +1216,10 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
   idbDo('readonly', function(st){ return { k:st.getAllKeys(), v:st.getAll() }; }).then(function(out){
     var byId = {};
     out.k.result.forEach(function(id, i){ byId[id] = Object.assign({ id:id }, out.v.result[i]); });
-    Object.keys(s.notes || {}).forEach(function(id){ if (byId[id]){ byId[id].note = s.notes[id][0]; byId[id].noteEn = s.notes[id][1]; } });
+    Object.keys(s.notes || {}).forEach(function(id){
+      var f = byId[id], n = s.notes[id];
+      if (f){ f.note = n[0]; f.noteEn = n[1]; f.title = n[2] || ''; f.titleEn = n[3] || ''; }
+    });
     var used = {};
     pages.forEach(function(p){
       var photos = (p.ids || []).map(function(id){ return byId[id]; }).filter(Boolean);
@@ -1431,14 +1442,25 @@ async function editPost(id){
 
     var skipped = 0;
     secs.forEach(function(x, i){
-      var photos = x.nums.map(function(n){
-        var fe = (de.figures || [])[n] || {};
-        return Object.assign({}, got[figures[n].src], { id:newId(), note:(figures[n].p || []).join('\n\n'), noteEn:(fe.p || []).join('\n\n') });
-      });
-      if (!photos.length){ skipped++; return; }
+      if (!x.nums.length){ skipped++; return; }
       var cap = figures[x.nums[0]].cap, e = des[i] || {};
-      P.pages.push({ title:cap != null ? cap : (x.s.h || ''), text:(x.s.p || []).join('\n\n'),
-        titleEn:e.h || '', textEn:(e.p || []).join('\n\n'), photos:photos });
+      var title = cap != null ? cap : (x.s.h || '');
+      var join = function(a){ return a.filter(Boolean).join('\n\n'); };
+      var fe0 = (de.figures || [])[x.nums[0]] || {};
+      /* 사진 1 의 제목 · 글 = 페이지. 그 뒤 사진은 자기 제목(페이지 제목과 다를 때만) · 글 */
+      var photos = x.nums.map(function(n, j){
+        var f = figures[n], fe = (de.figures || [])[n] || {};
+        var o = Object.assign({}, got[f.src], { id:newId() });
+        if (j){
+          o.title = f.cap && f.cap !== title ? f.cap : '';
+          o.note = join(f.p || []);
+          o.titleEn = fe.h || '';
+          o.noteEn = join(fe.p || []);
+        }
+        return o;
+      });
+      P.pages.push({ title:title, text:join((x.s.p || []).concat(figures[x.nums[0]].p || [])),
+        titleEn:e.h || '', textEn:join((e.p || []).concat(fe0.p || [])), photos:photos });
     });
     allPhotos().forEach(keepPhoto);
     P.cover = it.cover || 'gridnum';
