@@ -285,6 +285,8 @@ module.exports = async (req, res) => {
       }
 
       /* ---- 같은 id 가 있으면 그 자리에 교체, 없으면 맨 앞에 추가 ---- */
+      /* admin 에는 meta 표 · 링크 칸이 없다 → 고칠 때 원래 글의 것을 그대로 둔다 (지우기 전에 잡아 둔다) */
+      const prev = data.detail[post.id] || (old && data.detail[old]) || null;
       const item = toItem(post, shas);
       let idx = data.items.findIndex(x => x.id === post.id);
       if (idx < 0 && old) idx = data.items.findIndex(x => x.id === old);
@@ -294,7 +296,12 @@ module.exports = async (req, res) => {
         data.items = data.items.filter(x => x === item || x.id !== old);
         delete data.detail[old];
       }
-      data.detail[post.id] = toDetail(post, shas);
+      const det = toDetail(post, shas);
+      if (prev){
+        if (!det.meta.length && Array.isArray(prev.meta) && prev.meta.length) det.meta = prev.meta;
+        if (!det.links.length && Array.isArray(prev.links) && prev.links.length) det.links = prev.links;
+      }
+      data.detail[post.id] = det;
       /* ---- 고치면서 빠진 사진 파일은 지운다 ---- */
       tree.push(...stale(files, post.id, keep));
       if (old) tree.push(...stale(files, old, new Set()));
