@@ -1935,11 +1935,13 @@ onLang.push(function(){ renderUpdates(); render(); });
       }).join('') + '</tbody></table>';
     }
     html += '</header>';
-    /* links 는 {label, href} 의 배열. 링크와 돌아가기는 마지막 절에 붙인다 */
+    /* links 는 {label, href} 의 배열. 링크와 돌아가기는 마지막 절에 붙인다.
+       아카이브 안의 다른 글(#r-018 …)은 같은 탭, 바깥 사이트는 새 탭 */
     var tail = '';
     if (d.links && d.links.length){
       tail += '<ul class="dt-links">' + d.links.map(function(l){
-        return '<li><a href="' + esc(l.href) + '" target="_blank" rel="noopener">' + esc(l.label || l.href) + '</a></li>';
+        var out = String(l.href).charAt(0) !== '#';
+        return '<li><a href="' + esc(l.href) + '"' + (out ? ' target="_blank" rel="noopener"' : '') + '>' + esc(l.label || l.href) + '</a></li>';
       }).join('') + '</ul>';
     }
     tail += '<p class="dt-end"><a href="#index">' + t('backToIndex') + '</a></p>';
