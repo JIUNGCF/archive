@@ -702,6 +702,7 @@ html:has(body.is-about),body.is-about{background:#050d09}
 .ab-b-info dd{margin:0}
 .ab-b-rec .ab-lb{font-size:1.4cqw;letter-spacing:.16em;color:rgba(7,60,39,.55);margin-bottom:1.5cqw}
 .ab-b-rec .ab-r{display:grid;grid-template-columns:4.6cqw 1fr 3cqw;align-items:center;gap:1.6cqw;font-size:1.8cqw;margin-bottom:1.2cqw}
+:lang(en) .ab-b-rec .ab-r{grid-template-columns:13cqw 1fr 3cqw}   /* 영어 분류 이름(Research …)이 한 줄에 들어가게 */
 .ab-b-rec .ab-r b{font-weight:400;text-align:right;font-variant-numeric:tabular-nums}
 .ab-b-rec .ab-r.ab-lead span,.ab-b-rec .ab-r.ab-lead b{font-weight:600}
 .ab-b-rec .ab-bar{position:relative;height:.34cqw;background:rgba(11,90,58,.14)}
@@ -949,8 +950,7 @@ const L = {
     shFree:'마우스를 좌우로 움직여 넘기기 · 클릭하면 고정 · Esc 로 닫기',
     ab_title:'소개', ab_home:'색인으로', ab_crumb:'소개', ab_card:'한지웅의 명함. 누르면 뒤집힙니다.',
     ab_role:'건축 · 에너지 · 기록', ab_photo:'사진', ab_alt:'한지웅',
-    ab_now:'지금', ab_nowV:'건국대학교 석사과정<br>건물과 에너지 연구', ab_school:'배운 곳', ab_schoolV:'건국대학교 건축학부',
-    ab_2024V:'아이디어 경진대회 최우수상', ab_hint:'누르면 뒤집힙니다',
+    ab_edu:'학력', ab_eduV:'건국대학교 건축학부, 부동산학과 학부과정<br>건국대학교 건축학과 건축공학전공 석사과정', ab_hint:'누르면 뒤집힙니다',
     ab_para:'건물의 환경과 에너지를 연구합니다.<br>연구하고, 만들고, 읽은 것을 이곳에 시간 순서로 남깁니다.',
     ab_contact:'연락하기',
     tk_title:'연락', tk_home:'홈으로', tk_crumb:'연락', tk_intro:'탑승권을 작성해 보내면 한지웅에게 전달됩니다.',
@@ -989,8 +989,7 @@ const L = {
     shFree:'Move the mouse left and right to browse · click to pin · Esc to close',
     ab_title:'About', ab_home:'Index', ab_crumb:'About', ab_card:'Han Jiung\'s business card. Click to flip.',
     ab_role:'Architecture · Energy · Records', ab_photo:'Photo', ab_alt:'Han Jiung',
-    ab_now:'Now', ab_nowV:'Master\'s student, Konkuk University<br>Building energy research', ab_school:'Studied', ab_schoolV:'School of Architecture, Konkuk University',
-    ab_2024V:'Grand Prize, Idea Competition', ab_hint:'Click to flip',
+    ab_edu:'Education', ab_eduV:'Konkuk Univ. — B.S., Architecture · Real Estate<br>Konkuk Univ. — M.S. course, Architectural Engineering', ab_hint:'Click to flip',
     ab_para:'I research the environment and energy of buildings.<br>What I research, make and read is kept here in order of time.',
     ab_contact:'Get in touch',
     tk_title:'Contact', tk_home:'Home', tk_crumb:'Contact', tk_intro:'Fill in the boarding pass and it goes straight to Han Jiung.',
@@ -2382,9 +2381,7 @@ onLang.push(function(){ renderUpdates(); render(); });
       +             '<div class="ab-bi">'
       +               '<div class="ab-b-top"><span>HAN JIUNG ARCHIVE</span><span>A-000</span></div>'
       +               '<dl class="ab-b-info">'
-      +                 '<dt>' + t('ab_now') + '</dt><dd>' + t('ab_nowV') + '</dd>'
-      +                 '<dt>' + t('ab_school') + '</dt><dd>' + t('ab_schoolV') + '</dd>'
-      +                 '<dt>2024</dt><dd>' + t('ab_2024V') + '</dd>'
+      +                 '<dt>' + t('ab_edu') + '</dt><dd>' + t('ab_eduV') + '</dd>'
       +               '</dl>'
       +               '<div class="ab-b-rec"><div class="ab-lb">RECORDS</div>' + rec + '</div>'
       +               '<div class="ab-b-bot"><a href="#contact">' + esc(CONTACT.to) + '</a><span>github.com/JIUNGCF</span></div>'
