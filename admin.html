@@ -112,6 +112,22 @@ select option{background:#111;color:#fff}
 .reps .row{display:flex;flex-wrap:wrap;gap:6px}
 .rep{width:56px;height:40px;padding:0;background:#0c0c0c;box-shadow:inset 0 0 0 1px var(--rule)}
 .rep img{display:block;width:100%;height:100%;object-fit:cover;opacity:.5}
+/* 대표 사진 자르기 : 사진 위 1:1.37 네모를 끌어 옮기고 모서리로 크기 조절 (아이폰 사진 편집처럼). 네모 밖은 어둡게 */
+.crop-wrap{margin-top:12px}
+.crop{position:relative;display:inline-block;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;line-height:0}
+.crop > img{display:block;pointer-events:none}   /* 크기는 JS(placeCrop)가 픽셀로 정한다 → 네모의 % 와 사진이 같은 기준 */
+.crop-box{position:absolute;cursor:move;outline:none;box-shadow:0 0 0 1px rgba(0,0,0,.55),0 0 0 9999px rgba(0,0,0,.6),inset 0 0 0 1.5px #fff,inset 0 0 0 2.5px rgba(0,0,0,.35);
+  background:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% + .5px),transparent calc(66.66% + .5px)),
+             linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% + .5px),transparent calc(66.66% + .5px))}
+.crop-box i{position:absolute;width:18px;height:18px;border:3px solid #fff;filter:drop-shadow(0 0 1.5px rgba(0,0,0,.9))}   /* 흰 사진 위에서도 보이게 */
+.crop-box:focus-visible{box-shadow:0 0 0 1px rgba(0,0,0,.55),0 0 0 9999px rgba(0,0,0,.6),inset 0 0 0 2px var(--red)}
+.crop-box i[data-h="nw"]{left:-3px;top:-3px;border-right:0;border-bottom:0;cursor:nwse-resize}
+.crop-box i[data-h="ne"]{right:-3px;top:-3px;border-left:0;border-bottom:0;cursor:nesw-resize}
+.crop-box i[data-h="sw"]{left:-3px;bottom:-3px;border-right:0;border-top:0;cursor:nesw-resize}
+.crop-box i[data-h="se"]{right:-3px;bottom:-3px;border-left:0;border-top:0;cursor:nwse-resize}
+.crop-tip{color:var(--dim);margin-top:6px;line-height:1.6}
+.crop-tip button{color:var(--fg);text-decoration:underline;text-underline-offset:2px;margin-left:8px}
+.crop-tip button:hover{color:var(--red)}
 .rep:hover img{opacity:1}
 .rep[aria-pressed="true"]{box-shadow:0 0 0 1px var(--red)}
 .rep[aria-pressed="true"] img{opacity:1}
@@ -204,6 +220,12 @@ select option{background:#111;color:#fff}
 .th.mk-before{box-shadow:inset 0 2px 0 var(--red)}
 .th.mk-after{box-shadow:inset 0 -2px 0 var(--red)}
 .th.mk-into{background:#1c0806}
+/* 사진을 페이지 줄의 위 · 아래 가장자리에 놓으면 그 자리에 새 페이지 : 빨간 줄 + '+ 새 페이지' */
+.th.mk-newbefore{box-shadow:inset 0 2px 0 var(--red)}
+.th.mk-newafter{box-shadow:inset 0 -2px 0 var(--red)}
+.th.mk-newbefore::after,.th.mk-newafter::after{content:"+ 새 페이지";position:absolute;right:0;z-index:2;background:var(--red);color:#fff;font-size:10px;line-height:15px;padding:0 6px}
+.th.mk-newbefore::after{top:-7px}
+.th.mk-newafter::after{bottom:-8px}
 .th.mk-into .tt b{color:var(--fg)}
 .ph.mk-before::before,.ph.mk-after::before{content:"";position:absolute;top:0;width:2px;height:52px;background:var(--red)}
 .ph.mk-before::before{left:-5px}
@@ -364,7 +386,7 @@ details.en .meta{border:0;margin-top:10px;padding:4px 0 0}
     <label class="drop" id="drop">사진이나 PDF 를 끌어다 놓거나 눌러서 고르세요 — 라이브러리에 들어갑니다
       <input type="file" id="file" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple></label>
     <div class="lib-grid" id="libGrid"></div>
-    <p class="lib-tip">눌러서 여러 장 고르기 (Shift: 범위) · 끌어서 왼쪽 페이지 · 아래 '새 페이지' · 오른쪽 사진 줄에 놓기 · 페이지의 사진을 여기로 끌면 라이브러리로 돌아온다</p>
+    <p class="lib-tip">눌러서 여러 장 고르기 (Shift: 범위) · 끌어서 왼쪽 페이지 가운데(그 페이지에) · 페이지 사이(그 자리에 새 페이지) · 오른쪽 사진 줄에 놓기 · 끌고 화면 위아래 끝으로 가면 스크롤 · 페이지의 사진을 여기로 끌면 라이브러리로 돌아온다</p>
   </section>
 
   <div class="work">
@@ -419,7 +441,7 @@ function coverHTML(kind){
   var num = (v('fId').match(/\d+/) || ['0'])[0];
   switch (kind){
     case 'photo': var cp = coverPhoto();
-      return '<div class="cv t-pic">' + (cp ? '<img src="' + cp.thumb + '" alt="">' : '<span class="none">사진을 넣으면<br>고를 수 있습니다</span>') + '</div>';
+      return '<div class="cv t-pic">' + (cp ? '<img src="' + cp.thumb + '" alt="" style="' + cropStyle(cropOf(cp)) + '">' : '<span class="none">사진을 넣으면<br>고를 수 있습니다</span>') + '</div>';
     /* 사이트에서는 실제 화면이 뜬다. 여기서는 글자를 칠 때마다 다시 그려지므로 주소만 */
     case 'web': var u = v('fUrl').replace(/^https?:\/\//, '').replace(/\/$/, '');
       return '<div class="cv t-web-still">' + (u ? '<span class="host">' + esc(u) + '</span><span class="go">WEB ↗</span>' : '<span class="none">링크를 넣으면<br>사이트에서 화면이 보입니다</span>') + '</div>';
@@ -447,8 +469,95 @@ function drawReps(){
   box.innerHTML = '<p class="lab">대표 사진</p><div class="row">' + all.map(function(f, n){
     return '<button class="rep" type="button" data-rep="' + n + '" aria-pressed="' + (f === cp) + '" aria-label="사진 ' + (n + 1) + ' 을 표지로">'
          + '<img src="' + f.thumb + '" alt="" draggable="false"></button>';
-  }).join('') + '</div>';
+  }).join('') + '</div>'
+    + (cp ? '<div class="crop-wrap"><div class="crop" id="crop"><img id="cropImg" src="' + (cp.url || cp.thumb) + '" alt="">'
+      + '<div class="crop-box" id="cropBox" tabindex="0" aria-label="표지에 보일 부분. 끌어서 옮기고 모서리로 크기 조절, 화살표 키로도 옮길 수 있습니다">'
+      + '<i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div>'
+      + '<p class="crop-tip">표지에 보일 부분 · 네모를 끌어서 옮기고 모서리로 크기 조절<button type="button" id="cropReset">처음대로</button></p></div>' : '');
+  if (cp){ var im = $('cropImg'); if (im.complete) placeCrop(); else im.onload = placeCrop; }
 }
+
+/* ---------------- 대표 사진 자르기 ----------------
+   P.coverCrop = {id, x, y, w, h} : 사진 크기에 대한 비율(0~1). 네모의 가로:세로는 표지와 같은 1:1.37.
+   비어 있으면 사진 가운데를 꽉 채운 기본값(지금까지의 표지와 같음) */
+var COVER_A = 260 / 356.2;
+function cropOf(cp){ return P.coverCrop && cp && P.coverCrop.id === cp.id ? P.coverCrop : null; }
+/* 사진 비율 r(가로/세로)에서 기본 네모 = 가운데, 최대 크기 */
+function cropDefault(r){
+  var w = r > COVER_A ? COVER_A / r : 1, h = r > COVER_A ? 1 : r / COVER_A;
+  return { x:(1 - w) / 2, y:(1 - h) / 2, w:w, h:h };
+}
+/* 표지 미리보기 · 사이트와 같은 계산 : 네모가 표지 틀을 꽉 채우도록 사진을 키우고 옮긴다 */
+function cropStyle(c){
+  return c ? 'width:' + (100 / c.w).toFixed(3) + '%;height:' + (100 / c.h).toFixed(3) + '%;left:' + (-c.x / c.w * 100).toFixed(3) + '%;top:' + (-c.y / c.h * 100).toFixed(3) + '%' : '';
+}
+function placeCrop(){
+  var im = $('cropImg'), box = $('cropBox'), cp = coverPhoto();
+  if (!im || !box || !im.naturalWidth) return;
+  /* 사진을 원래 비율 그대로 최대 560 × 340 안에 맞춘다 */
+  var maxW = Math.min(560, im.parentNode.parentNode.clientWidth || 560), k = Math.min(maxW / im.naturalWidth, 340 / im.naturalHeight, 1);
+  im.style.width = Math.round(im.naturalWidth * k) + 'px';
+  im.style.height = Math.round(im.naturalHeight * k) + 'px';
+  var c = cropOf(cp) || cropDefault(im.naturalWidth / im.naturalHeight);
+  box.style.left = c.x * 100 + '%'; box.style.top = c.y * 100 + '%';
+  box.style.width = c.w * 100 + '%'; box.style.height = c.h * 100 + '%';
+}
+/* 표지 고르는 줄의 '사진' 미리보기만 바로 고친다 (전체를 다시 그리지 않게) */
+function paintCropPreview(){
+  var img = document.querySelector('.pick[data-c="photo"] .t-pic img');
+  if (img) img.setAttribute('style', cropStyle(cropOf(coverPhoto())));
+}
+function setCrop(c){
+  var cp = coverPhoto(); if (!cp) return;
+  P.coverCrop = { id:cp.id, x:+c.x.toFixed(4), y:+c.y.toFixed(4), w:+c.w.toFixed(4), h:+c.h.toFixed(4) };
+  placeCrop(); paintCropPreview();
+}
+(function(){
+  var g = null;   // 끄는 중 : {mode:'move'|'nw'|'ne'|'sw'|'se', sx, sy, c(시작 네모, 픽셀), W, H}
+  document.addEventListener('pointerdown', function(e){
+    var box = e.target.closest && e.target.closest('#cropBox');
+    if (!box) return;
+    e.preventDefault();
+    var im = $('cropImg'), r = im.getBoundingClientRect(), b = box.getBoundingClientRect();
+    g = { mode:e.target.dataset.h || 'move', sx:e.clientX, sy:e.clientY, W:r.width, H:r.height,
+          c:{ x:b.left - r.left, y:b.top - r.top, w:b.width, h:b.height } };
+    box.setPointerCapture(e.pointerId);
+  });
+  document.addEventListener('pointermove', function(e){
+    if (!g) return;
+    var dx = e.clientX - g.sx, dy = e.clientY - g.sy, c = g.c, W = g.W, H = g.H, n;
+    if (g.mode === 'move'){
+      n = { x:Math.max(0, Math.min(W - c.w, c.x + dx)), y:Math.max(0, Math.min(H - c.h, c.y + dy)), w:c.w, h:c.h };
+    } else {
+      /* 맞은편 모서리를 고정하고, 비율을 지키며 사진 밖으로 나가지 않게 */
+      var east = g.mode[1] === 'e', south = g.mode[0] === 's';
+      var ox = east ? c.x : c.x + c.w, oy = south ? c.y : c.y + c.h;
+      var px = (east ? c.x + c.w : c.x) + dx, py = (south ? c.y + c.h : c.y) + dy;
+      var w = Math.max(Math.abs(px - ox), Math.abs(py - oy) * COVER_A);
+      var maxW = Math.min(east ? W - ox : ox, (south ? H - oy : oy) * COVER_A);
+      var minW = Math.min(maxW, Math.max(40, Math.min(W, H * COVER_A) * 0.2));
+      w = Math.max(minW, Math.min(maxW, w));
+      var h = w / COVER_A;
+      n = { x:east ? ox : ox - w, y:south ? oy : oy - h, w:w, h:h };
+    }
+    setCrop({ x:n.x / W, y:n.y / H, w:n.w / W, h:n.h / H });
+  });
+  ['pointerup','pointercancel'].forEach(function(t){ document.addEventListener(t, function(){ if (g){ g = null; draft(); } }); });
+  /* 화살표 키로 1% 씩 옮기기 */
+  document.addEventListener('keydown', function(e){
+    if (e.target.id !== 'cropBox') return;
+    var d = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]}[e.key];
+    if (!d) return;
+    e.preventDefault();
+    var im = $('cropImg'), c = cropOf(coverPhoto()) || cropDefault(im.naturalWidth / im.naturalHeight);
+    setCrop({ x:Math.max(0, Math.min(1 - c.w, c.x + d[0] * .01)), y:Math.max(0, Math.min(1 - c.h, c.y + d[1] * .01)), w:c.w, h:c.h });
+    draft();
+  });
+  document.addEventListener('click', function(e){
+    if (e.target.id !== 'cropReset') return;
+    P.coverCrop = null; placeCrop(); paintCropPreview(); draft();
+  });
+})();
 
 /* ---------------- 페이지 목록 ----------------
    사진 파일 번호는 페이지를 가로질러 이어진다 (r-015-1, r-015-2, ...) */
@@ -783,7 +892,7 @@ document.addEventListener('click', function(e){
   if (!t) return;
   var d = t.dataset, pg = P.pages[sel], i;
   if (d.c){ P.cover = d.c; drawStrip(); draft(); return; }
-  if (d.rep !== undefined){ P.coverPhoto = allPhotos()[+d.rep]; drawStrip(); draft(); return; }
+  if (d.rep !== undefined){ P.coverPhoto = allPhotos()[+d.rep]; P.coverCrop = null; drawStrip(); draft(); return; }
   if (t.id === 'prev'){ select(sel - 1); return; }
   if (t.id === 'next'){ select(sel + 1); return; }
   /* 페이지 안의 사진 */
@@ -858,11 +967,27 @@ edit.addEventListener('drop', function(e){ if (!drag) addFiles(e.dataTransfer.fi
                     '새 페이지' 칸에 놓으면 떼어 내기 · 라이브러리에 놓으면 라이브러리로 돌려보내기
    라이브러리 사진 : 고른 사진 전부(안 고른 사진을 끌면 그 한 장)를 왼쪽 페이지 · '새 페이지' 칸 ·
                     오른쪽 사진 줄의 자리 · 큰 사진 · '+ 사진' 칸에 놓는다 */
-var drag = null;   // {kind:'page'|'photo'|'lib', from, ids, els, to(끼워 넣을 자리), into(옮겨 갈 페이지), target}
+var drag = null;   // {kind:'page'|'photo'|'lib', from, ids, els, to(끼워 넣을 자리), into(옮겨 갈 페이지), target, at(새 페이지 자리)}
 function unmark(){
-  document.querySelectorAll('.mk-before,.mk-after,.mk-into').forEach(function(el){ el.classList.remove('mk-before', 'mk-after', 'mk-into'); });
+  document.querySelectorAll('.mk-before,.mk-after,.mk-into,.mk-newbefore,.mk-newafter').forEach(function(el){ el.classList.remove('mk-before', 'mk-after', 'mk-into', 'mk-newbefore', 'mk-newafter'); });
 }
-function endDrag(){ if (drag) drag.els.forEach(function(el){ el.classList.remove('dragging'); }); drag = null; unmark(); }
+function endDrag(){ if (drag) drag.els.forEach(function(el){ el.classList.remove('dragging'); }); drag = null; unmark(); scrollV = 0; }
+
+/* 끄는 동안 커서가 창 위 · 아래 가장자리(80px)에 가까우면 화면이 그쪽으로 스크롤된다. 가장자리에 가까울수록 빠르게 */
+var scrollV = 0, scrollRaf = 0, lastOver = 0;
+function edgeScroll(y){
+  var edge = 80, top = 62;   // 위쪽은 고정된 상단 바(62px) 아래부터 잰다
+  scrollV = y < top + edge ? -Math.ceil((top + edge - y) / edge * 18)
+          : y > innerHeight - edge ? Math.ceil((y - (innerHeight - edge)) / edge * 18) : 0;
+  lastOver = performance.now();
+  if (scrollV && !scrollRaf) scrollRaf = requestAnimationFrame(scrollStep);
+}
+function scrollStep(){
+  scrollRaf = 0;
+  if (!drag || !scrollV || performance.now() - lastOver > 200) { scrollV = 0; return; }   // 창 밖으로 나가 dragover 가 멈추면 멈춤
+  window.scrollBy(0, scrollV);
+  scrollRaf = requestAnimationFrame(scrollStep);
+}
 function reorder(arr, from, to){ if (to > from) to--; if (to !== from) arr.splice(to, 0, arr.splice(from, 1)[0]); }
 
 /* 여러 장을 끌 때 커서 옆에 첫 사진과 장수를 보여 준다 */
@@ -900,13 +1025,22 @@ document.addEventListener('dragstart', function(e){
 });
 document.addEventListener('dragover', function(e){
   if (!drag) return;
+  edgeScroll(e.clientY);
   var over = e.target.closest('.th, .ph, .add, #big, #newpage, #lib'), after = false, k = drag.kind;
-  unmark(); drag.to = drag.into = drag.target = null;
+  unmark(); drag.to = drag.into = drag.target = drag.at = null;
   if (!over) return;
   var r = over.getBoundingClientRect();
   if (over.classList.contains('th')){
-    if (k === 'page'){ after = e.clientY > r.top + r.height / 2; drag.to = +over.dataset.sel + (after ? 1 : 0); }
-    else if (k === 'lib' || +over.dataset.sel !== sel){ drag.into = +over.dataset.sel; drag.target = 'into'; }
+    var i = +over.dataset.sel, y = (e.clientY - r.top) / r.height;
+    if (k === 'page'){ after = y > 0.5; drag.to = i + (after ? 1 : 0); }
+    /* 사진 : 줄의 위 · 아래 1/4 에 놓으면 그 자리에 새 페이지, 가운데면 그 페이지에 넣기 */
+    else if (y < 0.25 || y > 0.75){
+      drag.target = 'new'; drag.at = i + (y > 0.75 ? 1 : 0);
+      over.classList.add(y > 0.75 ? 'mk-newafter' : 'mk-newbefore');
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      return;
+    }
+    else if (k === 'lib' || i !== sel){ drag.into = i; drag.target = 'into'; }
     else return;
   } else if (over.classList.contains('ph')){
     if (k === 'page') return;
@@ -917,7 +1051,7 @@ document.addEventListener('dragover', function(e){
     drag.target = 'here';
   } else if (over.id === 'newpage'){
     if (k === 'page') return;
-    drag.target = 'new';
+    drag.target = 'new'; drag.at = P.pages.length;
   } else if (over.id === 'lib'){
     if (k !== 'photo') return;
     drag.target = 'lib';
@@ -939,7 +1073,12 @@ document.addEventListener('drop', function(e){
     else if (d.target){
       var x = pg.photos.splice(d.from, 1)[0], dest = null;
       if (d.target === 'into'){ dest = P.pages[d.into]; dest.photos.push(x); }
-      else if (d.target === 'new'){ dest = { title:'', text:'', photos:[x] }; P.pages.push(dest); }
+      else if (d.target === 'new'){
+        /* 떼어 낸 사진의 제목 · 글은 새 페이지의 것 (떼기와 같게) */
+        dest = { title:x.title || '', text:x.note || '', titleEn:x.titleEn || '', textEn:x.noteEn || '', photos:[x] };
+        x.title = x.note = x.titleEn = x.noteEn = '';
+        P.pages.splice(d.at, 0, dest);
+      }
       else toLib([x]);
       /* 마지막 사진을 옮겨 빈 페이지가 되면 없애고, 옮겨 간 페이지(없으면 근처 페이지)를 연다 */
       if (!pg.photos.length){
@@ -954,7 +1093,7 @@ document.addEventListener('drop', function(e){
     if (d.to != null && pg){ pg.photos.splice.apply(pg.photos, [d.to, 0].concat(photos)); keepPhoto = photos[0]; }
     else if (d.target === 'here' && pg){ pg.photos = pg.photos.concat(photos); keepPhoto = photos[0]; }
     else if (d.target === 'into'){ keepPage = P.pages[d.into]; keepPage.photos = keepPage.photos.concat(photos); keepPhoto = photos[0]; }
-    else if (d.target === 'new'){ keepPage = { title:'', text:'', photos:photos }; P.pages.push(keepPage); keepPhoto = photos[0]; }
+    else if (d.target === 'new'){ keepPage = { title:'', text:'', photos:photos }; P.pages.splice(d.at, 0, keepPage); keepPhoto = photos[0]; }
     else { toLib(photos); redraw(); return; }
     revive();
     note('사진 ' + photos.length + '장을 ' + (d.target === 'new' ? '새 페이지로' : '페이지에') + ' 넣었습니다.');
@@ -976,6 +1115,7 @@ function payload(byRef){
     meta:v('fMeta'), tags:v('fTags'), lede:v('fLede'),
     cover: cp ? 'photo' : (P.cover === 'photo' || (P.cover === 'web' && !v('fUrl')) ? 'gridnum' : P.cover),
     coverFile: cp ? fileName(cp.i, cp.j) : undefined,
+    coverCrop: cp && cropOf(coverPhoto()) ? (function(c){ return { x:c.x, y:c.y, w:c.w, h:c.h }; })(cropOf(coverPhoto())) : undefined,
     replaces: P.editing || undefined,   // 고치던 글의 원래 주소 (주소를 바꿨으면 서버가 원래 글을 지운다)
     en: { title:v('fTitleEn'), sub:v('fSubEn'), lede:v('fLedeEn'), meta:v('fMetaEn'), tags:v('fTagsEn') },
     pages: P.pages.map(function(p, i){
@@ -1134,6 +1274,7 @@ function draft(){
       f:['fTitle','fSub','fLede','fCat','fDate','fDateEnd','fStatus','fUrl','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].reduce(function(o,k){ o[k] = $(k).value; return o; }, {}),
       cover:P.cover,
       coverId:P.coverPhoto && P.coverPhoto.id,
+      coverCrop:P.coverCrop || null,
       pages:P.pages.map(function(p){ return {
         title:p.title, text:p.text, titleEn:p.titleEn || '', textEn:p.textEn || '',
         ids:p.photos.map(function(f){ return f.id; }),
@@ -1228,6 +1369,7 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
       else keepText(p);
     });
     P.coverPhoto = byId[s.coverId] || null;
+    P.coverCrop = s.coverCrop || null;
     P.library = libIds.map(function(id){ return byId[id]; }).filter(Boolean);
     P.library.forEach(function(f){ used[f.id] = true; });
     /* 어느 페이지에서도 쓰지 않는 사진은 정리 */
@@ -1240,7 +1382,7 @@ var readyResolve, readyP = new Promise(function(r){ readyResolve = r; });   // �
 /* ---------------- 새 글 ----------------
    초안(글 · 사진)을 모두 비운다. 올리기에 성공하면 자동으로, 아니면 '새 글'을 두 번 눌러서 */
 function clearAll(){
-  P.pages = []; P.cover = 'gridnum'; P.coverPhoto = null; P.editing = null; P.library = []; libSel.clear();
+  P.pages = []; P.cover = 'gridnum'; P.coverPhoto = null; P.coverCrop = null; P.editing = null; P.library = []; libSel.clear();
   pending = []; sel = -1; ph = 0;
   ['fTitle','fSub','fLede','fDateEnd','fUrl','fId','fMeta','fTags','fTitleEn','fSubEn','fLedeEn','fMetaEn','fTagsEn'].forEach(function(k){ $(k).value = ''; });
   $('fCat').value = 'research';
@@ -1465,6 +1607,7 @@ async function editPost(id){
     allPhotos().forEach(keepPhoto);
     P.cover = it.cover || 'gridnum';
     if (P.cover === 'photo') P.coverPhoto = allPhotos().find(function(f){ return f.src === coverSrc; }) || null;
+    P.coverCrop = P.coverPhoto && it.coverCrop ? Object.assign({ id:P.coverPhoto.id }, it.coverCrop) : null;
     P.editing = id;
     sel = P.pages.length ? 0 : -1; ph = 0;
     redraw();

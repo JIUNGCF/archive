@@ -331,6 +331,7 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 /* 글자는 조금 작게, 자간은 좁게. 구분선은 흐린 절(투명도 0.5)에서도 보이도록 밝게.
    본문은 Pretendard Light(300), 제목만 굵게. text-wrap:pretty — 마지막 줄에 한 단어만 남지 않게 */
 .dt-main h2{font-size:28px;font-weight:600;line-height:1.18;letter-spacing:-0.035em;outline:none;text-wrap:balance}
+.dt-sec > .dt-head{margin-bottom:44px}   /* 첫 단계 안에서 머리말과 첫 절 사이 */
 .dt-lead{font-size:16px;font-weight:300;line-height:1.62;color:#f4f4f4;margin:14px 0 0;letter-spacing:-0.022em;text-wrap:pretty}
 .dt-sec h3{font-size:14px;font-weight:500;letter-spacing:-0.015em;border-top:1px solid #707070;padding-top:16px}
 .dt-sec h3 .no{color:#9a9a9a;margin-right:10px;font-size:12px;letter-spacing:.06em;font-variant-numeric:tabular-nums;font-weight:300}
@@ -1107,6 +1108,11 @@ const parts = d => ({y4:d.slice(0,4), y:d.slice(2,4), m:d.slice(5,7), d:d.slice(
 /* 날짜 글자 : 기간 프로젝트(dateEnd)는 '2024.03.01 – 2024.06.30'. 연도 묶음은 늘 시작 날짜(date)를 따른다 */
 const when = it => it.date.replace(/-/g, '.') + (it.dateEnd ? ' – ' + it.dateEnd.replace(/-/g, '.') : '');
 
+/* 사진 표지에 보일 부분 (admin 에서 자른 네모, 사진 크기에 대한 비율). 네모가 표지 틀을 꽉 채우도록 사진을 키우고 옮긴다 */
+function cropStyle(c){
+  if (!c || !(c.w > 0) || !(c.h > 0)) return '';
+  return ' style="width:' + (100 / c.w).toFixed(3) + '%;height:' + (100 / c.h).toFixed(3) + '%;left:' + (-c.x / c.w * 100).toFixed(3) + '%;top:' + (-c.y / c.h * 100).toFixed(3) + '%"';
+}
 /* still : 실제 사이트를 띄우지 않고 주소만 (선반처럼 한꺼번에 많이 그리는 곳) */
 function cover(it, still){
   const t = esc(it.title), s = esc(it.sub), m = esc(it.meta), k = esc(CAT[it.cat]);
@@ -1124,7 +1130,7 @@ function cover(it, still){
 
     case 'photo': if (!it.coverSrc) return cover(Object.assign({}, it, {cover:'gridnum'}));
       return '<div class="cv t-pic">'
-      + '<img src="' + esc(it.coverSrc) + '" alt="" loading="lazy" decoding="async">'
+      + '<img src="' + esc(it.coverSrc) + '" alt="" loading="lazy" decoding="async"' + cropStyle(it.coverCrop) + '>'
       + '</div>';
 
     case 'gridnum': return '<div class="cv t-gridnum">'
@@ -1892,7 +1898,8 @@ onLang.push(function(){ renderUpdates(); render(); });
 
     cur = it;
     activeFig = 0;
-    plates = [{html:cover(it), label:t('cover')}];
+    /* 표지는 목록(밖)에서만 쓴다. 글에 들어오면 첫 페이지 사진부터 (절이 없는 글만 표지를 건다) */
+    plates = [];
     var figures = d.figures || [];
     d.sections.forEach(function(s, i){
       var ph = photosOf(s, figures), f = ph[0];
@@ -1901,6 +1908,7 @@ onLang.push(function(){ renderUpdates(); render(); });
         ? {html:photoPlate(f, f.cap || s.h), label:s.h, cap:f.cap, photo:true, src:f.src, note:f.p}
         : {html:figPlate(it, i + 1, s.h), label:s.h});
     });
+    if (!plates.length) plates.push({html:cover(it), label:t('cover')});
     views = [];
     plates.forEach(function(p, k){
       if (!p.photos) { views.push({html:p.html, label:p.label, k:k, j:0, src:p.src, note:p.note}); return; }
@@ -1924,17 +1932,18 @@ onLang.push(function(){ renderUpdates(); render(); });
 
     /* 글 전체를 한 줄기(.dt-flow)로. 단계마다 하나의 블록(.dt-step) */
     var lede = d.lede != null ? d.lede : d.lead;
-    var html = '<div class="dt-flow">'
-      + '<header class="dt-step dt-head">'
+    /* 머리말(제목 · 들어가는 말 · meta 표)은 첫 절과 한 단계로 묶어 첫 페이지 사진 옆에 둔다 (절이 없으면 혼자 한 단계) */
+    var head = '<header class="dt-head' + (d.sections.length ? '' : ' dt-step') + '">'
       + '<h2 id="dtTitle" tabindex="-1">' + esc(it.title) + '</h2>'
       + (lede ? '<p class="dt-lead">' + esc(lede) + '</p>' : '');
     /* meta 는 [라벨, 값] 쌍의 배열. 비어 있으면 표를 그리지 않는다 */
     if (d.meta && d.meta.length){
-      html += '<table class="dt-mt"><tbody>' + d.meta.map(function(r){
+      head += '<table class="dt-mt"><tbody>' + d.meta.map(function(r){
         return '<tr><th scope="row">' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td></tr>';
       }).join('') + '</tbody></table>';
     }
-    html += '</header>';
+    head += '</header>';
+    var html = '<div class="dt-flow">' + (d.sections.length ? '' : head);
     /* links 는 {label, href} 의 배열. 링크와 돌아가기는 마지막 절에 붙인다.
        아카이브 안의 다른 글(#r-018 …)은 같은 탭, 바깥 사이트는 새 탭 */
     var tail = '';
@@ -1952,7 +1961,7 @@ onLang.push(function(){ renderUpdates(); render(); });
         return '<h3><span class="no">' + nn(i + 1) + '</span>' + esc(h) + '</h3>'
           + ps.map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('');
       };
-      html += '<section class="dt-step dt-sec">'
+      html += '<section class="dt-step dt-sec">' + (i ? '' : head)
         + (phs.length > 1
           ? '<div class="dt-pvs">' + phs.map(function(f, j){
               return '<div class="dt-pv' + (j ? '' : ' on') + '">'

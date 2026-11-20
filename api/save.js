@@ -103,6 +103,12 @@ function toItem(post, shas){
     const file = post.coverFile || (first && first.file);
     if (file) item.coverSrc = imgSrc(file, shas);
     else item.cover = 'gridnum';
+    /* 표지에 보일 부분 (admin 의 자르기 네모). 사진 크기에 대한 비율 0~1 */
+    const c = post.coverCrop, ok = v => typeof v === 'number' && isFinite(v);
+    if (file && c && ok(c.x) && ok(c.y) && ok(c.w) && ok(c.h) && c.x >= 0 && c.y >= 0 && c.w > 0 && c.h > 0
+        && c.x + c.w <= 1.001 && c.y + c.h <= 1.001){
+      item.coverCrop = { x: +c.x.toFixed(4), y: +c.y.toFixed(4), w: +c.w.toFixed(4), h: +c.h.toFixed(4) };
+    }
   }
   /* 영어 제목 · 설명 · 표기 · 태그 (적은 것만) */
   const en = {};
