@@ -9,7 +9,13 @@
       "meta": "SAREK 2026 동계",
       "cover": "photo",
       "tags": "학회발표 대한설비공학회 Hydro-Cascade 2-Pipe 수열원히트펌프 급탕 Modelica 공동주택",
-      "coverSrc": "img/r-023-1.png?v=748f9df"
+      "coverSrc": "img/r-023-2.jpg?v=732641e",
+      "coverCrop": {
+        "x": 0,
+        "y": 0,
+        "w": 0.5474,
+        "h": 1
+      }
     },
     {
       "id": "r-022",
