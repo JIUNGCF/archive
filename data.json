@@ -71,9 +71,10 @@
       "title": "BEE Lab 논문 프로그램",
       "sub": "연구실을 위한 논문 번역 프로그램",
       "meta": "",
-      "cover": "web",
+      "cover": "photo",
       "tags": "",
-      "url": "https://beelab-paper-atlas.hjw970301.workers.dev"
+      "url": "https://beelab-paper-atlas.hjw970301.workers.dev",
+      "coverSrc": "img/v-002-1.jpg?v=9c38f7c"
     },
     {
       "id": "v-001",
