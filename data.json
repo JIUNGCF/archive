@@ -9,7 +9,13 @@
       "meta": "국토교통부장관상",
       "cover": "photo",
       "coverSrc": "img/r-024-1.jpg?v=b4afe9e",
-      "tags": "공모전 녹색건축대전 국토교통부장관상 녹색건축한마당 데이터센터 폐열회수 수열원히트펌프 한강 TRNSYS"
+      "tags": "공모전 녹색건축대전 국토교통부장관상 녹색건축한마당 데이터센터 폐열회수 수열원히트펌프 한강 TRNSYS",
+      "en": {
+        "title": "2025 Korea Green Building Awards",
+        "sub": "Using Data Center Waste Heat for Hot Water with a Han River Water-Source Heat Pump, and Controlling the Discharge Temperature",
+        "meta": "Minister of Land, Infrastructure and Transport Award",
+        "tags": "competition green-building-awards minister-award green-building-festival data-center waste-heat-recovery water-source-heat-pump han-river trnsys"
+      }
     },
     {
       "id": "s-002",
@@ -21,7 +27,12 @@
       "cover": "photo",
       "tags": "",
       "status": "done",
-      "coverSrc": "img/s-002-1.jpg?v=d023946"
+      "coverSrc": "img/s-002-1.jpg?v=d023946",
+      "en": {
+        "title": "2025 Pocheon Youth Foundation Academic Excellence Scholarship",
+        "sub": "2025 Pocheon Youth Foundation Academic Excellence Scholarship",
+        "meta": "Scholarship"
+      }
     },
     {
       "id": "s-001",
@@ -33,7 +44,12 @@
       "cover": "photo",
       "tags": "",
       "status": "done",
-      "coverSrc": "img/s-001-1.jpg?v=da818ed"
+      "coverSrc": "img/s-001-1.jpg?v=da818ed",
+      "en": {
+        "title": "2024 Konkuk University College of Architecture Alumni Scholarship",
+        "sub": "2024 Konkuk University College of Architecture Alumni Scholarship",
+        "meta": "Scholarship"
+      }
     },
     {
       "id": "r-023",
@@ -50,6 +66,12 @@
         "y": 0,
         "w": 0.5474,
         "h": 1
+      },
+      "en": {
+        "title": "SAREK Winter Annual Conference",
+        "sub": "Energy Performance of a DHW System Using Heating and Cooling Return Water (Hydro-Cascade)",
+        "meta": "SAREK 2026 Winter",
+        "tags": "conference sarek hydro-cascade 2-pipe water-source-heat-pump dhw modelica apartment"
       }
     },
     {
@@ -61,7 +83,13 @@
       "meta": "KSES 2025",
       "cover": "photo",
       "tags": "학회발표 태양에너지학회 데이터센터 폐열회수 수열원히트펌프 한강 TRNSYS",
-      "coverSrc": "img/r-022-1.png?v=2798312"
+      "coverSrc": "img/r-022-1.png?v=2798312",
+      "en": {
+        "title": "Korean Solar Energy Society Fall Conference",
+        "sub": "Abstract presentation at the 2025 Korean Solar Energy Society Fall Conference",
+        "meta": "KSES 2025",
+        "tags": "conference kses data-center waste-heat-recovery water-source-heat-pump han-river trnsys"
+      }
     },
     {
       "id": "r-021",
@@ -72,7 +100,13 @@
       "meta": "국토교통부장관상",
       "cover": "photo",
       "tags": "공모전 국토교통부장관상 태양에너지학회 데이터센터 폐열회수 수열원히트펌프 한강 TRNSYS",
-      "coverSrc": "img/r-021-2.jpg?v=6d05acb"
+      "coverSrc": "img/r-021-2.jpg?v=6d05acb",
+      "en": {
+        "title": "3rd Energy Optimization Design Competition",
+        "sub": "Grand Prize (Minister of Land, Infrastructure and Transport Award), 2025 3rd Energy Optimization Design Competition · Korean Solar Energy Society · Team DJ_W",
+        "meta": "Minister of Land, Infrastructure and Transport Award",
+        "tags": "competition ministerial-award solar-energy-society data-center waste-heat-recovery water-source-heat-pump han-river trnsys"
+      }
     },
     {
       "id": "r-020",
@@ -85,7 +119,12 @@
       "tags": "",
       "dateEnd": "2025-09-20",
       "status": "done",
-      "coverSrc": "img/r-020-1.jpg?v=5ace3c4"
+      "coverSrc": "img/r-020-1.jpg?v=5ace3c4",
+      "en": {
+        "title": "Integrated Architectural Graduation Design",
+        "sub": "2025 Graduation Exhibition",
+        "meta": "Graduation Exhibition"
+      }
     },
     {
       "id": "r-018",
@@ -97,7 +136,12 @@
       "cover": "photo",
       "tags": "",
       "status": "done",
-      "coverSrc": "img/r-018-4.jpg?v=0a9eee5"
+      "coverSrc": "img/r-018-4.jpg?v=0a9eee5",
+      "en": {
+        "title": "2026 ROOMVENT",
+        "sub": "Recovering Data Center Waste Heat and Restoring Discharge Water Temperature",
+        "meta": "RoomVent 2026"
+      }
     },
     {
       "id": "v-002",
@@ -109,7 +153,11 @@
       "cover": "photo",
       "tags": "",
       "url": "https://beelab-paper-atlas.hjw970301.workers.dev",
-      "coverSrc": "img/v-002-1.jpg?v=9c38f7c"
+      "coverSrc": "img/v-002-1.jpg?v=9c38f7c",
+      "en": {
+        "title": "BEE Lab Paper Program",
+        "sub": "A paper translation program for the lab"
+      }
     },
     {
       "id": "v-001",
@@ -121,7 +169,11 @@
       "cover": "web",
       "tags": "",
       "status": "done",
-      "url": "https://beelab.kr"
+      "url": "https://beelab.kr",
+      "en": {
+        "title": "Building Energy & Environment Laboratory (BEE Lab) Website",
+        "sub": "Website Development"
+      }
     },
     {
       "id": "r-017",
@@ -289,7 +341,65 @@
           "label": "행사 기사 — 2025 녹색건축한마당 (KHARN)",
           "href": "https://www.kharn.kr/news/article.html?no=29461"
         }
-      ]
+      ],
+      "en": {
+        "lede": "This research won the Minister of Land, Infrastructure and Transport Award in the Green Technology category of the 2025 Korea Green Building Awards. We proposed a system that cools a data center with Han River water, uses the recovered waste heat to make hot water for apartments, and returns the discharged water to the temperature of the original river water. The award ceremony, the exhibition of winning entries and the winners' presentation session all took place at the 2025 Green Building Festival.",
+        "sections": [
+          {
+            "h": "Minister of Land, Infrastructure and Transport Award, Green Technology Category",
+            "p": [
+              "Team DJ_W (Han Jiung, Kim Dongjun, Choi Dajeong) won the Minister of Land, Infrastructure and Transport Award in the Green Technology category of the 2025 Korea Green Building Awards with \"Using Data Center Waste Heat for Hot Water with a Han River Water-Source Heat Pump, and Controlling the Discharge Temperature.\"",
+              "The Korea Green Building Awards are hosted by the Ministry of Land, Infrastructure and Transport to share and spread achievements in green building. Awards are given in two categories: completed buildings and technology proposals."
+            ]
+          },
+          {
+            "h": "Exhibition of Winning Entries",
+            "p": [
+              "Our entry uses Han River water to cool a data center, then uses the warmed river water as the heat source of a water-to-water heat pump (WWHP) that produces hot water for apartments. The heat pump is controlled by heat quantity so that it absorbs all of the data center's waste heat, which brings the discharge temperature back to the level of the original river water.",
+              "The research had three goals. First, minimize the effect of the discharge temperature by recovering the cooling heat. Second, compare heat pump performance by heat source. Third, evaluate the energy and environmental performance of a water-source heat pump that uses waste heat.",
+              "The analysis was done with TRNSYS dynamic simulation, in seven steps: setting the data center conditions, implementing the flow control logic in Python, comparing cooling performance by heat source, building the waste-heat heat pump component, calculating hot water energy and the number of households served, comparing hot water performance by heat source, and verifying the discharge temperature. The result: the waste-heat heat pump can supply hot water to about 78,000 households.",
+              "The panel was displayed in the exhibition space for winning entries at the venue. Detailed results are covered in the competition record for the same research."
+            ]
+          },
+          {
+            "h": "Winners' Presentation Session",
+            "p": [
+              "At the 2025 Korea Green Building Awards winners' presentation session held during the event, I presented the research on behalf of the team. The session was hosted by the Ministry of Land, Infrastructure and Transport and organized by the Korea Authority of Land & Infrastructure Safety."
+            ]
+          }
+        ],
+        "figures": [
+          {
+            "h": "Award ceremony, Green Technology category"
+          },
+          {
+            "h": "2025 Green Building Festival award ceremony",
+            "p": [
+              "The award ceremony was held on December 4, 2025 at the 2025 Green Building Festival at Seoul Dragon City. The festival is hosted by the Presidential Commission on Architecture Policy and the Ministry of Land, Infrastructure and Transport and organized by the Korea Authority of Land & Infrastructure Safety; 2025 was its 15th edition.",
+              "This year's theme was \"Tomorrow toward carbon neutrality, drawn with green building,\" and the program included awards, talks, exhibitions and forums."
+            ]
+          },
+          {
+            "h": "Minister of Land, Infrastructure and Transport Award certificate",
+            "p": [
+              "The certificate was issued on December 4, 2025 in the name of the Minister of Land, Infrastructure and Transport. It lists the team name DJ_W together with the title of the work."
+            ]
+          },
+          {
+            "h": "Exhibition of winning entries"
+          },
+          {
+            "h": "Winners' presentation session"
+          },
+          {
+            "h": "Background: the growth of data centers and the use of their waste heat",
+            "p": [
+              "Data centers release a steady amount of waste heat all year from cooling. Among the possible uses for that heat, however, space heating varies greatly by season, while hot water has a fairly constant heat demand throughout the year.",
+              "So to use data center waste heat reliably, it should be applied to a hot water system. The presentation set this out as the starting point of the research."
+            ]
+          }
+        ]
+      }
     },
     "a-015": {
       "lede": "2024년 남미 여행을 다녀오고, 환경에 관심이 생겼다. 파타고니아의 대자연을 보며 파괴되지 않기 바라며",
@@ -1024,7 +1134,42 @@
           ]
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "I was in charge of redesigning the BEE Lab website. \n\nIt was my first time using vibe coding, and in the end I built the website that is in use today. Let's take a look.",
+        "sections": [
+          {
+            "h": "Main Page",
+            "p": [
+              "The first thing I thought about was making it feel current. Anyone who has visited an engineering lab's website knows that most of them are stiff and have poor UI. So my very first goal was to make the website trendy. I took a lot of references from Apple and the MIT Media Lab.",
+              "I felt that a trendy, dynamic website was part of our identity, and to get there I focused on making active use of animation. Still, a website's core job is to deliver information, so I couldn't lose sight of that, and I revised the text many times."
+            ]
+          },
+          {
+            "h": "Research Page",
+            "p": [
+              "This was the most important part of the redesign. Our lab's research falls under a few big themes, and I wanted to group it accordingly. After several meetings on how to categorize it, we settled on scale as the basis. In order, the categories are Data Analytics & AI, Building Energy Systems, and UBEM.",
+              "Clicking a research category shows what kind of research that category covers.",
+              "One benefit of categorizing was that we could assign each researcher to a group. For example, we could sort members into the building services part, the data part and the UBEM part.",
+              "I also changed the page so that all of each researcher's personal research and projects can be viewed. I saw individual research as the face of the lab."
+            ]
+          },
+          {
+            "h": "Personal Page",
+            "p": [
+              "For ease of use, personal pages link to everything. They connect to each person's research, and their papers can be accessed through Publications."
+            ]
+          },
+          {
+            "h": "TOOLS",
+            "p": [
+              "I am now updating the website along with the tools the professor is building.",
+              "Building the website with vibe coding showed me a lot of possibilities.",
+              "1. With LLMs, we can now code in plain language. Today, prompting and creativity matter as much as good knowledge.\n2. Even a simple site took a lot of effort. Planning which features to include and how to group them took longer than the actual implementation. What I took from this is that, when running a project, setting up the big structure matters as much as simply getting started."
+            ]
+          }
+        ]
+      }
     },
     "v-002": {
       "lede": "모든 지식은 기본기로부터 온단다",
@@ -1084,7 +1229,16 @@
           "p": []
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "All knowledge starts with the fundamentals.",
+        "sections": [
+          {
+            "h": "Page 1",
+            "p": []
+          }
+        ]
+      }
     },
     "r-018": {
       "lede": "2026년 9월 체코 프라하에서 열린 국제 학회 RoomVent 2026에서 발표한 연구다. 하천수로 데이터센터를 냉각하고, 그 과정에서 폐열을 흡수해 가열된 한강수를 열원으로 아파트 급탕에 사용한 뒤, 강물을 원래 온도로 되돌려 방류하는 시스템을 제안했다.",
@@ -1353,7 +1507,118 @@
           ]
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "Research presented at RoomVent 2026, an international conference held in Prague, Czech Republic, in September 2026. We proposed a system that cools a data center with river water, uses the Han River water warmed by the absorbed waste heat as a heat source for apartment domestic hot water, and then returns the water to the river at its original temperature.",
+        "sections": [
+          {
+            "h": "RoomVent 2026, Prague",
+            "p": [
+              "RoomVent is an international conference on indoor ventilation, air quality and building services. In 2026, the 18th conference was held at the Czech Technical University in Prague.",
+              "I carried out this research with Professor Lim Hyunwoo at the Building Energy & Environment Laboratory (BEE Lab), Konkuk University."
+            ]
+          },
+          {
+            "h": "RoomVent 2026, Prague",
+            "p": [
+              "RoomVent is an international conference covering indoor ventilation, indoor air quality and building services. The 18th conference in 2026 took place at the Czech Technical University in Prague (CTU).",
+              "This research was conducted at the Building Energy & Environment Laboratory (BEE Lab), Konkuk University, under the guidance of Professor Lim Hyunwoo."
+            ]
+          },
+          {
+            "h": "Data center energy use and waste heat",
+            "p": [
+              "With the spread of generative AI and digital transformation, data center energy demand is rising sharply. Per unit of floor area, a data center consumes more than 100 times the energy of a typical commercial building. In the United States, data centers used about 176 TWh of electricity in 2023, or 4.4% of total electricity consumption.",
+              "Most of the electricity a data center consumes turns into heat. And because data centers run 24 hours a day, all year round, they can serve as a stable heat source. This is why waste heat recovery, which links that heat to outside heat demand, is drawing attention."
+            ]
+          },
+          {
+            "h": "Water as a heat carrier",
+            "p": [
+              "To move recovered heat effectively, you need a suitable heat carrier, because the data center where heat is produced and the places that need heat are in different locations. Water has a high specific heat, so it can carry large amounts of heat over long distances. Natural water sources such as rivers and lakes can also serve as a cooling and heat-exchange medium without any extra cost to secure a heat source.",
+              "Previous studies, however, focused mainly on the energy performance and economics of these systems. The thermal impact on aquatic ecosystems of water discharged at a changed temperature after heat exchange has not been examined closely. That is where this study began."
+            ]
+          },
+          {
+            "h": "Proposed system: two linked water-source heat pumps",
+            "p": [
+              "The proposed system consists of two water-to-water heat pumps (WWHP). First, the DC-WWHP cools the data center, using Han River water as the cooling source on the condenser side. In the process, the data center's waste heat passes into the water and raises its temperature.",
+              "Second, the WHR-WWHP recovers heat from the warmed water to produce domestic hot water (DHW) for an apartment complex. Once the heat has been recovered, the water goes back to the river at close to its intake temperature. In short, one water source handles both data center cooling and apartment hot water while restoring the discharge water temperature."
+            ]
+          },
+          {
+            "h": "Site concept: a riverside data center and apartments on the Han River",
+            "p": [
+              "This concept drawing assumes a data center and an apartment complex sitting next to each other on the Han River in Seoul. The close-up at lower right shows how the server racks, coolant distribution unit (CDU) and heat pump are connected. The close-up at upper left shows the hot water storage tank and DHW supply system on the apartment side.",
+              "The two buildings are linked by pipes. River water is drawn in on the data center side, passes through the heat pump on the apartment side, and is then discharged back into the river."
+            ]
+          },
+          {
+            "h": "Data center modeling conditions",
+            "p": [
+              "The target data center was modeled on a high-density urban facility operating in Seoul. It has a gross floor area of 15,000 m² over 13 floors with 1,500 server racks. At an average power density of 8 kW per rack, the total IT load is 12 MW. The indoor operating condition was set to 21°C, following the ASHRAE TC 9.9 recommended range.",
+              "A data center's load changes hour by hour with network traffic. To reflect this, we took MAWI traffic data at 15-minute intervals, regrouped it into 1-hour intervals, and applied it as the load schedule. For the water source temperature we used measured Han River water temperatures from 2024, and for outdoor conditions, weather data observed in the same area."
+            ]
+          },
+          {
+            "h": "Developing a target-heat-controlled WHR-WWHP component",
+            "p": [
+              "To bring the discharge water back to its intake temperature, exactly the same amount of heat that the data center passed into the water has to be recovered. But the existing WWHP component in TRNSYS does not support operation based on a target heat amount.",
+              "So in this study we developed a WHR-WWHP component. At every time step, it takes the waste heat delivered by the DC-WWHP (QL) as its target and calculates the heating output (QH) with Eq. (1) and the power consumption (W) with Eq. (2). COP was calculated by multiplying the rated COP by normalization factors for the temperature and flow conditions on the source and load sides.",
+              "The manufacturer's performance data did not cover the full design operating range, so extrapolation was needed. Ranges adjacent to the operating range were extrapolated using the slope of the nearest measured points, and all other ranges were held at the boundary values. This kept unverified performance ranges from carrying too much weight in the results."
+            ]
+          },
+          {
+            "h": "Estimating DHW demand and sizing capacity",
+            "p": [
+              "DHW demand was estimated from the monthly hot water use of 10 apartment complexes in Seoul, taken from the Ministry of Land, Infrastructure and Transport's apartment management information system (K-apt). We applied a conversion factor for heating mains water to 65°C to the usage (in tons), then averaged the monthly DHW energy of the 10 complexes to get the annual DHW energy demand. The result was 2,894 kWh per household per year.",
+              "The WHR-WWHP's design capacity was set to cover 100% of demand in August, the month with the lowest DHW demand of the year. This secures stable base-load operation all year and prevents surplus heat production. We therefore assumed hybrid operation, with an auxiliary heat source covering any shortfall. For comparison, a Baseline case that produces DHW from river water alone, without waste heat, was modeled separately."
+            ]
+          },
+          {
+            "h": "Restoring discharge water temperature: max deviation 0.048°C",
+            "p": [
+              "Korea has no explicit discharge temperature standard for using water as a heat source. We therefore referred to the range of impact on aquatic ecosystems reported in previous studies and set ±3°C from the source water as our evaluation criterion.",
+              "In the simulation, the largest temperature difference between discharge water and source water over the year was 0.048°C. Over the same period, the Han River's water temperature ranged from 0.85 to 29.85°C. This value is 1.6% of the allowable limit (±3°C), which means the WHR-WWHP's target-heat control fully recovered the data center's waste heat.",
+              "From an energy conservation standpoint, full recovery of the waste heat should in theory leave a temperature difference of zero. The remaining difference of up to 0.048°C comes from numerical residuals in TRNSYS's iterative convergence. When solving heat transfer in a loop, TRNSYS ends the calculation for a time step once changes in the outputs fall within the convergence tolerance. The tiny differences in converged values between components remained as residual heat (ΔQ) and showed up as a temperature difference."
+            ]
+          },
+          {
+            "h": "Heating output up 24.97%",
+            "p": [
+              "The WHR case produced 4,091.4 MWh of heat per year, 24.97% more than the Baseline case (3,273.9 MWh). Waste heat from the data center raised the source temperature, which increased the heat absorbed at the evaporator and, in turn, the heat released at the condenser.",
+              "This gap was larger in winter, when the river water gets colder. As a result, the share of apartment DHW demand met was about 51% on an annual average, 5%p higher than the Baseline case (about 46%), and the gap widened to 7–9%p in winter (December to February)."
+            ]
+          },
+          {
+            "h": "Power use down 5.68%, COP up 33.85%",
+            "p": [
+              "The WHR case consumed 765.9 MWh of electricity per year, 5.68% less than the Baseline case (812.1 MWh). The higher source temperature narrowed the temperature difference between the source and load sides, reducing the power the compressor needed. From December to February, however, the WHR case used slightly more electricity than the Baseline case. In the Baseline case, colder river water in winter reduces the heat that can be absorbed, so heating output and power use both drop. The WHR case, by contrast, is designed to recover all of the waste heat, so its output and consumption stay constant regardless of season.",
+              "The annual average COP was 5.38, 33.85% higher than the Baseline case (4.02), and in winter, when DHW load is high, the COP gap grew to about 2.4. In summer, COP fell in both systems even though the source temperature rose. Mains water and source temperatures rise together, but the condensing pressure rises more than the evaporating pressure, which increases the compression ratio."
+            ]
+          },
+          {
+            "h": "Primary energy and CO₂ emissions compared",
+            "p": [
+              "For the same heat output, the WHR case used 2,106 MWh of primary energy per year: 58.5% less than a gas boiler (5,114 MWh) and 50.5% less than district heating (4,255 MWh). We assumed an efficiency of 0.88 for the gas boiler and an overall efficiency of 0.7 for district heating including pipe losses, and applied the primary energy conversion factors and emission factors for each energy source.",
+              "CO₂ emissions were 366,119 kgCO₂ per year, 55.5% lower than the gas boiler (822,323 kgCO₂) and 40.7% lower than district heating (618,275 kgCO₂). This quantitatively confirmed that restoring river discharge temperature, saving energy and cutting carbon can all be achieved at once."
+            ]
+          },
+          {
+            "h": "Limitations and future work",
+            "p": [
+              "This study has two limitations. First, where heat pump performance data was linearly extrapolated, results may differ from how real equipment behaves. Experimental performance data for the extended operating range is needed to improve prediction accuracy. Second, we did not account for heat loss in the pipes between the data center and the demand side. In practice, heat loss depending on pipe length and insulation is unavoidable, so a quantitative performance assessment and system correction that reflect it are needed.",
+              "Even so, this study showed that a single heat carrier can serve two loads at once: data center cooling and apartment DHW. Apartment DHW in particular is a base load that continues all year, which makes it a good year-round outlet for waste heat from urban data centers. In future work, we plan to extend the analysis to an urban-scale heat network that includes mixed heat demand from offices, commercial buildings and more."
+            ]
+          },
+          {
+            "h": "Paper",
+            "p": [
+              "The paper I wrote"
+            ]
+          }
+        ]
+      }
     },
     "r-020": {
       "lede": "건국대학교의 건축학부 학생들은 4학년이 되면 졸업전시를 시작하게 된다. \n3월부터 9월까지 이어지는 장기 프로젝트이자, 졸업 전 마지막 거대 프로젝트. \n힘들기도 했지만 그만큼 배운게 많았던 졸업 전시를 기록한다.",
@@ -1617,7 +1882,133 @@
           "p": []
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "Architecture students at Konkuk University start their graduation exhibition in their fourth year. \nIt is a long project that runs from March to September, and the last big project before graduating. \nIt was hard, but I learned just as much from it. This is a record of my graduation exhibition.",
+        "sections": [
+          {
+            "h": "Integrated Architectural Graduation Design",
+            "p": [
+              "Our Team DJ_W: Dongjun, Dajeong and me.\nBefore they are my juniors, I deeply respect them as people, and I learned from them.\nI am always grateful to you both for giving it everything you had!"
+            ]
+          },
+          {
+            "h": "Graduation Design Panel",
+            "p": [
+              "The full panel"
+            ]
+          },
+          {
+            "h": "1. Brainstorming Meetings",
+            "p": [
+              "We spent much of the first few months choosing a topic. Each of us researched, studied and talked about the fields we were interested in. At first we were drawn to kinetic shading devices and data centers, so most of our discussions were about those two topics.",
+              "In the end we chose data centers. Data centers were a hot topic among the 2025 trends, and we judged that there was a lot of research we could try in that field."
+            ]
+          },
+          {
+            "h": "2. HVAC KOREA",
+            "p": [
+              "Since we knew so little about data centers, we went to a conference. Listening to talks on a range of data center topics, we picked up the basics and were able to narrow down the direction we would take."
+            ]
+          },
+          {
+            "h": "Launching the DJ_W Notion Page",
+            "p": [
+              "DJ from Dongjun and Dajeong, and W from Jiung. DJ_W became our name. To live up to the team name, we added a weekly playlist recommendation, but that's a secret."
+            ]
+          },
+          {
+            "h": "Study",
+            "p": [
+              "Graduation design met twice a week: paper reviews on Mondays and seminars on Wednesdays. Each week we studied data centers and then got comments from the professor."
+            ]
+          },
+          {
+            "h": "Deep in thought",
+            "p": [
+              "It was hard, but there were plenty of fun moments too."
+            ]
+          },
+          {
+            "h": "Study",
+            "p": [
+              "We had to study widely, from detailed data center cooling methods such as D2C to the layout of the whole system."
+            ]
+          },
+          {
+            "h": "Page 9",
+            "p": []
+          }
+        ],
+        "figures": [
+          {},
+          {},
+          {
+            "p": [
+              "We designed the image so the research can be understood at a glance. Water from the Han River, shown in the picture, cools the data center, and the waste heat it produces moves to the apartments.",
+              "As shown in the picture on the right, the water goes on to serve domestic hot water in the apartment complex."
+            ]
+          },
+          {
+            "p": [
+              "Driven by the growth of AI, data centers are becoming essential infrastructure. The steady waste heat they produce is a good match for domestic hot water in apartment complexes, where demand stays fairly constant. In particular, an HPWH system using a heat pump makes effective use of the advantages of a water heat source. However, the water used this way changes temperature significantly while cooling the data center, and this harms the environment. Our team therefore aimed to return the discharged water at the same temperature it had at the start.",
+              "To do this, we built a model in TRNSYS18 and modified the performance data."
+            ]
+          },
+          {
+            "p": [
+              "The data center was based on an urban data center that is actually in operation. We studied cooling systems to make ours realistic, and used the D2C (Direct to Chip) method, which suits high-density server racks. We also created a traffic schedule to reflect load changes, and set the rated capacity of the cooling heat pump from the reference data center.",
+              "As the TRNSYS schematic shows, we modeled two cases, one using outdoor air and one using a water heat source, and kept the server rack temperature conditions by controlling flow rate with Python functions. For the outdoor-air case, we applied free cooling and calculated the fan energy it requires."
+            ]
+          },
+          {
+            "p": [
+              "To control the temperature of the discharged water, all of the data center waste heat it absorbs has to be recovered. Existing simulation tools had no such function. So we modified a Fortran-based component to create a new WHR-WWHP. The component takes the waste heat as an input and is built to recover all of it.",
+              "Finally, we ran the TRNSYS model, calculated domestic hot water energy use based on data from the Ministry of Land, Infrastructure and Transport, and compared the results."
+            ]
+          },
+          {
+            "p": [
+              "In the end, our team's case, which uses waste heat while returning the heat source to its starting temperature, achieved a higher domestic hot water coverage rate than both the outdoor-air case and the case using only a water heat source. It also recorded the lowest energy use and proved its efficiency with a high COP. Beyond that, it reduced CO2 emissions and primary energy consumption compared with district heating and gas boilers, showing its effectiveness. Finally, it kept the discharge temperature within 0.04°C at most, demonstrating that a water heat source can be applied to data centers."
+            ]
+          },
+          {
+            "p": [
+              "We showed stable performance using Han River water. However, heat loss and cost were not analyzed. Next, we hope to overcome these limits and expand the work into a city-scale energy network.",
+              "I'd also like to take this chance to thank my friend Kim Gangmin, who made the image below."
+            ]
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "h": "Having fun"
+          },
+          {
+            "h": "A funny one"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      }
     },
     "r-021": {
       "lede": "한국태양에너지학회가 주최한 2025년 제3회 에너지최적화 디자인 공모전에서 대상인 국토교통부장관상을 받은 연구다. 한강 수열원으로 데이터센터를 냉각하고, 폐열로 승온된 한강수를 열원으로 공동주택 급탕을 생산한 뒤, 열량 기반 제어로 방류 수온을 원수 수준으로 복원하는 시스템을 TRNSYS로 검증했다. 이후 대한설비공학회와 RoomVent 2026 발표로 발전한 연구의 출발점이다.",
@@ -1901,7 +2292,146 @@
           "label": "같은 연구의 학회 초록 발표 — 2025 한국태양에너지학회 추계학술발표대회",
           "href": "#r-022"
         }
-      ]
+      ],
+      "en": {
+        "lede": "This research won the Grand Prize, the Minister of Land, Infrastructure and Transport Award, at the 2025 3rd Energy Optimization Design Competition hosted by the Korean Solar Energy Society. Using TRNSYS, we verified a system that cools a data center with Han River water as a heat source, uses the river water warmed by the waste heat as the heat source for domestic hot water in apartments, and then, through heat-quantity-based control, returns the discharged water to the temperature of the original river water. It was the starting point for research that later grew into presentations at SAREK and RoomVent 2026.",
+        "sections": [
+          {
+            "h": "Korean Solar Energy Society Fall Conference",
+            "p": []
+          },
+          {
+            "h": "Grand Prize, 2025 Energy Optimization Design Competition",
+            "p": [
+              "We entered the 2025 3rd Energy Optimization Design Competition, hosted by the Korean Solar Energy Society, as Team DJ_W (Han Jiung, Kim Dongjun, Choi Dajeong) and won the Grand Prize, the Minister of Land, Infrastructure and Transport Award. The award was presented on November 6, 2025, at the Korean Solar Energy Society Fall Conference.",
+              "At the time, I was an undergraduate researcher at BEE Lab (Building Energy & Environment Laboratory), Konkuk University, and carried out the research under the guidance of Professor Lim Hyunwoo. The work later grew into presentations at the SAREK Summer Conference and RoomVent 2026, and some modeling conditions and result figures were updated in that follow-up research."
+            ]
+          },
+          {
+            "h": "The growth of data centers and their waste heat",
+            "p": [
+              "As information technologies such as AI, 5G and cloud computing grow rapidly, data centers are becoming more important. Data centers release a steady amount of waste heat all year round as they cool themselves, so there are more and more efforts to recover and use this waste heat to decarbonize the building sector.",
+              "As a use for waste heat, space heating swings widely with the seasons. Domestic hot water, by contrast, has a fairly steady heat demand all year. To use data center waste heat reliably, it therefore makes sense to apply it to a domestic hot water system.",
+              "Data center waste heat is also low-temperature, so given the DHW target temperature of 65°C, it has to be raised. A heat pump can produce more heat than the electricity it consumes, turning low-temperature waste heat into a useful heat source. Water sources in particular vary less in temperature over the year than air sources, which secures stable performance all year round."
+            ]
+          },
+          {
+            "h": "The Han River's potential as a water heat source",
+            "p": [
+              "A stable water heat source needs a large flow and a narrow range of temperature change, and the Han River is a prime example of a body of water that meets both conditions.",
+              "About 72.9% of Korea's data centers are concentrated in the Seoul metropolitan area. The Han River, which runs through the middle of that area, therefore has great potential as a water heat source for cooling data centers and recovering their waste heat."
+            ]
+          },
+          {
+            "h": "Why the discharge temperature matters",
+            "p": [
+              "Earlier studies focused on using water heat sources themselves and gave little attention to the temperature of the water discharged after heat exchange. Yet even small temperature changes affect aquatic ecosystems: a previous study found that a 0.69°C rise in river water temperature reduces fish habitat by 21.9%.",
+              "So when Han River water is used as a heat source, the discharge temperature has to be examined. This study took that point as its starting point."
+            ]
+          },
+          {
+            "h": "Research goal: an energy-sharing system linking data centers and apartments",
+            "p": [
+              "The goal of this study was to show that the Han River's temperature does not change even when a data center waste heat recovery system based on water-source heat pumps is applied. To do this, we proposed an energy-sharing system that ties a data center and apartments into a single heat network.",
+              "There were three specific goals. First, cool the data center with Han River water, use the waste heat for apartment domestic hot water, and verify that the discharge temperature returns to the original water temperature. Second, compare and analyze DHW performance with and without waste heat. Third, compare the waste-heat WWHP (Water-to-Water Heat Pump) system with conventional DHW methods, gas boilers and district heating, to evaluate its primary energy requirement and CO₂ reduction.",
+              "For the analysis we used TRNSYS 18, a dynamic system simulation tool, to capture conditions that change hour by hour, such as the Han River's water temperature and data center traffic. Because TRNSYS components run on performance data, we built performance data from commercial products and applied it."
+            ]
+          },
+          {
+            "h": "Reference data center model and heat generation",
+            "p": [
+              "We chose the Sangam ICN urban data center as the reference model because detailed facility information is publicly available. It has a gross floor area of 15,000 m², 13 floors, 1,400 m² of IT equipment space, an average power density of 8 kW per rack, 1,500 server racks and a total ITE load of 12 MW.",
+              "We assumed that all power drawn by IT equipment turns into heat. Applying a load factor of 0.7 to the 12 MW peak load gives 8.4 MW, and dividing this across 13 floors with two heat pumps per floor gives a cooling load of 320 kW per heat pump. Multiplying by a 115% safety factor, we set the rated cooling capacity at 370 kW. For stable operation, two heat pumps were placed on each floor, 26 in total."
+            ]
+          },
+          {
+            "h": "Cooling load changing with traffic",
+            "p": [
+              "A data center's cooling load changes hour by hour with network traffic. To reflect this, we applied traffic data from MAWI (Measurement and Analysis on the WIDE Internet).",
+              "Traffic is lowest at 7 a.m. and highest at 11 a.m., and the traffic coefficient ranges from 0.31 to 1.00. We multiplied the rated load by this coefficient to build an hourly cooling load schedule."
+            ]
+          },
+          {
+            "h": "Coolant flow control algorithm",
+            "p": [
+              "The standard TRNSYS components can only supply a fixed flow rate. But to keep the server supply temperature constant in line with ASHRAE TC 9.9, the flow rate has to follow the changing load.",
+              "So we implemented a flow control algorithm using Type 3157, a component that links to Python. The algorithm takes the hourly cooling load and target temperature as inputs, calculates the required flow rate, and supplies it to the load side of the heat pump."
+            ]
+          },
+          {
+            "h": "Data center waste heat and the warmed Han River water",
+            "p": [
+              "In the simulation, each heat pump produced 345.9–409.7 kW of waste heat, 378.7 kW on average. Across all 26 units, 8.9–10.7 MW of waste heat is generated all year round.",
+              "Han River water that absorbs this waste heat is warmed from its original 0.8–29.9°C to 20.8–53.1°C. In other words, if it were discharged without recovering the waste heat, the water would go back to the river more than 20°C warmer on average. This warmed river water becomes the heat source for the next stage, the DHW heat pump."
+            ]
+          },
+          {
+            "h": "Developing a heat-quantity-based heat pump component",
+            "p": [
+              "To discharge Han River water used as a heat source without raising its temperature, a heat pump has to absorb all of the data center's waste heat. But the standard WWHP component in TRNSYS cannot be operated to target a specific amount of heat.",
+              "So we developed a new waste-heat WWHP component that takes heat quantity as its input. Given the data center waste heat (QL), the heating output (QH) is calculated as QH = QL/(COP−1) + QL, and the power consumption (W) as W = QH/COP. The COP is set by the operating conditions in the performance data.",
+              "To hold the DHW supply temperature at 65°C, we also applied Type 3157-based flow control on the city water side. It takes the heat produced as input and calculates the flow rate from the difference between the target supply temperature and the incoming city water temperature."
+            ]
+          },
+          {
+            "h": "Modeling the waste heat recovery DHW system in TRNSYS",
+            "p": [
+              "We combined the data center cooling loop and the apartment DHW loop into a single TRNSYS model. On the left, in the data center, the traffic schedule, server racks, TCS flow control, heat exchanger, FWS flow control and WWHP (Type 927) are connected to cool the servers with Han River water.",
+              "On the right, in the apartments, the waste-heat WWHP produces domestic hot water using the warmed river water as its heat source, and the river water, with its heat recovered, is discharged back into the river. For comparison, a non-waste-heat WWHP, which produces DHW using only raw Han River water without waste heat, was modeled separately.",
+              "The waste-heat WWHP produced 391–473 kW of heat, 429 kW on average. We used this output to decide how many households to supply with hot water."
+            ]
+          },
+          {
+            "h": "Choosing the number of households supplied",
+            "p": [
+              "Using data from the Ministry of Land, Infrastructure and Transport's apartment management information system (K-apt), we derived the average monthly DHW energy per household for apartments in Gayang-dong, Seoul. It ranges from 269.9 kWh in January and 284.2 kWh in February down to 130.2 kWh in August.",
+              "We divided the final heat output of the waste-heat WWHP by the DHW energy for August, the month of lowest demand, to find the number of households it can supply. The result is about 78,000 households. We set it to cover 100% of DHW energy at the point of minimum demand so that the base load would be covered reliably."
+            ]
+          },
+          {
+            "h": "Monthly DHW coverage ratio",
+            "p": [
+              "The annual average DHW coverage ratio was 51.0% for the waste-heat WWHP, higher than the 46.4% of the non-waste-heat WWHP.",
+              "The gap was largest in winter. In January, the waste-heat WWHP reached a coverage ratio of 27.7%, while the non-waste-heat WWHP reached only 17.7%. This is because the waste heat raises the source temperature most in winter, when the water source is coldest. In August, both systems covered 100%."
+            ]
+          },
+          {
+            "h": "12.6% less energy used for DHW",
+            "p": [
+              "The waste-heat WWHP used 437.7 MWh of energy a year, about 12.6% less than the non-waste-heat WWHP (500.7 MWh).",
+              "As the waste heat raised the source temperature, the temperature difference between the source side and the load side shrank, and the compressor's power consumption fell with it."
+            ]
+          },
+          {
+            "h": "DHW COP of 7.16–10.23",
+            "p": [
+              "The waste-heat WWHP recorded a COP of 7.16–10.23 over the year. The non-waste-heat WWHP, by contrast, showed a relatively lower COP of 5.32–7.58.",
+              "The COP gap between the two systems tended to widen in winter, when the water source is cold, and to narrow in summer."
+            ]
+          },
+          {
+            "h": "Primary energy requirement and CO₂ emissions",
+            "p": [
+              "We applied CO₂ emission factors for each energy source to the calculated primary energy requirement to find annual emissions. The primary energy conversion factors used were 2.75 for electricity, 1.10 for city gas and 0.73 for district heating.",
+              "The waste-heat WWHP's annual primary energy requirement was 1,203,694 kWh, 74.3% less than a gas boiler (4,693,756 kWh) and 69.2% less than district heating (3,905,205 kWh). Its CO₂ emissions were 209,224 kgCO₂ a year, a reduction of 72.3% compared with a gas boiler (754,704 kgCO₂) and 63.2% compared with district heating (567,435 kgCO₂)."
+            ]
+          },
+          {
+            "h": "Discharge temperature: up to 0.051°C, 0.013°C on average",
+            "p": [
+              "Without waste heat absorption, Han River water would be discharged more than 21.69°C warmer on average. When the waste-heat WWHP absorbs all of the waste heat, however, the water is discharged at a level close to the raw river water.",
+              "In the simulation, the temperature difference between the discharged water and raw Han River water was at most 0.051°C and 0.013°C on average. This confirmed that heat-quantity-based control can keep the river water close to its original temperature."
+            ]
+          },
+          {
+            "h": "Significance and further research",
+            "p": [
+              "Through a system that recovers data center waste heat with Han River water as the heat source and then uses it for apartment domestic hot water, this study showed that a water heat source can be used without changing the water temperature. It also confirmed quantitatively that using waste heat brings meaningful reductions in DHW energy and carbon emissions.",
+              "We proposed three directions for further research. First, account for heat losses in piping and equipment during heat transfer. Second, analyze life cycle cost (LCC) to verify economic feasibility. Third, include a wider range of building types, such as offices and commercial facilities, as heat consumers for a comprehensive review. Of these, heat losses and the expansion to mixed heat consumers carried over into the limitations and future work of the later SAREK and RoomVent presentations."
+            ]
+          }
+        ]
+      }
     },
     "r-022": {
       "lede": "2025년 11월 한국태양에너지학회 추계학술발표대회에서 발표한 초록이다. 한강 수열원으로 데이터센터를 냉각하고 폐열을 공동주택 급탕에 재이용하면서, 열량 기반 제어로 방류 수온을 원수 수준으로 회복시키는 통합 시스템을 TRNSYS로 분석했다. 같은 학회가 주최한 에너지최적화 디자인 공모전 대상 수상작과 연구 내용은 같으나, 학술발표대회의 발표 기록으로 따로 보관한다.",
@@ -1968,7 +2498,23 @@
           "label": "후속 발표 — RoomVent 2026 (프라하)",
           "href": "#r-018"
         }
-      ]
+      ],
+      "en": {
+        "lede": "An abstract presented at the Korean Solar Energy Society Fall Conference in November 2025. Using TRNSYS, we analyzed an integrated system that cools a data center with the Han River as a water heat source, reuses its waste heat for domestic hot water in apartments, and uses heat-quantity-based control to bring the discharge water temperature back to the level of the intake river water. The research is the same as our Grand Prize entry to the Energy Optimization Design Competition hosted by the same society, but it is archived separately as a record of the conference presentation.",
+        "sections": [
+          {
+            "h": "Full abstract (reset in A4 format)",
+            "p": [
+              "This abstract was presented at the Korean Solar Energy Society Fall Conference, held November 5–7, 2025. The research is the same as our Grand Prize entry to the Energy Optimization Design Competition hosted by the same society.",
+              "The authors are Han Jiung, Kim Dongjun, Choi Dajeong and Lim Hyunwoo (corresponding author), of the School of Architecture, College of Architecture, Konkuk University. The original abstract was submitted as an HWP file; for the archive, I uploaded an image of the same content reset in A4 format."
+            ]
+          },
+          {
+            "h": "At the presentation",
+            "p": []
+          }
+        ]
+      }
     },
     "r-023": {
       "lede": "대한설비공학회 2026년도 동계학술발표대회에서 발표한 연구다. 2-Pipe 냉난방 루프의 환수를 세대별 수열원 히트펌프(WWHP)의 열원으로 사용하는 Hydro-Cascade 시스템을 제안하고, Modelica 연간 동적 시뮬레이션으로 기존 두 방식과 에너지 성능을 비교했다. Hydro-Cascade는 연간 전력 소비를 2-Pipe·중앙식 급탕 방식 대비 17.4% 줄였다.",
@@ -2233,7 +2779,155 @@
           ]
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "Research presented at the 2026 Winter Annual Conference of the Society of Air-conditioning and Refrigerating Engineers of Korea (SAREK). We proposed Hydro-Cascade, a system that uses the return water of a 2-pipe heating and cooling loop as the heat source for in-unit water-source heat pumps (WWHP), and compared its energy performance with two existing systems through an annual dynamic simulation in Modelica. Hydro-Cascade cut annual electricity use by 17.4% compared with a 2-pipe system with central DHW.",
+        "sections": [
+          {
+            "h": "SAREK 2026 Winter Conference",
+            "p": []
+          },
+          {
+            "h": "SAREK 2026 Winter Conference: presentation photos",
+            "p": []
+          },
+          {
+            "h": "SAREK 2026 Winter Conference",
+            "p": [
+              "This study was presented at the 2026 Winter Annual Conference of the Society of Air-conditioning and Refrigerating Engineers of Korea (SAREK). It was carried out at the Building Energy & Environment Laboratory (BEE Lab), Konkuk University, under the guidance of Professor Lim Hyunwoo.",
+              "The research question was a single one: if we reuse the heat in heating and cooling return water for domestic hot water, does the whole building's electricity use actually go down?"
+            ]
+          },
+          {
+            "h": "Building energy and refrigerant regulations",
+            "p": [
+              "VRF offers high part-load efficiency and room-by-room temperature control, but because its refrigerant circulates through the whole building, it is directly exposed to refrigerant regulations. The United States will ban new installations of VRF using refrigerants with a GWP of 700 or more from 2027, and the replacement refrigerants (A2L) are mildly flammable, so the refrigerant charge is limited by room volume.",
+              "A 2-pipe system keeps the refrigerant inside a central heat pump and carries heat to each unit with water. But it only handles heating and cooling, so separate DHW equipment is needed."
+            ]
+          },
+          {
+            "h": "DHW energy and recirculation heat loss",
+            "p": [
+              "Domestic hot water accounts for 32% of residential building energy use in the US. Central heat pump water heaters (CHPWH) maintain a system COP of 3 or more, but 23–70% of the heat they supply is lost in the hot water recirculation used to cut the wait for hot water. In-unit HPWHs, which take heat from indoor air, have no recirculation loss, but they cool the indoor air and add to the heating load in winter.",
+              "In-unit WWHPs avoid both problems but need heat-source piping to every unit. In a 2-pipe system, the supply and return pipes already pass through each unit, so the heating and cooling return water can serve directly as the WWHP heat source."
+            ]
+          },
+          {
+            "h": "Hydro-Cascade system concept",
+            "p": [
+              "Hydro-Cascade combines a 2-pipe heating and cooling loop with an in-unit WWHP in each unit. Fan coils heat and cool with water from the supply pipe, and the WWHP takes heat from the water in the return pipe to make hot water. In other words, a single water loop supplies both heating/cooling and hot water.",
+              "The effect, however, changes with the season. In the cooling season, the WWHP recovers heat from the return water, which reduces the central cooling load; in the heating season, the central heat pump has to make up the heat the WWHP absorbs. In the shoulder seasons, the loop must be kept at temperature for hot water even when there is no heating or cooling load. Because the gains and losses shift from season to season like this, a steady-state calculation can't settle the question, so we evaluated it with an annual dynamic simulation."
+            ]
+          },
+          {
+            "h": "Target building and boundary conditions",
+            "p": [
+              "The target building is a 7-story, 90-unit apartment building in Seattle. Of these, 10 units (41.6 m² each, 3.2 m floor-to-floor height) were modeled over a full year.",
+              "Weather data came from Seattle TMY3, and occupancy and DHW schedules from NREL's ResStock stochastic model. The simulation tool was Modelica (AixLib library)."
+            ]
+          },
+          {
+            "h": "Comparison cases",
+            "p": [
+              "We compared three cases with different heating/cooling and DHW systems. Case 1 uses in-unit PTHPs with a central electric water heater; Case 2 uses a 2-pipe system (AWHP + FCU) with a central heat pump water heater (CHPWH); Case 3 uses a 2-pipe system with in-unit WWHPs (Hydro-Cascade). Cases 1 and 2 have DHW recirculation piping; Case 3 does not.",
+              "The zone model (3R2C), weather, schedules, indoor setpoints (heating 19–22 °C, cooling 23–27 °C) and internal gains were the same in all three cases."
+            ]
+          },
+          {
+            "h": "Case 1 equipment specifications",
+            "p": [
+              "Case 1's PTHPs use the minimum efficiencies in the Seattle Energy Code (cooling COP 3.31, heating COP 3.23), and DHW is supplied by a 2.0 m³ tank with a 14 kW electric heater. Recirculation heat loss was set at 70 W per unit, based on field measurements from 397 units in Seattle.",
+              "Case 2 heats and cools with an AWHP (8.1 kW heating, 7.2 kW cooling) and a 2.7 m³ buffer tank, and supplies DHW with a 14 kW CHPWH and main and swing tanks (1.8 + 0.2 m³). Case 3 keeps the same heating and cooling equipment as Case 2 and adds a 1.5 kW WWHP and a 200 L hot water tank to each unit."
+            ]
+          },
+          {
+            "h": "Heating/cooling changeover and outdoor reset control",
+            "p": [
+              "Heating and cooling were switched by calendar date: heating from January to May and October to December, cooling from June to September. The buffer tank setpoint is reset according to the outdoor temperature.",
+              "For Case 3, we added low-limit protection for the loop in the cooling season. If the WWHPs keep taking heat from the return water, the loop temperature drops too far, so at 7 °C or below, one AWHP switches to heating mode."
+            ]
+          },
+          {
+            "h": "Annual and monthly electricity use",
+            "p": [
+              "Case 3 used 17,144 kWh of electricity a year, 48.9% less than Case 1 (33,529 kWh) and 17.4% less than Case 2 (20,746 kWh). Compared with Case 2, savings were 11.5% in the heating season and 32.1% in the cooling season, so the cooling season saw the largest savings.",
+              "In Cases 1 and 2, DHW is the largest electricity user, and in Case 2 the swing tank's backup heater uses extra electricity to make up recirculation losses. Case 3 has no recirculation loss. Instead, the central AWHP also provides the heat source for DHW, so Case 3's AWHP electricity use is the highest of the three cases."
+            ]
+          },
+          {
+            "h": "AWHP and DHW heat pump COP",
+            "p": [
+              "System COP was 1.12 for Case 1, 1.80 for Case 2 and 2.19 for Case 3. DHW COP was 1.00 for the electric heater, 2.84 for the CHPWH and 3.77 for the WWHP, making Case 3 the highest.",
+              "In the heating season, the WWHP absorbs heat from the return water and lowers the loop return temperature; as a result, the AWHP's heating COP also rose from 2.76 (Case 2) to 3.09 (Case 3). In the cooling season, by contrast, the low loop temperature flipped the order, with the WWHP's COP falling below the CHPWH's. Even so, because heat removed from the rooms is reused for hot water during the cooling season, the gap in system COP between the cases was largest in that period."
+            ]
+          },
+          {
+            "h": "Indoor temperature and discomfort hours",
+            "p": [
+              "In the shoulder months (April–May and October), indoor temperatures in Cases 2 and 3 rose as high as 32.2 °C. This is because the outdoor air warmed up while the date-based changeover kept the loop in heating mode. The share of discomfort hours was about 21% in April, 50% in May and about 3% in October.",
+              "This is a structural limitation of a 2-pipe system that switches over by season. A changeover strategy based on outdoor temperature could improve it."
+            ]
+          },
+          {
+            "h": "Conclusion",
+            "p": [
+              "Hydro-Cascade cut annual electricity use by 17.4% compared with Case 2, and the cooling season accounted for about 57% of the annual savings. Removing the central DHW recirculation piping also eliminated the recirculation heat loss (5,968 kWh) and the swing tank backup heater electricity (6,921 kWh).",
+              "There are two limitations. The DHW schedule comes from ResStock's stochastic model and so differs from actual use, and only 10 of the 90 units were modeled. Next, we plan to reduce shoulder-season discomfort with a heating/cooling changeover based on outdoor temperature, and to extend the analysis to the whole building (90 units)."
+            ]
+          },
+          {
+            "h": "Appendix A: Model parameters",
+            "p": [
+              "The zone (3R2C) and equipment parameters used in the model, and the hourly DHW use schedules for the 10 units."
+            ]
+          }
+        ],
+        "figures": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "h": "DHW options compared: central · in-unit HPWH · in-unit WWHP"
+          },
+          {},
+          {
+            "h": "Seasonal gains and losses, and the research objective"
+          },
+          {},
+          {},
+          {
+            "h": "Case 1 concept: PTHP + central electric water heater"
+          },
+          {
+            "h": "Case 2 concept: 2-pipe + CHPWH"
+          },
+          {},
+          {
+            "h": "Case 2 equipment specifications"
+          },
+          {
+            "h": "Case 3 equipment specifications"
+          },
+          {},
+          {},
+          {},
+          {
+            "h": "System COP"
+          },
+          {},
+          {},
+          {
+            "h": "Limitations and future work"
+          },
+          {},
+          {
+            "h": "Appendix B: DHW schedules for the 10 units"
+          }
+        ]
+      }
     },
     "s-001": {
       "lede": "2024 건국대학교 건축대학 후배사랑 장학금 받았습니다. \n\n지원해주시는 동문 선배님들께 깊은 감사를 드립니다",
@@ -2258,7 +2952,16 @@
           "p": []
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "I received the 2024 Konkuk University College of Architecture Alumni Scholarship.\n\nMy deep thanks to the alumni who support it.",
+        "sections": [
+          {
+            "h": "Page 1",
+            "p": []
+          }
+        ]
+      }
     },
     "s-002": {
       "lede": "2025 포천시 청소년재단 성적우수 장학금을 수상했다.\n\n공부 열심히 하겠습니다.",
@@ -2278,7 +2981,18 @@
           ]
         }
       ],
-      "links": []
+      "links": [],
+      "en": {
+        "lede": "I received the 2025 Pocheon Youth Foundation Academic Excellence Scholarship.\n\nI'll keep studying hard.",
+        "sections": [
+          {
+            "h": "Award photo",
+            "p": [
+              "My first academic scholarship. Staying at the library until the closing bell rang and walking out made it feel meaningful. Feat. Suhyeok and Mingi"
+            ]
+          }
+        ]
+      }
     }
   }
 }
