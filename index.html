@@ -146,6 +146,7 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
 .cap .t{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .item:hover .cap .t{color:var(--fg)}
 .cap .n{flex:0 0 auto}
+.cap .k{display:none}   /* 분류 이름 : 휴대폰(520px 이하)에서만 날짜 앞에 보인다 */
 
 .foot .admin{margin-left:auto}
 .empty{color:var(--dim);padding:4px 0 40px;max-width:38em}
@@ -393,10 +394,27 @@ h1,h2,h3{font-size:12px;font-weight:700;margin:0;letter-spacing:-0.015em}
   .dt-body{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,46vh) minmax(0,1fr);gap:22px 0;padding:16px 0 0}
   .dt-left{padding-left:0}
   .dt-cap{padding:0 var(--gut)}
-  .dt-main{height:100%;margin:0 var(--gut)}
+  .dt-main{height:100%;margin:0}
   .dt-main h2{font-size:23px}
-  .dt-lead{font-size:14px}
-  .dt-sec h3,.dt-sec p{font-size:13px}
+  .dt-lead{font-size:15px}
+  .dt-sec p{font-size:15px}
+  .dt-sec h3{font-size:14px}
+  /* 머리줄 '← 카테고리 | 메타' 를 한 줄로 : 메타가 길면 말줄임 */
+  .dt-top{flex-wrap:nowrap}
+  .dt-top > a:first-child{flex:0 0 auto;white-space:nowrap}
+  .dt-meta{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* 사진 무대를 조금 낮추고 글과의 간격을 좁힌다 */
+  .dt-body{grid-template-rows:minmax(0,40vh) minmax(0,1fr);gap:12px 0}
+  /* 본문 칸 : 화면 좌우 끝까지 닿는 시트. 위 여백은 JS 의 PAD(28px)가 맡는다 */
+  .dt-main{background:#121212;border-radius:18px 18px 0 0}
+  .dt-flow{left:20px;right:20px;top:0}
+  .dt-main::before{background:linear-gradient(#121212,rgba(18,18,18,0))}
+  .dt-main::after{background:linear-gradient(rgba(18,18,18,0),#121212)}
+  /* '스크롤해서 넘기기' 안내는 본문과 겹치므로 숨긴다 (다음 절은 흐리게 보이고 누르면 넘어간다) */
+  .dt-hint{display:none}
+  /* 보이지 않는 터치 영역만 넓힌다 (화면상 위치는 그대로) */
+  .dt-top > a:first-child{padding:12px 0;margin:-12px 0}
+  .dt-phn button{padding:12px 2px;margin:-12px 0}
 }
 
 /* ---------- contact : 탑승권 ----------
@@ -579,21 +597,28 @@ html.tk-on,html.tk-on body{overflow-x:hidden}   /* 날아가는 탑승권이 가
 @media (max-width:820px){
   .page{
     grid-template-columns:minmax(0,1fr);
-    grid-template-areas:"rail" "head" "main" "foot";
+    grid-template-areas:"head" "rail" "main" "foot";
     gap:0;
   }
-  .rail{padding-bottom:28px;max-width:320px}
-  .rail .updates{margin-top:18px}
-  .rail .updates ul{display:flex;flex-wrap:wrap;gap:0 20px}
+  .rail{padding-bottom:28px}
+  .rail .updates{display:none}   /* 아래 카드 목록과 내용이 겹친다 */
   .masthead{grid-template-columns:minmax(0,1fr);gap:18px 0}
+  .brand h1{font-size:32px;font-weight:700;letter-spacing:-0.035em;line-height:1.1}
   .navrow ul{display:flex;flex-wrap:wrap;gap:0 20px}
   .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  /* 보이지 않는 터치 영역만 넓힌다 (화면상 위치는 그대로) */
+  .navrow a,.ctl,.lang button,.pull-link{padding:12px 0;margin:-12px 0}
 }
 @media (max-width:520px){
   :root{--pad:16px}
   .navrow ul{gap:0 16px}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 14px}
   .tally{margin-left:0;padding-left:0;width:100%}
+  /* 카드 캡션 : 위 '분류 · 날짜', 아래 제목 두 줄 */
+  .cap{flex-direction:column-reverse;gap:2px 0}
+  .cap .t{font-size:14px;font-weight:600;color:var(--fg);white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+  .cap .n{font-size:11px;color:var(--dim)}
+  .cap .k{display:inline}
 }
 
 
@@ -1200,7 +1225,7 @@ function card(it, i){
   const end = !e ? '' : '–' + (e.y4 !== p.y4 ? e.y + '.' : '') + e.m + '.' + e.d;
   return '<a class="item" href="#' + it.id + '" style="animation-delay:' + (Math.min(i,24) * 16) + 'ms">'
     + '<span class="frame">' + cover(it) + '</span>'
-    + '<span class="cap"><span class="t">' + esc(it.title) + '</span><span class="n">' + p.m + '.' + p.d + end + '</span></span>'
+    + '<span class="cap"><span class="t">' + esc(it.title) + '</span><span class="n"><span class="k">' + esc(CAT[it.cat] || '') + ' · </span>' + p.m + '.' + p.d + end + '</span></span>'
     + '</a>';
 }
 
