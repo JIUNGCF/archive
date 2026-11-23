@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "id": "v-003",
+      "cat": "dev",
+      "date": "2026-11-23",
+      "title": "바탕화면 정리 프로그램",
+      "sub": "반투명 정리 박스로 파일을 모으는 Windows 프로그램",
+      "meta": "개발 중",
+      "cover": "photo",
+      "coverSrc": "img/v-003-cover.jpg?v=4500bd5",
+      "tags": "Windows WPF C# .NET 바탕화면 위젯 SkiaSharp PDFium Velopack",
+      "status": "doing",
+      "en": {
+        "title": "Desktop Organizer",
+        "sub": "A Windows app that gathers files into translucent organizer boxes",
+        "meta": "In development",
+        "tags": "windows wpf csharp dotnet desktop widget skiasharp pdfium velopack"
+      }
+    },
+    {
       "id": "r-024",
       "cat": "research",
       "date": "2025-12-04",
@@ -225,6 +243,409 @@
     }
   ],
   "detail": {
+    "v-003": {
+      "lede": "바탕화면에 반투명 정리 박스를 두고 파일과 폴더를 모아 정리하는 Windows 프로그램이다. C# WPF(.NET 10) 단독 실행형으로 만들었으며, 모든 파일과 설정은 사용자 PC에만 저장한다. 서버는 업데이트 확인에만 사용한다. 현재 개발 중이며, 이 글은 지금까지 구현한 구조와 기능을 정리한 기록이다.",
+      "meta": [
+        [
+          "플랫폼",
+          "Windows · C# WPF (.NET 10) 단독 실행형"
+        ],
+        [
+          "그리기",
+          "SkiaSharp · PDFium"
+        ],
+        [
+          "배포",
+          "Velopack · GitHub Releases"
+        ],
+        [
+          "상태",
+          "개발 중 (2026.11 기준)"
+        ]
+      ],
+      "figures": [
+        {
+          "src": "img/v-003-1.jpg?v=d0ade26",
+          "cap": "대표 이미지 — 정리 박스와 PDF 미리보기"
+        },
+        {
+          "src": "img/v-003-2.jpg?v=d48c28d",
+          "cap": "실제 바탕화면",
+          "p": [
+            "실제 바탕화면에 '논문' 박스 하나를 둔 화면이다. 박스 바탕은 배경화면을 흐리게 만든 뒤 색을 입혀 유리 질감으로 표현한다."
+          ]
+        },
+        {
+          "src": "img/v-003-3.png?v=b00fe5c",
+          "cap": "프로그램 구조"
+        },
+        {
+          "src": "img/v-003-4.png?v=f7e84b9",
+          "cap": "서버 연결 · 배포와 업데이트"
+        },
+        {
+          "src": "img/v-003-5.png?v=e121115",
+          "cap": "파일을 지키는 이동 방식"
+        },
+        {
+          "src": "img/v-003-6.jpg?v=7d725a6",
+          "cap": "기본 상태"
+        },
+        {
+          "src": "img/v-003-7.jpg?v=830dfb5",
+          "cap": "마우스를 올렸을 때",
+          "p": [
+            "마우스를 올리면 위쪽에 고정, 정렬, 검색, 접기, 더 보기 버튼이 나타나고, 아래쪽에 표시 설정과 보기 전환 버튼이 나타난다. 이처럼 도구는 필요할 때만 표시하여 바탕화면을 가리는 요소를 줄였다."
+          ]
+        },
+        {
+          "src": "img/v-003-8.jpg?v=d5f915a",
+          "cap": "서랍형(목록) 보기"
+        },
+        {
+          "src": "img/v-003-9.jpg?v=c164e82",
+          "cap": "폴더 안 파일 목록",
+          "p": [
+            "폴더 안의 파일 목록은 박스 옆 패널로 열린다. 패널 아래 '폴더 열기'를 누르면 해당 폴더를 탐색기에서 연다."
+          ]
+        },
+        {
+          "src": "img/v-003-10.jpg?v=a13aa3a",
+          "cap": "폴더 안 파일 미리보기"
+        },
+        {
+          "src": "img/v-003-11.jpg?v=c4e8a96",
+          "cap": "PDF 첫 페이지 미리보기",
+          "p": [
+            "PDF는 PDFium으로 첫 페이지를 그려 보여준다. 따라서 파일을 열지 않아도 논문 제목과 저자를 확인할 수 있다."
+          ]
+        },
+        {
+          "src": "img/v-003-12.jpg?v=0224613",
+          "cap": "표시 설정"
+        },
+        {
+          "src": "img/v-003-13.jpg?v=e427884",
+          "cap": "배경색을 바꾼 박스",
+          "p": [
+            "배경색을 초록 계열로 바꾼 예시다. 이처럼 박스마다 배경화면과 어울리는 색을 고를 수 있다."
+          ]
+        },
+        {
+          "src": "img/v-003-14.jpg?v=b6d7332",
+          "cap": "우클릭 메뉴"
+        },
+        {
+          "src": "img/v-003-15.jpg?v=ef65d15",
+          "cap": "폴더 색",
+          "p": [
+            "폴더마다 아이콘 색을 바꿔 박스 안에서 쉽게 구분한다."
+          ]
+        },
+        {
+          "src": "img/v-003-16.jpg?v=5b86f83",
+          "cap": "정렬",
+          "p": [
+            "정렬은 직접 배치, 이름순, 최근 수정순, 종류별의 네 가지 방식을 지원한다."
+          ]
+        },
+        {
+          "src": "img/v-003-17.jpg?v=0b521dc",
+          "cap": "검색",
+          "p": [
+            "검색창에 글자를 입력하면 하위 폴더까지 찾아 결과를 박스 안에 보여준다. 결과에는 폴더, PDF, 슬라이드 파일이 함께 표시된다."
+          ]
+        },
+        {
+          "src": "img/v-003-18.jpg?v=0ac4213",
+          "cap": "접은 박스"
+        },
+        {
+          "src": "img/v-003-19.jpg?v=72e6171",
+          "cap": "설정 창 — 일반"
+        },
+        {
+          "src": "img/v-003-20.jpg?v=fd71dd0",
+          "cap": "설정 창 — 모양",
+          "p": [
+            "모양 탭에서는 박스 아래 표시 설정과 같은 항목을 박스별로 조절한다."
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "h": "개요",
+          "figs": [
+            0,
+            1
+          ],
+          "p": [
+            "바탕화면에 흩어진 파일과 폴더를 반투명 정리 박스에 모은다. 박스는 다른 창 아래, 바탕화면 높이에 머물러 위젯처럼 동작한다. 또한 박스 밖을 클릭하면 입력이 바탕화면으로 그대로 전달되어 기존 바탕화면 사용을 방해하지 않는다."
+          ]
+        },
+        {
+          "h": "프로그램 구조",
+          "fig": 2,
+          "p": [
+            "프로그램은 다섯 부분으로 구성된다. 화면(WPF)은 정리 박스와 설정 창을 담당하고, 그리기(SkiaSharp·PDFium)는 글자, 유리 배경, PDF 미리보기를 담당한다. 윈도우 연결(Win32/Shell)은 박스를 바탕화면 위젯처럼 동작하게 한다.",
+            "파일·데이터 부분은 안전한 이동 엔진(SafeMover)과 박스 배치 정보(layout.json)를 관리한다. 업데이트는 Velopack이 처리한다. 글자는 가변 글꼴을 Skia로 직접 그려 화면 픽셀에 맞춰 선명하게 표시한다."
+          ]
+        },
+        {
+          "h": "서버 연결 · 배포와 업데이트",
+          "fig": 3,
+          "p": [
+            "데이터 서버는 두지 않았다. 개발 PC에서 release.ps1을 한 번 실행하면 버전 설정, 빌드, 설치·업데이트 파일 생성(vpk pack)이 차례로 진행되고, 결과물은 GitHub Releases에 올라간다.",
+            "설치본은 실행할 때 새 버전을 조용히 확인하고 바뀐 부분(delta)만 내려받는다. '새 버전 준비됨' 알림을 누르면 바로 다시 시작하고, 누르지 않으면 다음 실행 때 적용한다.",
+            "정리한 파일, 설정, 이동 기록은 모두 PC 안에만 저장한다. 따라서 인터넷 연결이 없어도 업데이트를 제외한 모든 기능이 동작한다."
+          ]
+        },
+        {
+          "h": "파일을 지키는 이동 방식",
+          "fig": 4,
+          "p": [
+            "파일은 복사하거나 다시 쓰지 않는다. 대신 윈도우의 '이름 바꾸기'로 위치만 옮기므로 파일 내용은 바뀌지 않는다.",
+            "이동은 5단계로 진행한다. 먼저 같은 드라이브인지, 같은 이름이 있는지, 보호 대상 폴더인지 점검한다. 이어서 이동 계획을 디스크에 먼저 기록하여 정전이 나도 복구할 수 있게 한다. 되돌릴 때는 파일 신원을 확인한 뒤 원래 자리로 옮기며, 기존 파일을 덮어쓰지 않는다.",
+            "삭제는 먼저 확인을 받고 휴지통으로 보낸다. 미리보기는 파일을 읽기만 하며, 설정 파일은 임시 파일에 쓴 뒤 교체한다. 이 동작은 안전 검사 29개로 확인했다."
+          ]
+        },
+        {
+          "h": "정리 박스",
+          "figs": [
+            5,
+            6
+          ],
+          "p": [
+            "박스는 평소 제목, 항목 수, 아이콘만 보이도록 단순하게 표시한다. 크기는 오른쪽 아래 모서리를 끌어 조절한다."
+          ]
+        },
+        {
+          "h": "서랍형 목록",
+          "figs": [
+            7,
+            8
+          ],
+          "p": [
+            "박스는 폴더형(칸)과 서랍형(목록) 중 하나로 표시한다. 서랍형은 위쪽에 박스 안 검색창, 항목 수, 정렬 방식을 두고, 항목마다 파일 수와 수정 날짜를 함께 보여준다."
+          ]
+        },
+        {
+          "h": "미리보기",
+          "figs": [
+            9,
+            10
+          ],
+          "p": [
+            "폴더형 박스에서도 폴더 안 파일 목록을 바로 아래 패널로 확인한다. 미리보기는 폴더 목록, 사진, PDF, 글 파일을 지원한다."
+          ]
+        },
+        {
+          "h": "표시 설정",
+          "figs": [
+            11,
+            12
+          ],
+          "p": [
+            "박스마다 바탕 불투명도, 배경 흐림, 배경색, 글꼴 크기, 아이콘 크기, 제목 크기를 따로 조절한다. 설정 창은 박스 왼쪽 아래 버튼으로 바로 연다."
+          ]
+        },
+        {
+          "h": "폴더 다루기",
+          "figs": [
+            13,
+            14,
+            15,
+            16
+          ],
+          "p": [
+            "항목을 우클릭하면 열기, 이름 바꾸기(F2), 내부 파일 미리보기, 폴더 색, 원래 위치로 되돌리기, 삭제(Del) 메뉴가 나타난다. 이 가운데 '원래 위치로 되돌리기'는 이동 기록을 바탕으로 파일을 처음 위치로 옮긴다."
+          ]
+        },
+        {
+          "h": "접기와 고정",
+          "fig": 17,
+          "p": [
+            "접기를 누르면 박스가 제목 줄만 남아 바탕화면을 가리지 않는다. 고정을 켜면 핀 아이콘이 파란색으로 표시된다."
+          ]
+        },
+        {
+          "h": "설정 창",
+          "figs": [
+            18,
+            19
+          ],
+          "p": [
+            "설정 창은 왼쪽 메뉴와 오른쪽 내용으로 나눈 두 칸 구조다. 일반 탭에서는 박스별 정리 방식(서랍·폴더형), 테마(라이트·다크), 글꼴을 고른다. 또한 Windows 시작 시 실행과 바탕화면 우클릭 메뉴의 '새 정리 박스' 항목도 여기서 설정한다."
+          ]
+        }
+      ],
+      "links": [],
+      "en": {
+        "lede": "A Windows app that gathers files and folders into translucent organizer boxes on the desktop. It is a standalone C# WPF (.NET 10) app, and all files and settings are stored only on the user's PC. The server is used only to check for updates. The app is still in development, and this post records the architecture and features built so far.",
+        "sections": [
+          {
+            "h": "Overview",
+            "p": [
+              "Files and folders scattered across the desktop are gathered into translucent organizer boxes. The boxes stay below other windows at desktop level and behave like widgets. Clicks outside a box pass straight through to the desktop, so normal desktop use is not disturbed."
+            ]
+          },
+          {
+            "h": "Program architecture",
+            "p": [
+              "The program has five parts. The UI (WPF) handles the organizer boxes and the settings window, and rendering (SkiaSharp · PDFium) handles text, the glass background and PDF previews. The Windows integration layer (Win32/Shell) makes the boxes behave like desktop widgets.",
+              "The file and data layer manages the safe move engine (SafeMover) and the box layout (layout.json). Updates are handled by Velopack. Text is drawn directly with Skia from a variable font and aligned to screen pixels for sharp display."
+            ]
+          },
+          {
+            "h": "Server connection · distribution and updates",
+            "p": [
+              "There is no data server. Running release.ps1 once on the development PC sets the version, builds the app and creates the install and update files (vpk pack), and the output is published to GitHub Releases.",
+              "The installed app quietly checks for a new version at launch and downloads only the changed parts (delta). Clicking the 'New version ready' notice restarts the app right away; otherwise the update is applied at the next launch.",
+              "Organized files, settings and move records are all stored only on the PC. Every feature except updates therefore works without an internet connection."
+            ]
+          },
+          {
+            "h": "A move method that protects files",
+            "p": [
+              "Files are never copied or rewritten. Instead, only their location changes through Windows' rename operation, so file contents stay untouched.",
+              "A move runs in five steps. It first checks whether the target is on the same drive, whether a file with the same name exists and whether the folder is protected. It then writes the move plan to disk first, so the move can be recovered even after a power loss. An undo verifies the file's identity before returning it to its original place, and never overwrites an existing file.",
+              "Deletion asks for confirmation and sends items to the Recycle Bin. Previews only read files, and settings files are written to a temporary file and then swapped in. This behavior is verified by 29 safety tests."
+            ]
+          },
+          {
+            "h": "Organizer box",
+            "p": [
+              "By default a box shows only its title, item count and icons. Its size is adjusted by dragging the bottom-right corner."
+            ]
+          },
+          {
+            "h": "Drawer list",
+            "p": [
+              "Each box is shown either as a folder view (grid) or a drawer view (list). The drawer view puts a search field, the item count and the sort order at the top, and shows each item's file count and modified date."
+            ]
+          },
+          {
+            "h": "Preview",
+            "p": [
+              "In the folder view, the files inside a folder can be checked in a panel right below it. Previews support folder lists, photos, PDFs and text files."
+            ]
+          },
+          {
+            "h": "Display settings",
+            "p": [
+              "Background opacity, background blur, background color, font size, icon size and title size are adjusted separately for each box. The settings panel opens directly from the button at the bottom left of the box."
+            ]
+          },
+          {
+            "h": "Working with folders",
+            "p": [
+              "Right-clicking an item shows Open, Rename (F2), Preview inner files, Folder color, Restore to original location and Delete (Del). 'Restore to original location' uses the move record to return the file to where it started."
+            ]
+          },
+          {
+            "h": "Collapse and pin",
+            "p": [
+              "Collapsing a box leaves only its title bar, so it no longer covers the desktop. When pin is on, the pin icon turns blue."
+            ]
+          },
+          {
+            "h": "Settings window",
+            "p": [
+              "The settings window uses a two-column layout with a menu on the left and content on the right. The General tab sets each box's organizing mode (drawer or folder view), the theme (light or dark) and the font. Launch at Windows startup and the 'New organizer box' item in the desktop right-click menu are also set here."
+            ]
+          }
+        ],
+        "figures": [
+          {
+            "h": "Key visual — organizer box and PDF preview"
+          },
+          {
+            "h": "Actual desktop",
+            "p": [
+              "A single 'Papers' box placed on the actual desktop. The box background blurs the wallpaper and adds a tint to create a glass texture."
+            ]
+          },
+          {
+            "h": "Program architecture"
+          },
+          {
+            "h": "Server connection · distribution and updates"
+          },
+          {
+            "h": "A move method that protects files"
+          },
+          {
+            "h": "Default state"
+          },
+          {
+            "h": "On hover",
+            "p": [
+              "On hover, pin, sort, search, collapse and more buttons appear at the top, and display settings and view toggle buttons appear at the bottom. Tools are shown only when needed, so less of the desktop is covered."
+            ]
+          },
+          {
+            "h": "Drawer (list) view"
+          },
+          {
+            "h": "Files inside a folder",
+            "p": [
+              "The file list inside a folder opens in a panel next to the box. Pressing 'Open folder' at the bottom of the panel opens that folder in File Explorer."
+            ]
+          },
+          {
+            "h": "Preview of files inside a folder"
+          },
+          {
+            "h": "PDF first-page preview",
+            "p": [
+              "PDFs are previewed by rendering the first page with PDFium. The title and authors of a paper can therefore be checked without opening the file."
+            ]
+          },
+          {
+            "h": "Display settings"
+          },
+          {
+            "h": "Box with a changed background color",
+            "p": [
+              "An example with a green background color. Each box can take a color that suits the wallpaper."
+            ]
+          },
+          {
+            "h": "Right-click menu"
+          },
+          {
+            "h": "Folder color",
+            "p": [
+              "Each folder's icon color can be changed so folders are easy to tell apart inside the box."
+            ]
+          },
+          {
+            "h": "Sort",
+            "p": [
+              "Four sort orders are supported: manual arrangement, by name, by most recently modified and by type."
+            ]
+          },
+          {
+            "h": "Search",
+            "p": [
+              "Typing in the search field searches subfolders as well and shows the results inside the box. Folders, PDFs and slide files appear together in the results."
+            ]
+          },
+          {
+            "h": "Collapsed box"
+          },
+          {
+            "h": "Settings — General"
+          },
+          {
+            "h": "Settings — Appearance",
+            "p": [
+              "The Appearance tab adjusts, box by box, the same items as the display settings at the bottom of each box."
+            ]
+          }
+        ]
+      }
+    },
     "r-024": {
       "lede": "2025 대한민국 녹색건축대전 녹색기술 공모부문에서 국토교통부장관상을 받은 연구다. 한강수로 데이터센터를 냉각하고 회수한 폐열로 공동주택 급탕을 생산하며, 방류 수온은 한강 원수 수준으로 되돌리는 시스템을 제안했다. 시상식, 수상작 전시, 수상 작품 발표회는 모두 2025 녹색건축한마당에서 진행되었다.",
       "meta": [
